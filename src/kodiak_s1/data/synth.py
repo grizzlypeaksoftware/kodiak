@@ -287,7 +287,8 @@ def run_job(i: int, seed: int, model: str, verifier: str) -> dict:
         tags = ["synthetic", f"fmt:{fmt}"] + (["multiq"] if len(kept_q) > 1 else [])
         tags += ["null:synthetic"] * any("null" in a for a in kept_a.values())
         ex = {"state": state, "questions": kept_q, "answers": kept_a,
-              "meta": {"source": "kodiak_synth_v1", "license": "Apache-2.0", "split": "train", "teacher": model, "tags": tags,
+              "meta": {"source": "kodiak_synth_v1", "license": "Apache-2.0", "split": "train",
+                       "teacher": model if model == verifier else f"{model} (verified by {verifier})", "tags": tags,
                        "notes": domain}}
         Example.model_validate(ex)
         rec.update(status="ok", example=ex)

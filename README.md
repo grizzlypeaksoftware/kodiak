@@ -12,7 +12,7 @@ probability, and it's always inside the answer space you defined.
   with its own probability.
 - **Calibrated.** Trained with proper scoring rules and evaluated on ECE and Brier score, not only accuracy.
 
-> **Status: pre-alpha (Phase 2: data).** There are no trained models yet. Every result in this repo is measured
+> **Status: pre-alpha (Phase 3: end-to-end plumbing verified).** There are no trained models yet. Every result in this repo is measured
 > on this project's own eval set, and the reports say how it was measured.
 
 ## The contract
@@ -70,8 +70,9 @@ Checkpoints are named `kodiak-{track}-{size}-v{n}`, for example `kodiak-b-small-
 ## Development
 
 ```bash
-uv sync                                   # create .venv and install
-uv run pytest                             # run tests
+uv sync --extra data --extra train        # create .venv and install (PyTorch CUDA 13 wheels)
+uv run pytest                             # run tests (KODIAK_SLOW=1 adds the ModernBERT parity test)
+uv run python -m kodiak_s1.train --run runs/overfit-tiny --preset tiny --overfit 32 --steps 400 --lr 1e-3 --head-lr 1e-3
 uv run python -m kodiak_s1.schema --export schema/   # regenerate JSON Schemas
 ```
 

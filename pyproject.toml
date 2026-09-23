@@ -19,12 +19,20 @@ data = [
     "tokenizers>=0.20",
 ]
 
+# Model training (Phase 3+). torch comes from the official CUDA 13 index (aarch64 wheels for the DGX Spark).
+train = [
+    "torch>=2.9",
+    "safetensors>=0.4",
+    "numpy>=1.26",
+]
+
 [project.urls]
 Repository = "https://github.com/grizzlypeaksoftware/kodiak"
 
 [dependency-groups]
 dev = [
     "pytest>=8",
+    "transformers>=4.48",  # reference ModernBERT implementation for parity tests
 ]
 
 [build-system]
@@ -36,3 +44,11 @@ packages = ["src/kodiak_s1"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu130" }
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true

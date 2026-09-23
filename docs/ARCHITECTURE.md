@@ -238,12 +238,14 @@ Training our own tokenizer later is a small, separate experiment.
 The fair size-matched comparison is **a-small vs. b-small** (identical architecture). If a-small is out of budget,
 **a-mini vs. an Ettin encoder of similar size** (MIT; ModernBERT recipe, 17M–1B sizes) is the fallback.
 
-Training cost is estimated with the standard rule **FLOPs ≈ 6 × params × tokens**, assuming the Spark sustains
-**about 30 TFLOP/s in bf16**. That's an assumption; Phase 3 measures the real number.
+Training cost is estimated with the standard rule **FLOPs ≈ 6 × params × tokens**. Phase 3 measured the Spark:
+bf16 matmul peak ≈ 94 TFLOP/s; Kodiak b-small decision tuning (8 × 2,048-token rows, `torch.compile`) runs at
+≈ 34k tokens/s ≈ 31 TFLOP/s effective, using ≈ 11 GB. Without `torch.compile` it's 17k tokens/s: the many
+elementwise ops are memory-bandwidth bound on this machine, and fusing them matters.
 
 | Job | Params × tokens | Estimate |
 |---|---|---|
-| Decision tuning, b-small | 150M × 2B | ~17 hours |
+| Decision tuning, b-small | 150M × ~53M tokens/epoch (measured in Phase 3) | ~25 min/epoch at 34k tok/s |
 | MLM pretraining, a-mini | 50M × 20B | ~2–3 days |
 | MLM pretraining, a-small | 150M × 30B | ~10 days |
 
@@ -368,8 +370,8 @@ confidence, and we say which.
 
 ## 15. Risks and open questions
 
-1. **FlexAttention on GB10 (aarch64 + Triton on a new GPU).** If it's unsupported or slow, the fallback is SDPA with a dense
-   mask (more memory, slower). Phase 3 verifies this first.
+1. ~~**FlexAttention on GB10 (aarch64 + Triton on a new GPU).**~~ **Resolved in Phase 3:** it compiles and matches SDPA,
+   the backward pass works, and it's ~7× faster than dense-masked SDPA on packed inputs.
 2. **Null shortcuts.** The model may learn "topic mismatch → null" instead of real answerability. Mitigation: multiple
    null types (§9) and per-type eval.
 3. **Out-of-domain calibration** of zero-shot labels (§10.1). Measured separately; S4 and an OOD-aware temperature are options.

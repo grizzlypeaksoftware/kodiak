@@ -1,0 +1,311 @@
+"""Decision-tuning trainer (docs/ARCHITECTURE.md §8, stage S1/S2).
+
+    # Phase 3 plumbing test: memorize 32 examples with a tiny from-scratch model
+    uv run python -m kodiak_s1.train --run runs/overfit-tiny --preset tiny --overfit 32 --steps 400
+
+    # Track B: ModernBERT-base backbone
+    uv run python -m kodiak_s1.train --run runs/b-small-s1 --preset small --init modernbert --steps 20000
+
+Every run directory holds: config.json, metrics.jsonl, checkpoints/ (model + optimizer + scheduler +
+step, pruned to the last few). Rerunning the same command resumes from the latest checkpoint.
+Data order is a pure function of (seed, step), so a resumed run sees exactly the batches it would have.
+"""
+
+from __future__ import annotations
+
+import argparse
+import gzip
+import json
+import math
+import random
+import signal
+import subprocess
+import sys
+import time
+from dataclasses import asdict, dataclass
+from pathlib import Path
+
+import torch
+
+from kodiak_s1.data.sources import SOURCES
+from kodiak_s1.model import PRESETS, HeadConfig, KodiakModel, ModelConfig, decision_loss
+from kodiak_s1.model.encoder import load_modernbert
+from kodiak_s1.packing import Limits, Packed, collate, pack_example
+
+
+@dataclass
+class TrainConfig:
+    run: str
+    preset: str = "tiny"
+    init: str = "scratch"  # "scratch" (Track A) or "modernbert" (Track B)
+    data: str = "data/processed"
+    synthetic: str = ""  # optional synth JSONL (generator output; status == ok records are used)
+    overfit: int = 0  # >0: train on only this many examples, repeatedly
+    steps: int = 1000
+    max_len: int = 2048  # tokens per packed row
+    rows: int = 8  # rows per batch
+    max_state: int = 512  # S1 trains on short states; S2 raises this
+    lr: float = 5e-5
+    head_lr: float = 5e-4  # new, randomly initialized heads learn faster than the pretrained encoder
+    warmup: int = 200
+    weight_decay: float = 0.01
+    grad_clip: float = 1.0
+    sample_temp: float = 0.3  # source sampling probability ∝ size^temp
+    seed: int = 0
+    log_every: int = 10
+    ckpt_every: int = 500
+    keep_ckpts: int = 3
+    grad_checkpointing: bool = False
+    compile: bool = True  # ~2x faster on the Spark: fuses the many memory-bound elementwise ops
+    max_temp_c: int = 85  # pause when the GPU is hotter than this...
+    resume_temp_c: int = 75  # ...until it cools to this
+    mem_fraction: float = 0.6  # cap on unified memory for this process (the desktop needs the rest)
+
+
+# ---------------------------------------------------------------------------
+# Data
+# ---------------------------------------------------------------------------
+
+
+class Mixture:
+    """Raw JSON lines per source, sampled with temperature. Parsing happens on demand."""
+
+    def __init__(self, cfg: TrainConfig):
+        self.lines: dict[str, list[str]] = {}
+        for sid, src in SOURCES.items():
+            p = Path(cfg.data) / sid / "train.jsonl.gz"
+            if src.heldout or not p.exists():
+                continue
+            with gzip.open(p, "rt", encoding="utf-8") as f:
+                self.lines[sid] = f.readlines()
+        if cfg.synthetic:
+            syn = []
+            for line in open(cfg.synthetic, encoding="utf-8"):
+                r = json.loads(line)
+                if r.get("status") == "ok":
+                    syn.append(json.dumps(r["example"], ensure_ascii=False))
+            if syn:
+                self.lines["kodiak_synth_v1"] = syn
+        self.names = sorted(self.lines)
+        sizes = [len(self.lines[n]) for n in self.names]
+        w = [s ** cfg.sample_temp for s in sizes]
+        self.probs = [x / sum(w) for x in w]
+        self.fixed: list[str] | None = None
+        if cfg.overfit:
+            rng = random.Random(cfg.seed)
+            self.fixed = [rng.choice(self.lines[rng.choices(self.names, self.probs)[0]]) for _ in range(cfg.overfit)]
+
+    def describe(self) -> dict:
+        return {n: {"examples": len(self.lines[n]), "p": round(p, 4)} for n, p in zip(self.names, self.probs)}
+
+    def sample(self, rng: random.Random) -> dict:
+        if self.fixed is not None:
+            return json.loads(rng.choice(self.fixed))
+        src = rng.choices(self.names, self.probs)[0]
+        return json.loads(rng.choice(self.lines[src]))
+
+
+def make_batch(mix: Mixture, cfg: TrainConfig, step: int, limits: Limits):
+    """Deterministic in (seed, step): fill `rows` rows of `max_len` tokens."""
+    rng = random.Random(cfg.seed * 1_000_003 + step)
+    budget = cfg.rows * cfg.max_len
+    packed: list[Packed] = []
+    used = skipped = 0
+    if mix.fixed is not None:  # overfit mode: the same examples every step
+        for line in mix.fixed:
+            packed.append(pack_example(json.loads(line), limits))
+        return collate(packed, cfg.max_len), 0
+    tries = 0
+    while used < 0.97 * budget and tries < 10 * cfg.rows * 64:
+        tries += 1
+        p = pack_example(mix.sample(rng), limits)
+        if len(p) > cfg.max_len or used + len(p) > budget:
+            skipped += len(p) > cfg.max_len
+            continue
+        packed.append(p)
+        used += len(p)
+    b = collate(packed, cfg.max_len, pad_to=cfg.max_len)
+    while b.input_ids.shape[0] > cfg.rows:  # greedy packing overflowed: drop the last example and retry
+        packed.pop()
+        b = collate(packed, cfg.max_len, pad_to=cfg.max_len)
+    return b, skipped
+
+
+# ---------------------------------------------------------------------------
+# Hardware guard
+# ---------------------------------------------------------------------------
+
+
+def gpu_status() -> dict:
+    try:
+        out = subprocess.run(["nvidia-smi", "--query-gpu=temperature.gpu,power.draw", "--format=csv,noheader,nounits"],
+                             capture_output=True, text=True, timeout=10).stdout.strip().split(",")
+        return {"gpu_temp_c": int(out[0]), "gpu_power_w": float(out[1])}
+    except Exception:
+        return {}
+
+
+def thermal_guard(cfg: TrainConfig, log) -> None:
+    s = gpu_status()
+    if s.get("gpu_temp_c", 0) <= cfg.max_temp_c:
+        return
+    log({"event": "thermal_pause", **s})
+    while gpu_status().get("gpu_temp_c", 0) > cfg.resume_temp_c:
+        time.sleep(30)
+    log({"event": "thermal_resume", **gpu_status()})
+
+
+# ---------------------------------------------------------------------------
+# Checkpoints
+# ---------------------------------------------------------------------------
+
+
+def save_ckpt(run: Path, model, opt, sched, step: int, keep: int) -> None:
+    d = run / "checkpoints"
+    d.mkdir(exist_ok=True)
+    tmp = d / f"step_{step:07d}.pt.tmp"
+    torch.save({"model": model.state_dict(), "opt": opt.state_dict(), "sched": sched.state_dict(), "step": step}, tmp)
+    tmp.rename(d / f"step_{step:07d}.pt")  # atomic: a crash mid-save never leaves a corrupt "latest"
+    for old in sorted(d.glob("step_*.pt"))[:-keep]:
+        old.unlink()
+
+
+def latest_ckpt(run: Path) -> Path | None:
+    cks = sorted((run / "checkpoints").glob("step_*.pt")) if (run / "checkpoints").exists() else []
+    return cks[-1] if cks else None
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+
+def build_model(cfg: TrainConfig) -> KodiakModel:
+    model = KodiakModel(ModelConfig(PRESETS[cfg.preset], HeadConfig()))
+    if cfg.init == "modernbert":
+        repo = {"small": "answerdotai/ModernBERT-base", "base": "answerdotai/ModernBERT-large"}[cfg.preset]
+        load_modernbert(model.encoder, repo)
+    model.encoder.gradient_checkpointing = cfg.grad_checkpointing
+    return model
+
+
+def train(cfg: TrainConfig) -> dict:
+    run = Path(cfg.run)
+    run.mkdir(parents=True, exist_ok=True)
+    cfg_path = run / "config.json"
+    if cfg_path.exists():
+        saved = json.loads(cfg_path.read_text())
+        # Settings that don't change what is learned may differ on resume.
+        operational = {"steps", "log_every", "ckpt_every", "keep_ckpts", "max_temp_c", "resume_temp_c", "mem_fraction"}
+        changed = {k: (saved.get(k), v) for k, v in asdict(cfg).items() if saved.get(k) != v and k not in operational}
+        if changed:
+            sys.exit(f"config differs from the saved run config {changed}; use a new --run directory")
+    cfg_path.write_text(json.dumps(asdict(cfg), indent=2) + "\n")
+
+    device = "cuda"
+    torch.cuda.set_per_process_memory_fraction(cfg.mem_fraction)
+    torch.manual_seed(cfg.seed)
+    torch.backends.cuda.matmul.allow_tf32 = True
+
+    metrics_f = open(run / "metrics.jsonl", "a")
+
+    def log(rec: dict) -> None:
+        rec = {"time": round(time.time(), 1), **rec}
+        metrics_f.write(json.dumps(rec) + "\n")
+        metrics_f.flush()
+        print(json.dumps(rec), flush=True)
+
+    mix = Mixture(cfg)
+    model = build_model(cfg).to(device)
+    model.cfg.save(run / "model_config.json")
+    n_params = sum(p.numel() for p in model.parameters())
+    n_emb = model.encoder.embeddings.tok_embeddings.weight.numel()
+
+    no_decay = lambda n, p: p.dim() == 1  # noqa: E731  norms and biases
+    groups = [
+        {"params": [p for n, p in model.encoder.named_parameters() if not no_decay(n, p)], "lr": cfg.lr, "weight_decay": cfg.weight_decay},
+        {"params": [p for n, p in model.encoder.named_parameters() if no_decay(n, p)], "lr": cfg.lr, "weight_decay": 0.0},
+        {"params": list(model.heads.parameters()), "lr": cfg.head_lr, "weight_decay": 0.0},
+    ]
+    opt = torch.optim.AdamW(groups, betas=(0.9, 0.98), eps=1e-6, fused=True)
+
+    def lr_lambda(step: int) -> float:  # linear warmup, then cosine decay to 10%
+        if step < cfg.warmup:
+            return (step + 1) / cfg.warmup
+        t = min(1.0, (step - cfg.warmup) / max(1, cfg.steps - cfg.warmup))
+        return 0.1 + 0.9 * 0.5 * (1 + math.cos(math.pi * t))
+
+    sched = torch.optim.lr_scheduler.LambdaLR(opt, lr_lambda)
+    step = 0
+    ck = latest_ckpt(run)
+    if ck:
+        state = torch.load(ck, map_location=device, weights_only=False)
+        model.load_state_dict(state["model"])
+        opt.load_state_dict(state["opt"])
+        sched.load_state_dict(state["sched"])
+        step = state["step"]
+    log({"event": "start" if not ck else "resume", "step": step, "params": n_params, "embedding_params": n_emb,
+         "sources": mix.describe(), **gpu_status()})
+
+    stop = {"flag": False}
+
+    def on_signal(signum, frame):
+        stop["flag"] = True  # finish the current step, checkpoint, exit
+
+    signal.signal(signal.SIGTERM, on_signal)
+    signal.signal(signal.SIGINT, on_signal)
+
+    fwd = torch.compile(model) if cfg.compile else model
+    limits = Limits(max_state=cfg.max_state)
+    model.train()
+    t_last, tok_acc, last = time.time(), 0, {}
+    while step < cfg.steps and not stop["flag"]:
+        batch, skipped = make_batch(mix, cfg, step, limits)
+        batch = batch.to(device)
+        with torch.autocast("cuda", dtype=torch.bfloat16):
+            out = fwd(batch)
+        loss, stats = decision_loss(out, batch)
+        opt.zero_grad(set_to_none=True)
+        loss.backward()
+        gnorm = torch.nn.utils.clip_grad_norm_(model.parameters(), cfg.grad_clip).item()
+        opt.step()
+        sched.step()
+        step += 1
+        tok_acc += batch.n_tokens
+        if not math.isfinite(stats["loss"]):
+            log({"event": "nonfinite_loss", "step": step, **stats})
+            break
+        if step % cfg.log_every == 0 or step == cfg.steps:
+            torch.cuda.synchronize()
+            dt = time.time() - t_last
+            last = {"step": step, **{k: round(v, 5) if isinstance(v, float) else v for k, v in stats.items()},
+                    "grad_norm": round(gnorm, 3), "lr": sched.get_last_lr()[0], "tok_per_s": round(tok_acc / dt),
+                    "rows": batch.input_ids.shape[0], "skipped_long": skipped,
+                    "mem_gb": round(torch.cuda.max_memory_allocated() / 2**30, 2), **gpu_status()}
+            log(last)
+            t_last, tok_acc = time.time(), 0
+            thermal_guard(cfg, log)
+        if step % cfg.ckpt_every == 0:
+            save_ckpt(run, model, opt, sched, step, cfg.keep_ckpts)
+    save_ckpt(run, model, opt, sched, step, cfg.keep_ckpts)
+    log({"event": "stopped" if stop["flag"] else "done", "step": step})
+    metrics_f.close()
+    return last
+
+
+def main(argv: list[str] | None = None) -> None:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    for name, fld in TrainConfig.__dataclass_fields__.items():
+        flag, default = f"--{name.replace('_', '-')}", fld.default
+        if name == "run":
+            ap.add_argument(flag, required=True, help="run directory (resumes if it exists)")
+        elif isinstance(default, bool):
+            ap.add_argument(flag, action=argparse.BooleanOptionalAction, default=default)
+        else:
+            ap.add_argument(flag, type=type(default), default=default)
+    args = ap.parse_args(argv)
+    train(TrainConfig(**vars(args)))
+
+
+if __name__ == "__main__":
+    main()

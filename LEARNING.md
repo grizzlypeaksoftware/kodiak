@@ -235,3 +235,71 @@ Lesson for the Phase 5 baseline: an LLM's output format can move its accuracy, s
 - **Another JSON pitfall:** the evidence check compared the teacher's pretty-printed quotes against our compact JSON,
   so every JSON-format state failed. Normalizing punctuation on both sides fixed it.
 - Gated datasets (WildGuardMix, xLAM) deferred.
+
+### Phase 2 addendum: a faster teacher
+Benchmarked `qwen3.6:35b-a3b` (a mixture-of-experts model, about 3B parameters active per token) as the *generator*,
+with `qwen3.8:27b` still verifying every label: **196 vs 80 jobs/hour**, 92% vs 86% kept, similar null rate and
+quality. We switched, which cut the 10k run from about 6 days to about 2.5. Lesson: `OLLAMA_NUM_PARALLEL=4` barely helped
+the dense 27B model (the GPU was already at 96%), but a model that does less work per token did.
+
+---
+
+## Phase 3: A tiny model, end to end (2026-09-23)
+
+### What we built
+- `src/kodiak_s1/packing.py`: request → one token sequence with roles, question/label indices, and
+  order-independent position ids; several examples packed per row.
+- `src/kodiak_s1/model/encoder.py`: a ModernBERT-compatible encoder with Kodiak's structured attention mask,
+  written once as a rule (`allowed(...)`) and compiled two ways: FlexAttention block masks for training and a
+  dense mask for export and tests.
+- `src/kodiak_s1/model/heads.py`: choice-matching, null, and Beta score heads, plus the §6 loss.
+- `src/kodiak_s1/train.py`: resumable, logged, temperature-aware trainer.
+- `tests/test_model.py`: the architecture's promises as tests.
+
+### Results
+| Check | Result |
+|---|---|
+| Question independence, order invariance, label-order invariance, state independent of questions, packed examples isolated | all pass (to 1e-5) |
+| FlexAttention on GB10 vs dense SDPA | matches (1e-4); ~7× faster on packed inputs; backward works |
+| Our encoder + ModernBERT weights vs Hugging Face ModernBERT | **bit-identical** (max diff 0.0 over 300 tokens) |
+| Overfit 32 examples, tiny from scratch (15M params) | 100% choice + null accuracy by step 50; score MAE 0.004 by step 400 |
+| Overfit 32 examples, ModernBERT-base backbone | 100% choice + null accuracy by step 25 |
+| Resume | continues from the last checkpoint, with identical data order |
+| SIGTERM | finishes the step, checkpoints, exits cleanly |
+| bf16 matmul peak (idle GPU) | ≈ 94 TFLOP/s (26 while Ollama was busy) |
+| b-small training throughput | 17k tok/s eager → **34k tok/s with `torch.compile`**, ~11 GB |
+
+### Concept: the overfit test
+Before spending days training, prove the model *can* learn: give it a handful of examples and train until it memorizes them.
+If it can't memorize 32 examples, something is wired wrong (masks, labels, loss sign, optimizer). The test says nothing
+about generalization; it's purely a plumbing check. Both tracks passed within 25–50 steps.
+
+### Concept: why the loss went negative
+The score head's loss is the negative log of a probability *density*, not a probability. A density can be larger than 1
+(a sharp Beta around 0.8 might have density 20 there), so its negative log can be below zero. Choice and null losses
+are log *probabilities* and can't go below zero; they went to about 0.00001.
+
+### Concept: parity tests
+"We load ModernBERT's weights" is only true if our re-implementation computes exactly what the original does.
+One test runs both on the same input and compares every output number: 0.0 difference. Without that test, a subtle
+mismatch (a missing norm, a different window boundary) would quietly make Track B worse and we'd blame the data.
+
+### Concept: memory bandwidth on the Spark
+The Spark's GPU can do about 94 TFLOP/s of matrix math, but its memory is much slower than a datacenter GPU's.
+Operations that do little math per byte (GELU, LayerNorm, rotary embeddings, residual adds) are limited by memory speed.
+`torch.compile` fuses chains of them into single kernels, so the data is read once instead of many times: 2× faster.
+That's also why power draw was only about 50 W before compiling: the GPU was mostly waiting on memory.
+
+### Decisions
+- `torch.compile` on by default for training; gradient checkpointing off (b-small fits in about 11 GB at 8 × 2,048 tokens).
+- The trainer caps itself at 60% of unified memory and pauses above 85 °C (resumes at 75 °C).
+- Measured Phase 4 cost: b-small S1 over ~2B tokens ≈ **16 hours** at 34k tok/s.
+
+### Correction: the decision-tuning data is small
+The architecture doc assumed "2B tokens" for decision tuning. Measured: the whole public training set is **≈ 53M tokens
+per epoch** (most examples are 40–130 tokens; HelpSteer2 and UltraFeedback are the long ones), so one epoch of b-small takes
+**≈ 25 minutes**, not 16 hours. Two consequences for Phase 4:
+1. Track B is cheap: we can afford several runs and ablations instead of one big bet.
+2. The risk moves from compute to **overfitting**. With temperature sampling (∝ size^0.3), small sources like
+   OpenBookQA or SMS spam get repeated many times per epoch. We'll watch validation loss per source and stop early.
+Track A's MLM pretraining (billions of tokens of plain text) is still the expensive part.
