@@ -158,3 +158,80 @@ about 30 TFLOP/s sustained. Phase 3 replaces the assumption with a measurement.
 ### Phase 1 review
 Approved as proposed, including: Null as an answer on every question; question independence; shared
 ModernBERT tokenizer for Track A; "none of the options fit" counted as null (tagged).
+
+---
+
+## Phase 2: Data pipeline and eval set (2026-09-23)
+
+### What we built
+- `src/kodiak_s1/data/sources.py`: 20 public datasets, each with a small converter to the `Example` schema.
+- `src/kodiak_s1/data/build.py`: download → convert → validate → dedupe → leakage check → gzip shards + manifest.
+- `src/kodiak_s1/data/synth.py`: synthetic examples from Qwen, with independent verification.
+- `src/kodiak_s1/data/augment.py`: constructed null examples (mismatched claims, correct answer removed).
+- `src/kodiak_s1/data/evalset.py`: the frozen eval set, with slices for in-domain, held-out, constructed-null, and synthetic.
+- `tools/review.html`: a local page for human review of synthetic eval examples.
+- `data/LICENSES.md`: every source verified against its **upstream** license, plus what we excluded and why.
+
+### Concept: license hygiene is part of the data work
+Hugging Face license tags are often "unknown" or wrong, so we checked upstream sources. Share-alike (CC-BY-SA) and
+non-commercial sets are out, because our weights are Apache-2.0. That cost us some famous datasets (SNLI, BoolQ,
+SQuAD v2, ARC). A subtle case: MultiNLI is mostly permissive, but its *fiction* genre includes a CC-BY-SA novel,
+so we dropped that genre entirely.
+
+### Concept: data leakage
+If the same text appears in both train and test, test accuracy measures memorization, not skill.
+The build creates test first and drops any training row whose state already appeared in test or val. Glaive
+showed why this matters: the same user message appears under many different system prompts, and splitting on the whole
+row leaked hundreds of test states into train. We now split on the user message.
+
+### Concept: "the first N rows" is a biased sample
+We cap each dataset (for example 50k training rows), but upstream files are often sorted by label or by sub-source.
+Taking the first N rows of CLINC's test split gave *zero* out-of-scope examples, because they're at the end. Every loader
+now shuffles with a fixed seed before capping, which keeps it random and reproducible.
+
+### Concept: what "null" means has to be defined carefully
+"Not answerable from this state" sounds simple, but several constructions are only *almost* null:
+- NLI "neutral" is null **only** in yes/no form. In the 3-way form, "neither" is an offered, correct answer.
+  And the wording matters: "Does the text say that X?" invites a "no" instead of "can't tell", so we rephrased it.
+- Removing the correct option makes "none of these" correct only when the options are clearly distinct.
+  That's fine for intents and multiple choice, but not for emotions ("joy" vs "excitement") or tool routing, where
+  "no tool" or "ask for details" may become the right answer.
+- Asking an unrelated claim ("Is it true that X?") about a text is unanswerable; asking "What's the sentiment?"
+  about an unrelated text is *not*, because any text has a sentiment. Only claim-style questions can be moved between states.
+Each kind is tagged, so eval reports them separately.
+
+### Concept: a teacher LLM checking its own work
+Synthetic data is only as good as its labels. Two cheap filters:
+1. **Evidence check:** every answerable question must quote the state, and the quote must actually be there.
+2. **Self-consistency:** a second call answers the same questions *without* seeing the first answers; we keep only agreement.
+
+### Concept: constrained JSON output has its own biases
+With JSON-schema-constrained decoding and thinking off, Qwen answered "unanswerable" to nearly everything when the schema
+put a boolean `unanswerable` field *first*. It had to decide before it had looked for the evidence. Reordering the output
+to "quote the evidence, then answer," with the answer constrained to the valid label ids, fixed it. A related problem:
+an unescaped `"` inside a JSON string ends the string early, so one state came back truncated mid-sentence.
+Lesson for the Phase 5 baseline: an LLM's output format can move its accuracy, so we'll document the exact prompt and schema.
+
+### Results
+- **Public data:** 20 sources → **356k train / 10.9k val / 27k test** examples (16 trained-on sources, 4 held out),
+  61 MB compressed. Families: NLI, multiple-choice reasoning, intent, emotion/sentiment, moderation scores, spam,
+  prompt safety, response-quality scores, tool routing, occupation, long-document QA.
+- **Eval set v0.1:** 2,878 examples / 4,128 questions: 1,578 in-domain, 1,000 held-out (zero-shot), and 300 constructed
+  nulls (mismatch + gold removed), plus natural nulls (NLI, out-of-scope, Qasper). The synthetic slice is pending human review.
+- **Synthetic pilot, after three fixes** (verifier field order, label-less choice questions, JSON states as strings):
+  kept 20 of 24 jobs (up from 5 of 12), with 54 verified questions, 15% of them null. About 87 jobs/hour with Ollama
+  serving one request at a time: roughly 1,700 examples/day.
+- **Bugs caught by reading actual examples**, not by tests: Glaive "no tool" labels that were really delayed calls,
+  NLI phrasing that made "can't tell" read as "no", unsorted-sample bias, and the verifier defaulting to unanswerable.
+  Lesson: always read a sample of every dataset after conversion.
+
+### Phase 2 review
+- **Human review of the teacher:** the user checked 24 synthetic examples (64 questions) and marked 61 correct, 3 wrong.
+  So after the evidence and self-consistency filters, **about 95% of accepted teacher labels are right**. That's a rough
+  noise ceiling for synthetic training data, and why headline metrics use human-labeled data. The 3 wrong ones are
+  excluded; the 24 reviewed examples (61 questions) form the `eval:synthetic` slice.
+- **Ollama parallelism:** set `OLLAMA_NUM_PARALLEL=4` (a systemd drop-in, `ollama.service.d/parallel.conf`).
+- **Bulk synthetic run:** 12,500 jobs (target ≈10k accepted examples), detached with `nohup` and resumable.
+- **Another JSON pitfall:** the evidence check compared the teacher's pretty-printed quotes against our compact JSON,
+  so every JSON-format state failed. Normalizing punctuation on both sides fixed it.
+- Gated datasets (WildGuardMix, xLAM) deferred.

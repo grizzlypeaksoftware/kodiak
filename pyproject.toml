@@ -11,6 +11,14 @@ dependencies = [
     "pydantic>=2.7",
 ]
 
+[project.optional-dependencies]
+# Dataset download/conversion and synthetic generation (Phase 2).
+data = [
+    "datasets>=3.0",
+    "huggingface_hub>=0.25",
+    "tokenizers>=0.20",
+]
+
 [project.urls]
 Repository = "https://github.com/grizzlypeaksoftware/kodiak"
 

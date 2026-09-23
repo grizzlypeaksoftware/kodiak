@@ -130,6 +130,13 @@
           "default": null,
           "title": "Teacher"
         },
+        "tags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tags",
+          "type": "array"
+        },
         "notes": {
           "anyOf": [
             {

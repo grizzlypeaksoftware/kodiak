@@ -12,7 +12,7 @@ probability, and it's always inside the answer space you defined.
   with its own probability.
 - **Calibrated.** Trained with proper scoring rules and evaluated on ECE and Brier score, not only accuracy.
 
-> **Status: pre-alpha (Phase 1).** There are no trained models yet. Every result in this repo is measured
+> **Status: pre-alpha (Phase 2: data).** There are no trained models yet. Every result in this repo is measured
 > on this project's own eval set, and the reports say how it was measured.
 
 ## The contract
@@ -65,6 +65,7 @@ Checkpoints are named `kodiak-{track}-{size}-v{n}`, for example `kodiak-b-small-
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): the model design and the reasoning behind it
 - [LEARNING.md](LEARNING.md): the project journal (concepts, decisions, results)
 - [data/LICENSES.md](data/LICENSES.md): the source and license of every dataset
+- [data/README.md](data/README.md): how the training and eval data are built
 
 ## Development
 

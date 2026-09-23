@@ -20,20 +20,59 @@ The ModernBERT **tokenizer** (Apache-2.0) is shared by both tracks. See docs/ARC
 
 ## Pretraining corpora (Track A)
 
-_To be filled in Phase 2._
+_To be selected before Track A pretraining (Phase 4)._
 
 | ID | Name | License | URL | Tokens used | Notes |
 |---|---|---|---|---|---|
 
 ## Decision-tuning datasets (both tracks)
 
-_To be filled in Phase 2._
+License column = what we verified against the **upstream** source, not just the Hugging Face tag.
+"Held out" sources are never trained on; they appear only in the eval set (zero-shot).
 
-| ID | Name | Task family | License | URL | Examples used | Converted by |
+| ID | Name | Family | License | URL | Use | Notes |
 |---|---|---|---|---|---|---|
+| `mnli` | MultiNLI | NLI | OANC (permissive) + CC-BY-3.0 | https://huggingface.co/datasets/nyu-mll/multi_nli | train/eval | **Fiction genre excluded**: it includes CC-BY-SA text (*Seven Swords*) we can't separate out |
+| `scitail` | SciTail | NLI | Apache-2.0 | https://github.com/allenai/scitail | train/eval | |
+| `commonsense_qa` | CommonsenseQA | MC reasoning | MIT | https://huggingface.co/datasets/tau/commonsense_qa | train/eval | |
+| `openbookqa` | OpenBookQA | MC reasoning | Apache-2.0 | https://github.com/allenai/OpenBookQA | train/eval | |
+| `winogrande` | WinoGrande (XL) | MC reasoning | Apache-2.0 | https://github.com/allenai/winogrande | train/eval | |
+| `clinc_oos` | CLINC150 (plus) | Intent | CC-BY-3.0 | https://huggingface.co/datasets/clinc/clinc_oos | train/eval | Out-of-scope queries → null |
+| `massive` | MASSIVE (en-US) | Intent | CC-BY-4.0 | https://github.com/alexa/massive | train/eval | Loaded from the Hub's parquet conversion |
+| `banking77` | Banking77 | Intent | CC-BY-4.0 | https://github.com/PolyAI-LDN/task-specific-datasets | **held out** | Read from the upstream CSVs |
+| `go_emotions` | GoEmotions (simplified) | Emotion / sentiment | Apache-2.0 | https://github.com/google-research/google-research/tree/master/goemotions | train/eval | Single-label rows only; sentiment from the authors' published grouping |
+| `civil_comments` | Civil Comments | Moderation (scores) | CC0-1.0 | https://huggingface.co/datasets/google/civil_comments | train/eval | All rows with toxicity ≥ 0.3 plus a 10% sample of the rest |
+| `sms_spam` | SMS Spam Collection | Spam | CC-BY-4.0 | https://archive.ics.uci.edu/dataset/228/sms+spam+collection | train/eval | |
+| `prompt_injections` | deepset prompt-injections | Safety | Apache-2.0 | https://huggingface.co/datasets/deepset/prompt-injections | train/eval | German rows filtered out (English-only v0.1) |
+| `jailbreak_classification` | Jailbreak classification | Safety | Apache-2.0 | https://huggingface.co/datasets/jackhhao/jailbreak-classification | **held out** | |
+| `measuring_hate_speech` | Measuring Hate Speech | Moderation (scores) | CC-BY-4.0 | https://huggingface.co/datasets/ucberkeley-dlab/measuring-hate-speech | **held out** | Aggregated per comment across annotators |
+| `helpsteer2` | HelpSteer2 | Response quality (scores) | CC-BY-4.0 | https://huggingface.co/datasets/nvidia/HelpSteer2 | train/eval | Five 0–4 attributes per response |
+| `ultrafeedback` | UltraFeedback | Response quality (scores) | MIT | https://github.com/OpenBMB/UltraFeedback | train/eval | Ratings are GPT-4 annotations; "N/A" → null |
+| `glaive_fc_v2` | Glaive function calling v2 | Tool routing | Apache-2.0 | https://huggingface.co/datasets/glaiveai/glaive-function-calling-v2 | train/eval | First move: call a tool / ask for missing details / no tool |
+| `toolace` | ToolACE | Tool routing | Apache-2.0 | https://huggingface.co/datasets/Team-ACE/ToolACE | train/eval | Single-tool calls only |
+| `bias_in_bios` | Bias in Bios | Occupation | MIT | https://github.com/microsoft/biosbias | **held out** | Known gender bias; we'll report accuracy by gender in Phase 5 |
+| `qasper` | Qasper | Document QA (long) | CC-BY-4.0 | https://allenai.org/data/qasper | train/eval | Unanimous yes/no or unanimous unanswerable; ~700-word excerpts |
+
+### Pending access (gated on Hugging Face: needs a token and accepting the terms)
+
+| ID | Name | Family | License | URL |
+|---|---|---|---|---|
+| `wildguardmix` | WildGuardMix | Safety (prompt harm, response harm, refusal) | ODC-By | https://huggingface.co/datasets/allenai/wildguardmix |
+| `xlam_fc` | xLAM function calling 60k | Tool routing | CC-BY-4.0 | https://huggingface.co/datasets/Salesforce/xlam-function-calling-60k |
+
+### Considered and excluded (v0.1)
+
+| Dataset | Reason |
+|---|---|
+| SNLI, BoolQ, SQuAD v2, ARC, DBpedia-14, HotpotQA, FEVER, VitaminC | CC-BY-SA (share-alike) |
+| ANLI, SciQ, SciFact, ToxicChat, Financial PhraseBank, climate_detection | Non-commercial |
+| AG News, IMDB, SST-2, Rotten Tomatoes, Yelp, TweetEval, Yahoo Answers, RACE, STS-B | No clear license, or terms of use restrict reuse |
+| amazon_polarity | HF card says Apache-2.0, but the upstream review data's terms are unclear |
+| HellaSwag, PIQA | Probably permissive (MIT / AFL-3.0), but we couldn't verify the upstream license. Can be added once confirmed |
+| PAWS | Wiki portion is derived from Wikipedia (CC-BY-SA) |
 
 ## Synthetic data
 
-| ID | Generator | Teacher | Terms | Notes |
+| ID | Generator | Teacher | License | Notes |
 |---|---|---|---|---|
-| _Phase 2_ | `scripts/…` | `qwen3.8:27b` via Ollama | _Check the Qwen model license for output-use terms in Phase 2._ | Includes deliberately unanswerable questions |
+| `kodiak_synth_v1` | `src/kodiak_s1/data/synth.py` | `qwen3.8:27b` via Ollama (model license: Apache-2.0) | Apache-2.0 | Generated states + questions (including deliberately unanswerable ones); kept only where an independent verification pass agrees |

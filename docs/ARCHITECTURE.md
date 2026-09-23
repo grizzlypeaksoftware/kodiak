@@ -1,4 +1,4 @@
-# Kodiak Architecture (v0.1 proposal)
+# Kodiak Architecture (v0.1)
 
 > **Status: APPROVED 2026-09-23** (v0.1 design). Nothing here is implemented beyond the request/response schema yet.
 > Every sizing number below is an estimate until Phase 3 measures it on the DGX Spark.

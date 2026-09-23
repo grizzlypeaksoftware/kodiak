@@ -1,0 +1,41 @@
+{
+  "examples": 2902,
+  "questions": 4189,
+  "slices": {
+    "eval:indomain": 1578,
+    "eval:heldout": 1000,
+    "eval:null_construct": 300,
+    "eval:synthetic": 24
+  },
+  "null_types": {
+    "null:nli_neutral": 30,
+    "null:oos": 22,
+    "null:unanswerable": 41,
+    "null:mismatch": 150,
+    "null:gold_removed": 150,
+    "null:synthetic": 9
+  },
+  "sources": {
+    "banking77": 250,
+    "bias_in_bios": 250,
+    "civil_comments": 116,
+    "clinc_oos": 157,
+    "commonsense_qa": 142,
+    "glaive_fc_v2": 121,
+    "go_emotions": 114,
+    "helpsteer2": 109,
+    "jailbreak_classification": 250,
+    "kodiak_synth_v1": 24,
+    "massive": 177,
+    "measuring_hate_speech": 250,
+    "mnli": 100,
+    "openbookqa": 117,
+    "prompt_injections": 78,
+    "qasper": 100,
+    "scitail": 100,
+    "sms_spam": 101,
+    "toolace": 105,
+    "ultrafeedback": 126,
+    "winogrande": 115
+  }
+}

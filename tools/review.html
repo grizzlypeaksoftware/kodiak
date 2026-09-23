@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kodiak Review</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  pre.state { white-space: pre-wrap; max-height: 45vh; overflow: auto; }
+  .q.ok { border-left: 6px solid var(--bs-success); }
+  .q.wrong { border-left: 6px solid var(--bs-danger); }
+  .q.active { box-shadow: 0 0 0 .2rem var(--bs-primary); }
+  .gold { font-weight: 600; text-decoration: underline; }
+</style>
+</head>
+<body class="bg-body-tertiary">
+<div class="container py-3">
+  <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+    <h1 class="h4 me-auto mb-0">Kodiak synthetic review</h1>
+    <input type="file" id="file" accept=".jsonl,.json" class="form-control form-control-sm" style="max-width: 320px">
+    <button id="export" class="btn btn-sm btn-primary" disabled>Export reviewed.jsonl</button>
+  </div>
+  <p class="text-secondary small">
+    For each question, check the teacher's answer against the state. Mark <b>OK</b> only if the answer is right
+    <em>and</em> the question is fair (for "unanswerable": the state truly doesn't say).
+    Keys: <kbd>a</kbd> OK · <kbd>x</kbd> wrong · <kbd>↓</kbd>/<kbd>↑</kbd> question · <kbd>n</kbd>/<kbd>p</kbd> next/prev example.
+    Progress is saved in this browser.
+  </p>
+  <div id="progress" class="mb-2 small"></div>
+  <div id="card"></div>
+</div>
+<script>
+const KEY = "kodiak-review-v1";
+let recs = [], idx = 0, qi = 0, verdicts = {};
+try { verdicts = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { verdicts = {}; }
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(verdicts)); } catch (e) {} };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const recKey = r => `${r.seed}:${r.job}`;
+
+function renderState(st) {
+  if (typeof st === "string") return st;
+  if (Array.isArray(st) && st.every(x => typeof x === "string")) return st.map((x, i) => `[${i + 1}] ${x}`).join("\n");
+  return JSON.stringify(st, null, 2);
+}
+
+function answerText(q, a) {
+  if (a.null) return '<span class="badge text-bg-warning">UNANSWERABLE</span>';
+  if (q.type === "choice") return `<span class="badge text-bg-info">${esc(q.labels.find(l => l.id === a.label)?.text ?? a.label)}</span>`;
+  return `<span class="badge text-bg-info">${a.value}</span> on ${q.min}–${q.max}`;
+}
+
+function render() {
+  const card = document.getElementById("card");
+  if (!recs.length) { card.innerHTML = ""; return; }
+  const r = recs[idx], ex = r.example, v = verdicts[recKey(r)] || {};
+  const done = recs.filter(x => ex && Object.keys(verdicts[recKey(x)] || {}).length === x.example.questions.length).length;
+  document.getElementById("progress").textContent = `Example ${idx + 1} / ${recs.length} · fully reviewed: ${done}`;
+  const qs = ex.questions.map((q, i) => {
+    const a = ex.answers[q.id];
+    const labels = q.type === "choice"
+      ? q.labels.map(l => `<span class="${a.label === l.id ? "gold" : ""}">${esc(l.text)}</span>`).join(" · ")
+      : `${q.min} (${esc(q.min_label || "")}) → ${q.max} (${esc(q.max_label || "")})`;
+    return `<div class="q card mb-2 p-2 ${v[q.id] || ""} ${i === qi ? "active" : ""}" data-i="${i}">
+      <div><b>${esc(q.text)}</b> <span class="text-secondary small">[${q.type}]</span></div>
+      <div class="small text-secondary">${labels}</div>
+      <div class="mt-1">Teacher: ${answerText(q, a)}
+        <button class="btn btn-sm btn-outline-success ms-2" data-v="ok" data-i="${i}">OK</button>
+        <button class="btn btn-sm btn-outline-danger" data-v="wrong" data-i="${i}">Wrong</button></div></div>`;
+  }).join("");
+  card.innerHTML = `<div class="card p-3">
+    <div class="small text-secondary mb-1">${esc(ex.meta.notes || "")} · ${esc(r.format || "")}</div>
+    <pre class="state bg-body p-2 border rounded">${esc(renderState(ex.state))}</pre>${qs}
+    <div class="d-flex gap-2"><button class="btn btn-sm btn-secondary" id="prev">← Prev</button>
+    <button class="btn btn-sm btn-secondary" id="next">Next →</button></div></div>`;
+  card.querySelectorAll("button[data-v]").forEach(b => b.onclick = () => mark(+b.dataset.i, b.dataset.v));
+  document.getElementById("prev").onclick = () => go(-1);
+  document.getElementById("next").onclick = () => go(1);
+}
+
+function mark(i, val) {
+  const r = recs[idx], k = recKey(r);
+  verdicts[k] = {...(verdicts[k] || {}), [r.example.questions[i].id]: val};
+  save();
+  qi = Math.min(i + 1, r.example.questions.length - 1);
+  if (Object.keys(verdicts[k]).length === r.example.questions.length && i === r.example.questions.length - 1) go(1); else render();
+}
+function go(d) { idx = Math.max(0, Math.min(recs.length - 1, idx + d)); qi = 0; render(); }
+
+document.getElementById("file").onchange = async e => {
+  const text = await e.target.files[0].text();
+  recs = text.split("\n").filter(Boolean).map(l => JSON.parse(l)).filter(r => r.status === "ok" && r.example);
+  idx = 0; qi = 0;
+  document.getElementById("export").disabled = !recs.length;
+  render();
+};
+
+document.getElementById("export").onclick = () => {
+  const out = recs.map(r => {
+    const v = verdicts[recKey(r)] || {};
+    const oks = r.example.questions.filter(q => v[q.id] === "ok").map(q => q.id);
+    const reviewed = Object.keys(v).length === r.example.questions.length;
+    return JSON.stringify({...r, question_reviews: v, review: !reviewed ? "pending" : oks.length ? "ok" : "rejected"});
+  }).join("\n") + "\n";
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([out], {type: "application/jsonl"}));
+  a.download = "reviewed.jsonl";
+  a.click();
+};
+
+document.addEventListener("keydown", e => {
+  if (!recs.length || e.target.tagName === "INPUT") return;
+  const n = recs[idx].example.questions.length;
+  if (e.key === "a") mark(qi, "ok");
+  else if (e.key === "x") mark(qi, "wrong");
+  else if (e.key === "ArrowDown") { qi = Math.min(qi + 1, n - 1); render(); e.preventDefault(); }
+  else if (e.key === "ArrowUp") { qi = Math.max(qi - 1, 0); render(); e.preventDefault(); }
+  else if (e.key === "n") go(1);
+  else if (e.key === "p") go(-1);
+});
+</script>
+</body>
+</html>

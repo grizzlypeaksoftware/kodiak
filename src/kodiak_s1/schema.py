@@ -213,6 +213,8 @@ class Meta(_Strict):
     license: str  # SPDX id where possible
     split: Literal["train", "val", "test"]
     teacher: str | None = None  # e.g. "qwen3.8:27b" for synthetic labels
+    # Slicing tags for eval, e.g. "null:oos", "null:gold_removed", "nli2", "heldout".
+    tags: list[str] = Field(default_factory=list)
     notes: str | None = None
 
 
