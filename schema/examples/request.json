@@ -1,0 +1,28 @@
+{
+  "state": [
+    "Customer: My card was charged twice for order #4411 and I need it fixed before my rent is due Friday.",
+    "Agent: Sorry about that! Can you confirm the last four digits of the card?"
+  ],
+  "questions": [
+    {
+      "id": "intent",
+      "type": "choice",
+      "text": "What does the customer want?",
+      "labels": ["refund or billing fix", "order status", "cancel order", "technical support"]
+    },
+    {
+      "id": "urgency",
+      "type": "score",
+      "text": "How urgent is this for the customer?",
+      "min": 0, "max": 1,
+      "min_label": "no time pressure", "max_label": "needs resolution immediately"
+    },
+    {
+      "id": "card_brand",
+      "type": "choice",
+      "text": "Which card brand does the customer use?",
+      "labels": ["Visa", "Mastercard", "Amex", "Discover"]
+    }
+  ],
+  "options": { "null_threshold": 0.5, "min_confidence": 0.0, "interval": 0.9 }
+}

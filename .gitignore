@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Data and training artifacts (large; tracked via manifests, not git)
+data/raw/
+data/processed/
+data/cache/
+runs/
+checkpoints/
+*.safetensors
+*.onnx
+*.pt
+wandb/
+
+# Node (Phase 6)
+node_modules/
+
+# OS / editor
+.DS_Store
+.vscode/

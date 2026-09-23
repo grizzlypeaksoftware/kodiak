@@ -1,0 +1,207 @@
+{
+  "$defs": {
+    "ChoiceAnswer": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "choice",
+          "default": "choice",
+          "title": "Type",
+          "type": "string"
+        },
+        "answer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Answer"
+        },
+        "confidence": {
+          "title": "Confidence",
+          "type": "number"
+        },
+        "probs": {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "title": "Probs",
+          "type": "object"
+        },
+        "p_null": {
+          "title": "P Null",
+          "type": "number"
+        },
+        "abstain_reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "unanswerable",
+                "low_confidence"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Abstain Reason"
+        }
+      },
+      "required": [
+        "answer",
+        "confidence",
+        "probs",
+        "p_null"
+      ],
+      "title": "ChoiceAnswer",
+      "type": "object"
+    },
+    "ScoreAnswer": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "score",
+          "default": "score",
+          "title": "Type",
+          "type": "string"
+        },
+        "answer": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Answer"
+        },
+        "mean": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Mean"
+        },
+        "std": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Std"
+        },
+        "interval": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Interval"
+        },
+        "p_null": {
+          "title": "P Null",
+          "type": "number"
+        },
+        "abstain_reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "unanswerable",
+                "low_confidence"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Abstain Reason"
+        }
+      },
+      "required": [
+        "answer",
+        "mean",
+        "std",
+        "interval",
+        "p_null"
+      ],
+      "title": "ScoreAnswer",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "model": {
+      "title": "Model",
+      "type": "string"
+    },
+    "answers": {
+      "additionalProperties": {
+        "discriminator": {
+          "mapping": {
+            "choice": "#/$defs/ChoiceAnswer",
+            "score": "#/$defs/ScoreAnswer"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/ChoiceAnswer"
+          },
+          {
+            "$ref": "#/$defs/ScoreAnswer"
+          }
+        ]
+      },
+      "title": "Answers",
+      "type": "object"
+    },
+    "latency_ms": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Latency Ms"
+    }
+  },
+  "required": [
+    "model",
+    "answers"
+  ],
+  "title": "Response",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/grizzlypeaksoftware/kodiak/schema/kodiak-response.schema.json"
+}

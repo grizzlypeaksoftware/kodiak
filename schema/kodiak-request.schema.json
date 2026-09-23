@@ -1,0 +1,249 @@
+{
+  "$defs": {
+    "ChoiceQuestion": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "choice",
+          "default": "choice",
+          "title": "Type",
+          "type": "string"
+        },
+        "id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:\\-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "labels": {
+          "items": {
+            "$ref": "#/$defs/Label"
+          },
+          "maxItems": 32,
+          "minItems": 2,
+          "title": "Labels",
+          "type": "array"
+        },
+        "allow_null": {
+          "default": true,
+          "title": "Allow Null",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "text",
+        "labels"
+      ],
+      "title": "ChoiceQuestion",
+      "type": "object"
+    },
+    "Label": {
+      "additionalProperties": false,
+      "description": "One option in a choice question. `text` is what the model reads; `id` is what it returns.",
+      "properties": {
+        "id": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "text"
+      ],
+      "title": "Label",
+      "type": "object"
+    },
+    "Options": {
+      "additionalProperties": false,
+      "properties": {
+        "null_threshold": {
+          "default": 0.5,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Null Threshold",
+          "type": "number"
+        },
+        "min_confidence": {
+          "default": 0.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Min Confidence",
+          "type": "number"
+        },
+        "interval": {
+          "default": 0.9,
+          "exclusiveMaximum": 1.0,
+          "exclusiveMinimum": 0.0,
+          "title": "Interval",
+          "type": "number"
+        }
+      },
+      "title": "Options",
+      "type": "object"
+    },
+    "ScoreQuestion": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "const": "score",
+          "default": "score",
+          "title": "Type",
+          "type": "string"
+        },
+        "id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9_.:\\-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "min": {
+          "default": 0.0,
+          "title": "Min",
+          "type": "number"
+        },
+        "max": {
+          "default": 1.0,
+          "title": "Max",
+          "type": "number"
+        },
+        "min_label": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Label"
+        },
+        "max_label": {
+          "anyOf": [
+            {
+              "maxLength": 200,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Label"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Step"
+        },
+        "allow_null": {
+          "default": true,
+          "title": "Allow Null",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "text"
+      ],
+      "title": "ScoreQuestion",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "state": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "additionalProperties": true,
+          "type": "object"
+        },
+        {
+          "items": {},
+          "type": "array"
+        }
+      ],
+      "title": "State"
+    },
+    "questions": {
+      "items": {
+        "discriminator": {
+          "mapping": {
+            "choice": "#/$defs/ChoiceQuestion",
+            "score": "#/$defs/ScoreQuestion"
+          },
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/$defs/ChoiceQuestion"
+          },
+          {
+            "$ref": "#/$defs/ScoreQuestion"
+          }
+        ]
+      },
+      "maxItems": 32,
+      "minItems": 1,
+      "title": "Questions",
+      "type": "array"
+    },
+    "options": {
+      "$ref": "#/$defs/Options",
+      "default": {
+        "null_threshold": 0.5,
+        "min_confidence": 0.0,
+        "interval": 0.9
+      }
+    }
+  },
+  "required": [
+    "state",
+    "questions"
+  ],
+  "title": "Request",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/grizzlypeaksoftware/kodiak/schema/kodiak-request.schema.json"
+}

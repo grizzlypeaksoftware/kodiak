@@ -1,0 +1,20 @@
+{
+  "model": "kodiak-b-small-v0.1",
+  "answers": {
+    "intent": {
+      "type": "choice", "answer": "refund or billing fix", "confidence": 0.94,
+      "probs": { "refund or billing fix": 0.94, "order status": 0.02, "cancel order": 0.01, "technical support": 0.01 },
+      "p_null": 0.02, "abstain_reason": null
+    },
+    "urgency": {
+      "type": "score", "answer": 0.78, "mean": 0.78, "std": 0.11, "interval": [0.57, 0.93],
+      "p_null": 0.03, "abstain_reason": null
+    },
+    "card_brand": {
+      "type": "choice", "answer": null, "confidence": 0.91,
+      "probs": { "Visa": 0.03, "Mastercard": 0.03, "Amex": 0.02, "Discover": 0.01 },
+      "p_null": 0.91, "abstain_reason": "unanswerable"
+    }
+  },
+  "latency_ms": 9.4
+}
