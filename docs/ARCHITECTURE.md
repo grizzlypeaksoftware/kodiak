@@ -212,7 +212,10 @@ module and load its weights, which gives us full control over position ids and m
 (the stock Hugging Face class assumes one ordinary sequence). A test checks that our module reproduces the HF model's outputs
 on ordinary inputs before we rely on it.
 
-### 7.2 Track A: pure
+### 7.2 Track A: pure (deferred, see DECISIONS.md D19)
+
+*Deferred on 2026-09-23: v0.1 is Track B only. The design below is kept for a future custom encoder.*
+
 
 Same module, randomly initialized, then pretrained with **masked language modeling** (30% masking, the ModernBERT
 recipe) on permissive English text (Phase 2 selects the corpora). MLM is the default because it's simple and matches the

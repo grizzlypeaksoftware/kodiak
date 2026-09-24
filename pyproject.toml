@@ -5,7 +5,7 @@ description = "Kodiak: an encoder-only 'System One' decision model. Typed questi
 readme = "README.md"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
-authors = [{ name = "Cortex Agent LLC" }]
+authors = [{ name = "Cortex Agent LLC" }, { name = "Shane Larson" }]
 requires-python = ">=3.12"
 dependencies = [
     "pydantic>=2.7",
@@ -24,6 +24,7 @@ train = [
     "torch>=2.9",
     "safetensors>=0.4",
     "numpy>=1.26",
+    "scipy>=1.11",  # Beta quantiles for score intervals
 ]
 
 [project.urls]

@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kodiak Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script>
+  // Follow the OS light/dark setting.
+  document.documentElement.dataset.bsTheme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+</script>
+<style>
+  .phase-steps { font-size: .9rem; }
+  .spark { width: 100%; height: 60px; }
+  .spark polyline { fill: none; stroke: var(--bs-primary); stroke-width: 2; }
+  .spark circle { fill: var(--bs-success); }
+  .tile .value { font-size: 1.6rem; font-weight: 600; }
+  .muted { color: var(--bs-secondary-color); }
+</style>
+</head>
+<body class="bg-body-tertiary">
+<div class="container py-3">
+  <div class="d-flex flex-wrap align-items-baseline gap-2 mb-3">
+    <h1 class="h3 mb-0 me-auto">Kodiak</h1>
+    <span class="muted small" id="updated">loading…</span>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-5">
+      <div class="card h-100"><div class="card-body">
+        <h2 class="h6 text-uppercase muted">Phases</h2>
+        <div id="phases"></div>
+      </div></div>
+    </div>
+    <div class="col-lg-7 d-flex flex-column gap-3">
+      <div class="card"><div class="card-body">
+        <h2 class="h6 text-uppercase muted">Machine</h2>
+        <div class="row g-2" id="machine"></div>
+      </div></div>
+      <div class="card flex-grow-1"><div class="card-body">
+        <h2 class="h6 text-uppercase muted">Milestones (newest first)</h2>
+        <div id="milestones" style="max-height:260px; overflow:auto"></div>
+      </div></div>
+    </div>
+    <div class="col-12">
+      <div class="card"><div class="card-body">
+        <h2 class="h6 text-uppercase muted">Synthetic training data</h2>
+        <div id="synth"></div>
+      </div></div>
+    </div>
+    <div class="col-12">
+      <div class="card"><div class="card-body">
+        <h2 class="h6 text-uppercase muted">Training runs</h2>
+        <div id="runs"></div>
+      </div></div>
+    </div>
+    <div class="col-12">
+      <div class="card"><div class="card-body">
+        <h2 class="h6 text-uppercase muted">Latest eval report</h2>
+        <div id="evals"></div>
+      </div></div>
+    </div>
+  </div>
+  <p class="muted small mt-3">Reads the project's own logs; refreshes every 15 seconds. Served on localhost only.</p>
+</div>
+
+<script>
+const BADGE = {done: "success", in_progress: "primary", pending: "secondary", deferred: "warning"};
+const LABEL = {done: "done", in_progress: "in progress", pending: "to do", deferred: "deferred"};
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const pct = x => x == null ? "–" : (100 * x).toFixed(1) + "%";
+const num = (x, d = 3) => x == null ? "–" : Number(x).toFixed(d);
+const badge = s => `<span class="badge text-bg-${BADGE[s] || "secondary"}">${LABEL[s] || esc(s)}</span>`;
+
+function phases(list) {
+  return list.map(p => `
+    <div class="mb-2">
+      <div class="d-flex justify-content-between gap-2"><span><b>${esc(p.id)}</b> ${esc(p.name)}</span>${badge(p.status)}</div>
+      ${(p.steps || []).map(s => `<div class="phase-steps d-flex justify-content-between gap-2 ps-3 muted">
+        <span>${esc(s.name)}</span>${badge(s.status)}</div>`).join("")}
+    </div>`).join("");
+}
+
+function synth(y) {
+  const goal = y.goal_examples || 1, frac = Math.min(1, y.total_examples / goal);
+  const bar = `<div class="d-flex justify-content-between mb-1"><span><b>${y.total_examples.toLocaleString()}</b> of
+      ${goal.toLocaleString()} examples toward the goal</span><span class="muted">${(100 * frac).toFixed(1)}%</span></div>
+    <div class="progress mb-3" role="progressbar" aria-valuenow="${(100 * frac).toFixed(1)}" aria-valuemin="0" aria-valuemax="100">
+      <div class="progress-bar bg-success" style="width:${(100 * frac).toFixed(1)}%"></div></div>`;
+  const state = r => r.state === "running" ? `<span class="badge text-bg-primary">running</span>`
+    : r.state === "done" ? `<span class="badge text-bg-success">done</span>` : `<span class="badge text-bg-secondary">${esc(r.state)}</span>`;
+  const rows = y.runs.map(r => {
+    const f = r.target_jobs ? Math.min(1, (r.done_jobs || 0) / r.target_jobs) : 0;
+    const eta = r.eta_hours ? `ETA ~${r.eta_hours} h (${new Date(Date.now() + r.eta_hours * 3.6e6).toLocaleString([], {weekday: "short", hour: "numeric", minute: "2-digit"})})` : "";
+    return `<tr><td>${esc(r.name)}${r.pilot ? ` <span class="badge text-bg-light border">pilot</span>` : ""}
+        <div class="small muted">writer ${esc(r.writer)} · checker ${esc(r.verifier)}</div></td>
+      <td>${state(r)}</td>
+      <td style="min-width:140px"><div class="small">${(r.done_jobs || 0).toLocaleString()} / ${r.target_jobs?.toLocaleString() ?? "?"} jobs</div>
+        <div class="progress" style="height:6px"><div class="progress-bar" style="width:${(100 * f).toFixed(1)}%"></div></div>
+        <div class="small muted">${eta}</div></td>
+      <td>${(r.ok_examples || 0).toLocaleString()}</td>
+      <td>${r.jobs_per_hour ?? "–"}</td>
+      <td>${r.cost_usd != null ? "$" + r.cost_usd.toFixed(2) : "free"}</td></tr>`;
+  }).join("");
+  return bar + `<div class="table-responsive"><table class="table table-sm align-middle mb-0">
+    <thead><tr><th>Run</th><th>State</th><th>Progress</th><th>Examples</th><th>Jobs/h</th><th>Cost</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>
+    <div class="small muted mt-1">Pilot examples aren't counted toward the goal.</div>`;
+}
+
+function milestones(list) {
+  if (!list?.length) return `<span class="muted">No milestones yet.</span>`;
+  return `<ol class="list-unstyled mb-0">${list.slice().reverse().map(m =>
+    `<li class="mb-1"><span class="muted small me-2">${esc(m.date)}</span>${esc(m.text)}</li>`).join("")}</ol>`;
+}
+
+function tile(label, value, sub = "", cls = "") {
+  return `<div class="col-6 col-md-3"><div class="tile border rounded p-2 h-100">
+    <div class="small muted">${label}</div><div class="value ${cls}">${value}</div><div class="small muted">${sub}</div></div></div>`;
+}
+
+function machine(m) {
+  const t = m.gpu_temp_c, tcls = t >= 85 ? "text-danger" : t >= 78 ? "text-warning" : "text-success";
+  const models = m.ollama_models == null ? "Ollama unreachable" : m.ollama_models.length ? m.ollama_models.map(x => esc(x.name)).join("<br>") : "none loaded";
+  return tile("GPU temperature", t != null ? `${t}°C` : "–", `${m.gpu_power_w ?? "–"} W · ${m.gpu_util_pct ?? "–"}% busy`, tcls)
+    + tile("Unified memory", `${m.mem_used_gb} GB`, `of ${m.mem_total_gb} GB`)
+    + tile("Disk free", `${m.disk_free_gb} GB`)
+    + tile("Ollama models", "", models);
+}
+
+function spark(evals, best) {
+  if (evals.length < 2) return `<span class="muted small">no evals yet</span>`;
+  const ys = evals.map(e => e.macro_loss), lo = Math.min(...ys), hi = Math.max(...ys), n = evals.length;
+  const x = i => 4 + (i / (n - 1)) * 192, y = v => 56 - ((v - lo) / (hi - lo || 1)) * 50;
+  const pts = evals.map((e, i) => `${x(i).toFixed(1)},${y(e.macro_loss).toFixed(1)}`).join(" ");
+  const bi = best ? evals.findIndex(e => e.step === best.step) : -1;
+  const dot = bi >= 0 ? `<circle cx="${x(bi)}" cy="${y(evals[bi].macro_loss)}" r="3.5"><title>best: ${best.macro_loss} @ ${best.step}</title></circle>` : "";
+  return `<svg class="spark" viewBox="0 0 200 60" role="img" aria-label="validation loss by step"><polyline points="${pts}"/>${dot}</svg>`;
+}
+
+function runs(list) {
+  const real = list.filter(r => !r.overfit);
+  if (!real.length) return `<span class="muted">No training runs yet.</span>`;
+  return `<div class="table-responsive"><table class="table table-sm align-middle mb-0">
+    <thead><tr><th>Run</th><th>State</th><th>Step</th><th>Backbone</th><th>Best val loss</th><th style="min-width:180px">Val loss over time</th></tr></thead>
+    <tbody>${real.map(r => `<tr>
+      <td><code>${esc(r.name)}</code></td>
+      <td>${r.state === "running" ? `<span class="badge text-bg-primary">running</span>` : `<span class="badge text-bg-secondary">${esc(r.state)}</span>`}</td>
+      <td>${r.step.toLocaleString()} / ${r.steps?.toLocaleString() ?? "?"}</td>
+      <td class="small">${esc(r.preset)} · ${esc(r.init)}</td>
+      <td>${r.best ? `${num(r.best.macro_loss)} <span class="muted small">@ ${r.best.step}</span>` : "–"}</td>
+      <td>${spark(r.evals, r.best)}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
+function evals(reports) {
+  if (!reports.length) return `<span class="muted">No eval reports yet.</span>`;
+  const r = reports[0];
+  return `<div class="small muted mb-2"><code>reports/${esc(r.report)}.md</code> · ${esc(r.updated)}</div>
+    <div class="table-responsive"><table class="table table-sm mb-0">
+    <thead><tr><th>System</th><th>Questions</th><th>Accuracy</th><th>Held-out acc.</th><th>ECE ↓</th><th>Abstain P / R</th><th>Latency p50</th></tr></thead>
+    <tbody>${r.systems.map(s => `<tr><td>${esc(s.system)}</td><td>${s.n_questions ?? "–"}</td><td>${pct(s.accuracy)}</td>
+      <td>${pct(s.heldout_accuracy)}</td><td>${num(s.ece)}</td>
+      <td>${num(s.abstain_precision, 2)} / ${num(s.abstain_recall, 2)}</td>
+      <td>${s.latency_p50_ms == null ? "–" : Math.round(s.latency_p50_ms).toLocaleString() + " ms"}</td></tr>`).join("")}</tbody></table></div>`;
+}
+
+async function refresh() {
+  try {
+    const s = await (await fetch("/api/status", {cache: "no-store"})).json();
+    document.getElementById("updated").textContent = `updated ${s.time}`;
+    document.getElementById("phases").innerHTML = phases(s.phases);
+    document.getElementById("synth").innerHTML = synth(s.synth);
+    document.getElementById("milestones").innerHTML = milestones(s.milestones);
+    document.getElementById("machine").innerHTML = machine(s.machine);
+    document.getElementById("runs").innerHTML = runs(s.runs);
+    document.getElementById("evals").innerHTML = evals(s.reports);
+  } catch (e) {
+    document.getElementById("updated").textContent = "status server not reachable: is `python -m kodiak_s1.status --serve` running?";
+  }
+}
+refresh();
+setInterval(refresh, 15000);
+</script>
+</body>
+</html>

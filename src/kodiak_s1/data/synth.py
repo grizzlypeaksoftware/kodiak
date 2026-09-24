@@ -19,10 +19,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 import threading
 import time
+import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -30,7 +32,7 @@ from pathlib import Path
 from pydantic import ValidationError
 
 from kodiak_s1.data.sources import rng_for
-from kodiak_s1.schema import Example, render_state
+from kodiak_s1.schema import ChoiceQuestion, Example, render_state
 
 OLLAMA = "http://localhost:11434/api/chat"
 TEACHER = "qwen3.8:27b"
@@ -139,7 +141,8 @@ Then write {n_choice + n_score} questions about it:
   Set unanswerable=true, leave evidence empty, and still fill answer_label/answer_value with any placeholder.
   Do not make it obviously off-topic.
 - For answerable questions set unanswerable=false, give answer_label (a label id) or answer_value (a number in range),
-  and copy a short exact quote from the state into evidence that supports the answer.
+  and copy a short exact quote from the state into evidence that supports the answer: character for character,
+  not a paraphrase (for a JSON state, copy a fragment of the JSON exactly as written, e.g. "status": "shipped").
 - Vary question phrasing. Questions must be answerable by reading, not by outside knowledge.
 Return JSON only."""
 
@@ -167,6 +170,64 @@ QUESTIONS:
 Return JSON only."""
 
 
+DO_INFERENCE = "https://inference.do-ai.run/v1/chat/completions"
+
+
+def teacher(prompt: str, schema: dict, temperature: float, model: str, max_tokens: int) -> dict:
+    """Route a teacher call: "do:<model>" -> DigitalOcean serverless inference, anything else -> local Ollama."""
+    if model.startswith("do:"):
+        return do_inference(prompt, schema, temperature, model[3:], max_tokens)
+    return ollama(prompt, schema, temperature, model, max_tokens)
+
+
+def do_inference(prompt: str, schema: dict, temperature: float, model: str, max_tokens: int, timeout: int = 600) -> dict:
+    """DigitalOcean serverless inference (OpenAI-compatible). The key comes only from $DO_INFERENCE_KEY.
+
+    Reasoning models (gpt-oss) spend completion tokens thinking before they answer, so the token budget is
+    generous and reasoning effort is set low. Usage is returned for cost tracking.
+    """
+    key = os.environ.get("DO_INFERENCE_KEY")
+    if not key:
+        raise OSError("DO_INFERENCE_KEY is not set")
+    body = {"model": model, "temperature": temperature, "max_completion_tokens": max_tokens + 3000,
+            "messages": [{"role": "user", "content": prompt}],
+            "response_format": {"type": "json_schema", "json_schema": {"name": "answer", "schema": schema}}}
+    if "gpt-oss" in model:
+        body["reasoning_effort"] = "low"  # only reasoning models accept this
+
+    def post(b: dict) -> dict:
+        req = urllib.request.Request(DO_INFERENCE, json.dumps(b).encode(),
+                                     {"Content-Type": "application/json", "Authorization": f"Bearer {key}"})
+        return json.load(urllib.request.urlopen(req, timeout=timeout))
+
+    for attempt in range(4):
+        try:
+            d = post(body)
+            break
+        except urllib.error.HTTPError as e:
+            if e.code == 400 and body["response_format"]["type"] == "json_schema":
+                # Model doesn't support JSON-schema output: fall back to JSON mode, with the schema in the prompt.
+                # Our own validation (build_questions / parse_verdict) still rejects anything malformed.
+                body["response_format"] = {"type": "json_object"}
+                body["messages"] = [{"role": "user", "content": prompt + "\n\nReturn a JSON object matching this JSON Schema:\n"
+                                     + json.dumps(schema)}]
+                continue
+            if e.code in (429, 500, 502, 503, 504) and attempt < 3:  # rate limits and server errors
+                time.sleep(5 * 2 ** attempt)
+                continue
+            raise OSError(f"DO inference HTTP {e.code}: {e.read()[:200]!r}") from e
+    else:
+        raise OSError("DO inference: retries exhausted")
+    text = d["choices"][0]["message"].get("content")
+    if not text:  # thinking models can spend the whole token budget reasoning and return no answer
+        raise ValueError(f"empty response from {model} (finish_reason={d['choices'][0].get('finish_reason')})")
+    text = text.strip()
+    text = re.sub(r"^```(?:json)?\s*|\s*```$", "", text)  # tolerate code fences
+    usage = d.get("usage", {})
+    return {"content": json.loads(text), "tokens": usage.get("completion_tokens", 0),
+            "prompt_tokens": usage.get("prompt_tokens", 0)}
+
+
 def ollama(prompt: str, schema: dict, temperature: float, model: str, max_tokens: int, timeout: int = 900) -> dict:
     body = {"model": model, "stream": False, "think": False, "format": schema,
             "messages": [{"role": "user", "content": prompt}],
@@ -182,6 +243,22 @@ def _norm(s: str) -> str:
     '"status": "done"' while the rendered state is compact ('"status":"done"')."""
     s = re.sub(r'[{}\[\]":,]', " ", s)
     return re.sub(r"\s+", " ", s).strip().casefold()
+
+
+def evidence_supported(evidence: str, state_text: str, min_overlap: float = 0.8) -> bool:
+    """Is the teacher's evidence really in the state? An exact (normalized) match passes. Otherwise at least 80% of
+    the evidence's content words must appear in the state: this tolerates rewording like 'Commenter: Jane Doe' for
+    '"author":"Jane Doe"' but still rejects invented evidence. The blind verifier remains the main correctness check."""
+    ev, st = _norm(evidence), _norm(state_text)
+    if len(ev) < 3:
+        return False
+    if ev in st:
+        return True
+    words = [w for w in re.findall(r"[a-z0-9][a-z0-9.@%$/-]*", ev) if len(w) > 2 or w.isdigit()]
+    if len(words) < 2:
+        return False
+    state_words = set(re.findall(r"[a-z0-9][a-z0-9.@%$/-]*", st))
+    return sum(w in state_words for w in words) / len(words) >= min_overlap
 
 
 def _slug(s: str) -> str:
@@ -204,6 +281,11 @@ def build_questions(raw: list[dict], state_text: str) -> tuple[list[dict], dict,
                 drops.append("choice_too_few_labels")
                 continue
             q = {"type": "choice", "id": qid, "text": r["text"].strip(), "labels": labels}
+            try:
+                ChoiceQuestion.model_validate(q)
+            except ValidationError:
+                drops.append("invalid_labels")  # e.g. duplicate or over-long option texts
+                continue
             ans = {"null": True} if null else {"label": str(r.get("answer_label", "")).strip()}
             if not null and ans["label"] not in {lab["id"] for lab in labels}:
                 drops.append("answer_not_in_labels")
@@ -220,11 +302,9 @@ def build_questions(raw: list[dict], state_text: str) -> tuple[list[dict], dict,
                 drops.append("score_no_value")
                 continue
             ans = {"null": True} if null else {"value": float(r["answer_value"])}
-        if not null:
-            ev = _norm(r.get("evidence") or "")
-            if len(ev) < 3 or ev not in _norm(state_text):
-                drops.append("evidence_not_in_state")
-                continue
+        if not null and not evidence_supported(r.get("evidence") or "", state_text):
+            drops.append("evidence_not_in_state")
+            continue
         qs.append(q)
         answers[qid] = ans
     return qs, answers, drops
@@ -255,22 +335,27 @@ def run_job(i: int, seed: int, model: str, verifier: str) -> dict:
     rec: dict = {"job": i, "seed": seed, "domain": domain, "format": fmt, "status": "error"}
     t0 = time.time()
     try:
-        g = ollama(gen_prompt(domain, fmt, n_choice, n_score, n_null, rng), _gen_schema(fmt, n_choice, n_score), 0.9, model, 2500)
+        g = teacher(gen_prompt(domain, fmt, n_choice, n_score, n_null, rng), _gen_schema(fmt, n_choice, n_score), 0.9, model, 2500)
         raw = g["content"]
         state = raw["state"]
         if fmt == "json" and (not isinstance(state, dict) or not state):
             raise ValueError("json state is not a non-empty object")
+        if fmt == "list":
+            state = [x for x in state if isinstance(x, str) and x.strip()]  # gpt-oss sometimes emits blank items
+            if len(state) < 2:
+                raise ValueError("list state has fewer than 2 non-empty items")
         state_text = render_state(state)
         raw_qs = [{**q, "type": "choice"} for q in raw["choice_questions"]] + \
             [{**q, "type": "score"} for q in raw["score_questions"]]
         qs, answers, drops = build_questions(raw_qs, state_text)
-        rec.update(gen_tokens=g["tokens"], drops=drops, debug={"state": state, "questions": qs, "answers": answers})
+        rec.update(gen_tokens=g["tokens"], gen_prompt_tokens=g.get("prompt_tokens"), drops=drops, debug={"state": state, "questions": qs, "answers": answers})
         if len(qs) < 2:
             rec["status"] = "too_few_questions"
             return rec
-        v = ollama(verify_prompt(state_text, qs), verify_schema(qs), 0.0, verifier, 400 + 250 * len(qs))
+        v = teacher(verify_prompt(state_text, qs), verify_schema(qs), 0.0, verifier, 400 + 250 * len(qs))
         by_id = {q["id"]: parse_verdict(q, v["content"].get(q["id"])) for q in qs}
         rec["verify_tokens"] = v["tokens"]
+        rec["verify_prompt_tokens"] = v.get("prompt_tokens")
         rec["debug"]["verify"] = v["content"]
         kept_q, kept_a, disagreements = [], {}, []
         for q in qs:

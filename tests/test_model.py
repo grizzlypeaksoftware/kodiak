@@ -170,3 +170,18 @@ def test_modernbert_weights_reproduce_hf():
         ours = enc(ids, meta, "sdpa")
         theirs = ref(input_ids=ids).last_hidden_state
     assert torch.allclose(ours, theirs, atol=1e-3), (ours - theirs).abs().max()
+
+
+def test_answer_accepts_shorthand_labels_and_returns_valid_response(model):
+    import json
+    from pathlib import Path
+
+    from kodiak_s1.infer import answer
+    from kodiak_s1.schema import Response
+
+    req = json.loads((Path(__file__).resolve().parents[1] / "schema/examples/request.json").read_text())
+    (res,) = answer(model, [req])
+    Response.model_validate(res)
+    assert set(res["answers"]) == {"intent", "urgency", "card_brand"}
+    intent = res["answers"]["intent"]
+    assert intent["answer"] is None or intent["answer"] in {"refund or billing fix", "order status", "cancel order", "technical support"}

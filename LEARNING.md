@@ -303,3 +303,168 @@ per epoch** (most examples are 40–130 tokens; HelpSteer2 and UltraFeedback are
 2. The risk moves from compute to **overfitting**. With temperature sampling (∝ size^0.3), small sources like
    OpenBookQA or SMS spam get repeated many times per epoch. We'll watch validation loss per source and stop early.
 Track A's MLM pretraining (billions of tokens of plain text) is still the expensive part.
+
+### Concept: is ModernBERT an LLM? (a question from the project owner, Phase 4)
+Not in the sense this project rules out. "LLM" usually means an **autoregressive** model like Qwen or GPT that *writes*
+text one token at a time, each token seeing only the ones before it. ModernBERT is an **encoder**: it *reads* a whole text
+at once (bidirectionally) and turns it into vectors that represent meaning. It has no way to generate text. It learned by
+filling in blanked-out words (masked language modeling) over about 2T tokens, and at 150M parameters it's about 180× smaller
+than the 27B Qwen teacher.
+
+What Track B borrows from ModernBERT is **reading comprehension**, nothing else. Everything that makes Kodiak a
+decision model is Kodiak's own design: the packed sequence and structured mask, the choice/null/score heads, the log-loss
+objective, and the data. An analogy: Track B hires a fluent reader and teaches them the job; Track A teaches reading from the
+alphabet and then the same job. The Track A vs. B comparison measures what that head start is worth.
+ModernBERT is Apache-2.0, so building on it doesn't limit Kodiak's openness.
+
+### Caught: WinoGrande validation is probably inflated
+During the first Track B run, WinoGrande validation accuracy reached 84%, suspiciously high for a 150M encoder.
+Likely cause: WinoGrande is built from **twin sentences** (near-identical, opposite answers). Our val split is carved from
+the upstream train split by hashing each sentence, so one twin can land in train and the other in val, and the model can
+partly memorize pair-specific cues. Our *test* split is WinoGrande's official dev set, which doesn't have this problem;
+Phase 5 reports that number. Fix for the next data build: split WinoGrande by twin group (e.g. hash the sentence with the
+option words removed) rather than by sentence.
+
+### Decision: Track A deferred (D19)
+After seeing Track B decision-tune in about an hour, the project owner decided to skip Track A for v0.1. The asymmetry is the lesson:
+**pretraining is where almost all the cost is; fine-tuning is cheap.** Track A would spend days of the Spark to learn to
+read from ~10B tokens (ModernBERT read ~2T), only to produce a weaker reader. The effort goes into Track B's data,
+calibration, and evaluation instead. A custom encoder (decision-shaped pretraining, ELECTRA-style objectives, or continued
+pretraining of an open encoder) is the plan *if* Kodiak proves valuable.
+
+### Result: first Track B run (b-small-s1-v0)
+ModernBERT-base, public data + 114 synthetic examples (generation was paused), 8 × 2,048-token batches, lr 5e-5 / heads 5e-4.
+Early-stopped at step 3,250 (about 35 minutes); "best" checkpoint at step 1,750 by macro validation loss.
+
+| Step | Macro val loss | Synthetic val loss | Constructed nulls (abstain acc.) | MNLI | CommonsenseQA |
+|---|---|---|---|---|---|
+| 250 | 0.504 | 0.94 | 55% | 62% | 39% |
+| 1,750 | **0.265** | ~1.9 | 86% | 78% | 56% |
+| 2,750 | 0.408 | 3.76 | 93% | 84% | 63% |
+| 3,250 | 0.429 | 3.77 | 93% | 83% | 60% |
+
+**Lesson: early stopping stopped for the wrong reason.** Real tasks kept improving after step 1,750; what rose was the
+synthetic group's loss. Its val set had 7 examples, and its 114 training examples were oversampled (weight ∝ size^0.3) until the model memorized them.
+An unweighted macro average let that tiny group outvote everything else. Fix: groups with fewer than 50 val questions are
+logged but excluded from the early-stopping metric. The oversampling resolves itself once the 10k synthetic run finishes.
+The run's real value was testing the Phase 4 machinery before the run that matters.
+
+---
+
+## Phase 5 (preliminary): evaluation harness (2026-09-23)
+
+### What we built
+- `src/kodiak_s1/infer.py`: requests → answers: grouped softmax, null probability, the decision rule, Beta summaries.
+- `src/kodiak_s1/eval/metrics.py`: accuracy (with "unanswerable" as an outcome), macro-F1, ECE, Brier, NLL, AURC,
+  abstain precision/recall, score MAE, 90%-interval coverage, latency, sliced by eval slice, source, and null type.
+- `src/kodiak_s1/eval/run.py`: `calibrate` (temperature fitting on *validation* data), `predict`, `baseline`
+  (Ollama LLM with JSON-schema-constrained output), and `report`. Kodiak and the LLM write the same prediction format, so one
+  scorer judges both.
+
+### Concept: calibration, measured
+**ECE** (expected calibration error) sorts answers by confidence into bins and asks: when the model says 80%, is it right
+80% of the time? Temperature scaling divides the logits by one fitted number T per head. T > 1 means the model was
+overconfident. Our first model had T ≈ 1.5 for choices; calibration cut overall ECE from 0.093 to 0.062 (in-domain
+0.075 → 0.036) without changing a single answer, since dividing all logits by T doesn't change which is largest.
+
+### Finding: early stopping picked the wrong checkpoint
+On the frozen eval set, the step-3,250 model beat the saved "best" (step 1,750): accuracy 0.772 vs. 0.746,
+constructed-null accuracy 0.907 vs. 0.787. That confirms the tiny-synthetic-group problem from Phase 4.
+
+### Finding: two metric bugs caught before they misled us
+1. **Interval coverage looked like 50% for a 90% interval.** Many gold scores sit exactly at 0 or 1 (for example, toxicity 0.0),
+   and a Beta interval can never contain an endpoint. Training squeezes targets slightly inward; the metric now does the same.
+   Real in-domain coverage: 0.89–0.94, well calibrated. Held-out hate speech: 0.61, overconfident out of domain.
+2. **An abstaining LLM had no score value**, which crashed MAE. MAE is now computed over given values, and "score given"
+   is reported next to it, so abstaining on hard items can't quietly improve MAE.
+
+### Finding: the baseline's prompt can handicap it
+The first Qwen prompt said "using only information in the state". Qwen then answered "unanswerable" to 96% of score
+questions (quality ratings, toxicity) and to general-knowledge multiple choice: 110 of 280 answers were unwarranted
+abstentions. That's a flaw in *our* baseline, not in Qwen. The v2 prompt says judgments and general knowledge are allowed,
+and reserves "unanswerable" for missing specific facts. Both runs are kept on record. **A comparison is only honest if the
+baseline gets its best shot.**
+
+### Preliminary result: Kodiak v0 vs. Qwen 27B (200 eval examples, 280 questions)
+Kodiak = the first Track B model (step 3,250, calibrated; trained with only 114 synthetic examples).
+Qwen = `qwen3.8:27b` via Ollama, JSON-schema-constrained, v3 prompt (judgments allowed, numeric score schema), verbalized confidence.
+
+| | Kodiak v0 (150M) | Qwen 27B |
+|---|---|---|
+| Accuracy, overall | 0.732 | 0.765 |
+| Accuracy, in-domain | 0.755 | 0.765 |
+| Accuracy, held-out datasets (zero-shot) | 0.649 | **0.860** |
+| Constructed nulls (n = 19) | **0.895** | 0.368 |
+| Abstain precision / recall | **0.90 / 0.79** | 0.68 / 0.39 |
+| Calibration error (ECE) | **0.095** | 0.192 |
+| Score MAE (unit scale) | **0.168** | 0.213 |
+| Score 90%-interval coverage | 0.86 | n/a (point estimates only) |
+| Median latency per request | **8 ms** | 3,431 ms |
+
+Reading it honestly:
+- **Speed is the clearest win:** ~400× faster per request on the same machine.
+- **Calibration and abstention are real strengths.** Kodiak's confidence is about twice as trustworthy, and its "unanswerable" is
+  learned, not prompt-sensitive: Qwen's null accuracy swung from 0.68 (v1 prompt) to 0.37 (v2/v3) with wording alone.
+- **Generalization to new tasks is the weakness:** 0.65 vs. 0.86 on held-out datasets. A 27B generalist knows far more
+  than a 150M encoder trained on 16 datasets. That's the gap more diverse data (the synthetic run) should narrow.
+- **Caveats:** 200 examples (±~5 points on accuracy); an early model; Qwen's confidence is verbalized.
+
+### Demo of b-small-s1-v0 (the README example request)
+- intent → "refund or billing fix" (64%) ✅; card brand → unanswerable (68%) ✅, the headline behavior; urgency →
+  unanswerable (61%), and even when forced, 0.10 "not urgent" ❌ (rent is due Friday).
+- **Why urgency failed:** every score question in the training data is a moderation or quality rating (toxicity, hate, helpfulness),
+  mostly near 0, and none is about urgency. The model learned "scores are usually low" instead of reading a new scale. The same
+  generalization gap shows on held-out tasks. The varied score questions in the 10k synthetic set target it; urgency is now a
+  spot check for the next model.
+- **Bug found by the demo:** `infer.answer` passed raw requests to the packer, so the documented label shorthand
+  (`"labels": ["a", "b"]`) crashed. Requests are now validated and normalized through the schema first, with a test.
+  Third time in this project a demo or sample read caught what unit tests didn't.
+
+### Cloud teacher setup, and a lesson about secrets (2026-09-24)
+Added a DigitalOcean serverless-inference backend to the synthetic generator (`--model do:openai-gpt-oss-120b`).
+Getting authenticated took some debugging: the first key returned 401 even though its settings were right. The
+cause was simple: **the key in `.bashrc` was 68 characters, and the regenerated one is 71.** The first copy was clipped.
+We found it by checking the key's *shape* (length, character classes, whether loading changed it) without ever printing
+it. The new key authenticates; the account then returned 402 Payment Required, a billing issue on DigitalOcean's side.
+Jobs that fail this way are marked `retry` rather than done, so nothing is lost.
+
+### Cloud pilots: reading the output again beat guessing (2026-09-24)
+| | Pilot #1 | Pilot #2 | Local Qwen writer |
+|---|---|---|---|
+| Jobs kept | 26% | **88%** | 92% |
+| Questions per example | 2.2 | 2.7 | 2.9 |
+| Unanswerable share | 45% (survivorship bias) | 20% | 16% |
+| Cost per 1,000 jobs | $0.74 | $0.73 | free |
+
+Pilot #1 failed quietly: 94 questions were dropped by the evidence check. Printing gpt-oss's raw output showed it
+**paraphrases** evidence for JSON states ("Commenter: Jane Doe" for `"author":"Jane Doe"`). Its *answers* were fine; the
+hallucination guard was too literal for this writer. Worse, the drop was lopsided: unanswerable questions need no evidence, so
+they survived and skewed the kept set to 45% nulls, with zero score questions. Fixes (they help every writer):
+1. The prompt asks for character-for-character quotes (for JSON: an exact fragment).
+2. `evidence_supported()`: an exact normalized match, **or** at least 80% of the evidence's content words present in the state. That
+   tolerates rewording but still rejects invented evidence (there are tests for both).
+3. A question with invalid options (e.g. duplicate texts) is dropped on its own instead of failing the whole job.
+4. Blank items in list-type states are removed.
+Cost came in far under the estimate ($0.73 vs. the $1–4 per 1,000 I expected): at low reasoning effort, gpt-oss barely
+"thinks" on this task.
+
+### Concept: why a model shouldn't check its own work
+A verifier is useful to the extent that its mistakes are *independent* of the writer's. If the same model writes and checks,
+a wrong label that came from a gap in its knowledge will usually be re-confirmed by the same gap. So the check filters out
+random slips but not systematic errors, which are the ones that hurt the student most. A checker from a different model family
+(different data, different training) is more likely to catch them. Rather than assume this, the verifier bake-off measures it
+against human review.
+
+### Result: verifier bake-off (2026-09-24)
+| Checker | Keeps human-approved (61) | Rejects human-rejected (3) | Failures | s/example |
+|---|---|---|---|---|
+| gpt-oss-120b | 92% | 1/3 | 2 (runaway JSON) | 26 |
+| **DeepSeek V3.2** | **97%** | 1/3 | 0 | **2.3** |
+| Qwen 3.5 397B | – | – | returned no content after ~215 s | – |
+| Qwen 27B (local) | 100%* | 0/3* | – | – |
+
+\*By construction: the review set was built from examples Qwen 27B had approved, so it can't be scored fairly here. That's
+**selection bias**, and a textbook case: an evaluation set filtered by a model can't evaluate that model.
+Also learned: "thinking" models can burn their whole token budget reasoning and return an empty answer; the backend now
+raises a clear error instead of crashing. Process lesson: I piped the bake-off through `tail`, which hid per-model progress
+for 30 minutes; long jobs should stream their progress.

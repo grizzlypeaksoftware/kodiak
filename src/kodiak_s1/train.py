@@ -27,8 +27,10 @@ from pathlib import Path
 
 import torch
 
-from kodiak_s1.data.sources import SOURCES
+from kodiak_s1.data.augment import gold_removed, mismatch
+from kodiak_s1.data.sources import SOURCES, hash_split
 from kodiak_s1.model import PRESETS, HeadConfig, KodiakModel, ModelConfig, decision_loss
+from kodiak_s1.schema import render_state
 from kodiak_s1.model.encoder import load_modernbert
 from kodiak_s1.packing import Limits, Packed, collate, pack_example
 
@@ -51,6 +53,13 @@ class TrainConfig:
     weight_decay: float = 0.01
     grad_clip: float = 1.0
     sample_temp: float = 0.3  # source sampling probability ∝ size^temp
+    # Train-time null augmentation (docs/ARCHITECTURE.md §9). Gold removal only applies to intent/occupation/MC
+    # sources (~25% of samples), so its rate is higher to land near ~4% of all examples.
+    p_gold_removed: float = 0.15
+    p_mismatch: float = 0.04
+    eval_every: int = 250
+    val_per_source: int = 300
+    patience: int = 6  # stop after this many evals without a new best validation loss (0 = never)
     seed: int = 0
     log_every: int = 10
     ckpt_every: int = 500
@@ -78,18 +87,31 @@ class Mixture:
                 continue
             with gzip.open(p, "rt", encoding="utf-8") as f:
                 self.lines[sid] = f.readlines()
+        self.val_lines: dict[str, list[str]] = {}
+        for sid, src in SOURCES.items():
+            p = Path(cfg.data) / sid / "val.jsonl.gz"
+            if not src.heldout and p.exists():
+                with gzip.open(p, "rt", encoding="utf-8") as f:
+                    self.val_lines[sid] = f.readlines()
         if cfg.synthetic:
-            syn = []
+            syn, syn_val = [], []
             for line in open(cfg.synthetic, encoding="utf-8"):
                 r = json.loads(line)
                 if r.get("status") == "ok":
-                    syn.append(json.dumps(r["example"], ensure_ascii=False))
+                    ex = r["example"]
+                    # Hold out ~3% of synthetic states for validation (by content, so it's stable as the file grows).
+                    split = hash_split(render_state(ex["state"]), val=0.03, test=0)
+                    (syn_val if split == "val" else syn).append(json.dumps(ex, ensure_ascii=False))
             if syn:
                 self.lines["kodiak_synth_v1"] = syn
+                self.val_lines["kodiak_synth_v1"] = syn_val
         self.names = sorted(self.lines)
         sizes = [len(self.lines[n]) for n in self.names]
         w = [s ** cfg.sample_temp for s in sizes]
         self.probs = [x / sum(w) for x in w]
+        self.family = {n: (SOURCES[n].family if n in SOURCES else "synthetic") for n in self.names}
+        self.donors = [line for n in ("mnli", "scitail") for line in self.lines.get(n, []) if '"id": "yes"' in line]
+        self.p_gold_removed, self.p_mismatch = cfg.p_gold_removed, cfg.p_mismatch
         self.fixed: list[str] | None = None
         if cfg.overfit:
             rng = random.Random(cfg.seed)
@@ -102,7 +124,13 @@ class Mixture:
         if self.fixed is not None:
             return json.loads(rng.choice(self.fixed))
         src = rng.choices(self.names, self.probs)[0]
-        return json.loads(rng.choice(self.lines[src]))
+        ex = json.loads(rng.choice(self.lines[src]))
+        u = rng.random()
+        if u < self.p_gold_removed:
+            ex = gold_removed(ex, self.family[src], rng) or ex
+        elif u < self.p_gold_removed + self.p_mismatch and self.donors:
+            ex = mismatch(ex, json.loads(rng.choice(self.donors)), rng) or ex
+        return ex
 
 
 def make_batch(mix: Mixture, cfg: TrainConfig, step: int, limits: Limits):
@@ -129,6 +157,65 @@ def make_batch(mix: Mixture, cfg: TrainConfig, step: int, limits: Limits):
         packed.pop()
         b = collate(packed, cfg.max_len, pad_to=cfg.max_len)
     return b, skipped
+
+
+# ---------------------------------------------------------------------------
+# Validation
+# ---------------------------------------------------------------------------
+
+
+def build_val(mix: Mixture, cfg: TrainConfig, limits: Limits) -> dict[str, list]:
+    """Fixed validation batches per source, plus a constructed-null group. Built once."""
+    rng = random.Random(cfg.seed + 7)
+    groups: dict[str, list[dict]] = {}
+    for sid, lines in mix.val_lines.items():
+        take = lines[:]
+        rng.shuffle(take)
+        groups[sid] = [json.loads(line) for line in take[: cfg.val_per_source]]
+    nulls = []
+    donors = [ex for ex in groups.get("mnli", []) + groups.get("scitail", []) if ex["questions"][0]["id"] == "claim"]
+    for sid, exs in groups.items():
+        for ex in exs[:40]:
+            made = gold_removed(ex, mix.family.get(sid, ""), rng) or (mismatch(ex, rng.choice(donors), rng) if donors else None)
+            if made:
+                nulls.append(made)
+    groups["null_construct"] = nulls
+    batches = {}
+    for g, exs in groups.items():
+        packed = [p for p in (pack_example(ex, limits) for ex in exs) if len(p) <= cfg.max_len]
+        batches[g] = []
+        for i in range(0, len(packed), 64):
+            batches[g].append(collate(packed[i:i + 64], cfg.max_len))
+    return batches
+
+
+@torch.no_grad()
+def evaluate(model: KodiakModel, val: dict[str, list], device: str, min_questions: int = 50) -> dict:
+    model.eval()
+    res = {}
+    sizes = {g: sum(b.q_type.shape[0] for b in bs) for g, bs in val.items()}
+    for g, batches in val.items():
+        tot: dict[str, float] = {}
+        n = 0
+        for b in batches:
+            b = b.to(device)
+            with torch.autocast("cuda", dtype=torch.bfloat16):
+                out = model(b, impl="sdpa")  # fixed-shape-free path; matches flex (tests/test_model.py)
+            _, st = decision_loss(out, b)
+            w = st["n_q"]
+            for k, v in st.items():
+                if k != "n_q":
+                    tot[k] = tot.get(k, 0.0) + v * w
+            n += w
+        if n:
+            res[g] = {k: round(v / n, 5) for k, v in tot.items()}
+    model.train()
+    # Early stopping uses only groups big enough to be stable: in the first Track B run a 7-example
+    # synthetic group swung the macro loss and stopped training while every real task was still improving.
+    stable = [r["loss"] for g, r in res.items() if sizes.get(g, 0) >= min_questions]
+    res["macro_loss"] = round(sum(stable) / max(1, len(stable)), 5)
+    res["macro_groups"] = len(stable)
+    return res
 
 
 # ---------------------------------------------------------------------------
@@ -257,6 +344,10 @@ def train(cfg: TrainConfig) -> dict:
 
     fwd = torch.compile(model) if cfg.compile else model
     limits = Limits(max_state=cfg.max_state)
+    val = build_val(mix, cfg, limits) if not cfg.overfit else {}
+    best_path = run / "best.json"
+    best = json.loads(best_path.read_text()) if best_path.exists() else {"macro_loss": float("inf"), "step": 0}
+    bad_evals = 0
     model.train()
     t_last, tok_acc, last = time.time(), 0, {}
     while step < cfg.steps and not stop["flag"]:
@@ -285,6 +376,20 @@ def train(cfg: TrainConfig) -> dict:
             log(last)
             t_last, tok_acc = time.time(), 0
             thermal_guard(cfg, log)
+        if val and (step % cfg.eval_every == 0 or step == cfg.steps):
+            ev = evaluate(model, val, device)
+            log({"event": "eval", "step": step, **ev})
+            if ev["macro_loss"] < best["macro_loss"]:
+                best = {"macro_loss": ev["macro_loss"], "step": step}
+                torch.save(model.state_dict(), run / "best.pt.tmp")
+                (run / "best.pt.tmp").rename(run / "best.pt")
+                best_path.write_text(json.dumps(best) + "\n")
+                bad_evals = 0
+            else:
+                bad_evals += 1
+                if cfg.patience and bad_evals >= cfg.patience:
+                    log({"event": "early_stop", "step": step, "best": best})
+                    break
         if step % cfg.ckpt_every == 0:
             save_ckpt(run, model, opt, sched, step, cfg.keep_ckpts)
     save_ckpt(run, model, opt, sched, step, cfg.keep_ckpts)

@@ -170,3 +170,24 @@ def test_synth_evidence_matches_compact_json_state():
             "evidence": '"status": "shipped"'}]
     qs, _, drops = build_questions(raw, state)
     assert len(qs) == 1 and drops == []
+
+
+def test_evidence_check_tolerates_rewording_but_not_invention():
+    from kodiak_s1.data.synth import evidence_supported
+
+    state = '{"review":{"author":"Jane Doe","line":108,"status":"pending"}}'
+    assert evidence_supported('"status": "pending"', state)  # exact, modulo JSON punctuation
+    assert evidence_supported("Commenter Jane Doe, status pending", state)  # reworded key; 4/5 content words present
+    assert not evidence_supported("Jane Doe approved the refactor yesterday", state)  # mostly invented: 2/6
+    assert evidence_supported("Jane Doe status pending", state)  # reworded but all content present
+    assert not evidence_supported("Approved by Mark Lee", state)
+    assert not evidence_supported("ok", state)
+
+
+def test_synth_drops_question_with_duplicate_labels_not_whole_job():
+    raw = [{"id": "dup", "type": "choice", "text": "Pick", "unanswerable": True, "evidence": "",
+            "labels": [{"id": "a", "text": "Same"}, {"id": "b", "text": "same"}]},
+           {"id": "ok", "type": "choice", "text": "Pick", "unanswerable": True, "evidence": "",
+            "labels": [{"id": "a", "text": "A"}, {"id": "b", "text": "B"}]}]
+    qs, _, drops = build_questions(raw, "state")
+    assert [q["id"] for q in qs] == ["ok"] and drops == ["invalid_labels"]
