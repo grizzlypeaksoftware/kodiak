@@ -63,8 +63,14 @@ def load_example(name: str):
 
 
 with gr.Blocks(title="Kodiak") as demo:
-    gr.Markdown("# Kodiak\nTyped questions in, calibrated answers out, in one forward pass. "
+    gr.Markdown("# Kodiak 🐻\nTyped questions in, calibrated answers out, in one forward pass. "
                 "Answers are always one of your labels or inside your range, or an honest abstention.")
+    gr.Markdown("> **Research preview.** An early model, built in public. It's fast and often right, and it also makes mistakes: "
+                "it can miss intents or tools that are only implied, and some judgment scores (like urgency) can be off. "
+                "A better-trained version is on the way. Found a failure? "
+                "[Open an issue](https://github.com/grizzlypeaksoftware/kodiak/issues) · "
+                "[How it works](https://github.com/grizzlypeaksoftware/kodiak) · "
+                f"Model: [{MODEL}](https://huggingface.co/{MODEL})")
     example = gr.Dropdown(list(EXAMPLES), value="Support ticket", label="Example")
     with gr.Row():
         state = gr.Textbox(label="State (text, or a JSON list/object)", lines=10)
