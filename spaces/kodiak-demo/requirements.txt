@@ -1,0 +1,2 @@
+kodiak-s1[infer] @ git+https://github.com/grizzlypeaksoftware/kodiak
+gradio>=5

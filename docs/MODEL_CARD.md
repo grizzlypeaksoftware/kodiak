@@ -1,7 +1,11 @@
 # Model card draft: Kodiak v0.1 (preview)
 
 > **Draft for the first public release.** Numbers marked ⟨TBD⟩ are filled in from the final model's reports. The
-> published card is this file plus the Hugging Face front matter; keep both in sync.
+> published card is this file plus the Hugging Face front matter below; keep both in sync.
+>
+> Front matter: `license: apache-2.0`, `language: en`, `library_name: kodiak`, `inference: false` (Kodiak's typed-question format
+> doesn't fit Hugging Face's standard zero-shot widget; the demo Space is the "try it" page), `base_model: answerdotai/ModernBERT-base`,
+> tags `kodiak, decision-model, calibration, abstention, encoder, modernbert`.
 
 ## Kodiak: fast, calibrated decisions in one forward pass
 
@@ -30,6 +34,12 @@ kodiak.decide(
 )
 # -> intent: an answer with probabilities; urgency: mean, std and interval; carrier: most likely abstains (not in the state)
 ```
+
+## Ways to run it
+
+- **Try it:** the demo Space ⟨link⟩ (source in `spaces/kodiak-demo/`).
+- **Hosted for you:** Deploy → Inference Endpoints; the repo includes `handler.py` (CPU is enough, ~80 ms per request on 8 cores).
+- **Run it yourself:** `pip install "kodiak-s1[infer] @ git+https://github.com/grizzlypeaksoftware/kodiak"`, or the Docker/ONNX server ⟨Phase 6⟩.
 
 ## Model details
 

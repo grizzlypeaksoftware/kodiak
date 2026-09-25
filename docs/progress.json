@@ -309,6 +309,10 @@
   {
    "date": "2026-09-25",
    "text": "Release kit: Kodiak.from_pretrained loader, export/push CLI, [infer] install extra, model card draft, quickstart; calibration-bug fix re-pushed to the private preview; CPU ~80 ms"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "Distribution plan: demo Space + Inference Endpoints handler built and tested; hosted Kodiak API by Cortex Agent chosen as the productization path"
   }
  ]
 }

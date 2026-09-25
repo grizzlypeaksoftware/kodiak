@@ -103,6 +103,11 @@ class Kodiak:
 
             tokenizer_json = hf_hub_download(TOKENIZER_REPO, "tokenizer.json")
         shutil.copy(tokenizer_json, out / "tokenizer.json")
+        # Inference Endpoints support: a custom handler plus its install requirements.
+        release = Path(__file__).resolve().parents[2] / "release"
+        for name in ("handler.py", "requirements.txt"):
+            if (release / name).exists():
+                shutil.copy(release / name, out / name)
         return out
 
 

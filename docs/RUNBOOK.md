@@ -156,7 +156,12 @@ nohup setsid uv run python -m kodiak_s1.hub push --folder dist/kodiak-small-r1 \
 - Uploads of ~600 MB take 10–20 minutes over this machine's WiFi; run them detached and verify with the Hub API (file list + SHA-256).
 - `Kodiak.from_pretrained(repo_or_folder)` *assigns* the calibration temperatures and uses the tuned abstain threshold as the default.
   (Before 2026-09-25, raw checkpoints carried temperatures of 1.0; only the eval harness applied calibration.)
-- The public model card draft is `docs/MODEL_CARD.md`.
+- The public model card draft is `docs/MODEL_CARD.md`. Model repos use `library_name: kodiak` and `inference: false` (no generic widget).
+- **Inference Endpoints:** `release/handler.py` + `release/requirements.txt` are copied into every export; test locally with
+  `cd dist/<model> && uv run --project ../.. python -c "from handler import EndpointHandler; ..."`.
+- **Demo Space:** `spaces/kodiak-demo/` (Gradio). Test locally: `KODIAK_MODEL=dist/kodiak-small-r1 uv run --with "gradio>=5" python spaces/kodiak-demo/app.py`.
+  Deploy by creating a Gradio Space under `cortex-agent-llc` and uploading the folder; set the variable `KODIAK_MODEL`, and while the
+  model is private, an `HF_TOKEN` secret with read access.
 
 ## 6. Track A pretraining corpus (deferred)
 
