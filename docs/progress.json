@@ -321,6 +321,10 @@
   {
    "date": "2026-09-25",
    "text": "Demo Space running (private): comgen42/kodiak-demo loads the private model from cortex-agent-llc; ~0.85 s round trip; transfer to the org and go public at launch"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "Research preview public: cortex-agent-llc/kodiak-small-r1-preview (weights, handler, preview model card); demo Space gets a preview banner"
   }
  ]
 }
