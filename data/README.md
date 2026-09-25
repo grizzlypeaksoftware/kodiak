@@ -10,6 +10,7 @@ Everything here is reproducible from code. Large outputs are git-ignored; only t
 | `synthetic/*.jsonl` | Teacher-generated examples, including rejected jobs, kept for auditing | no |
 | `eval/kodiak-eval-v0.1.jsonl` | The frozen eval set, plus `.stats.json` | yes |
 | `eval/synthetic_reviewed_v0.1.jsonl` | Human review verdicts for the synthetic eval slice (from `tools/review.html`) | yes |
+| `eval/synthetic_reviewed_gen2_v0.1.jsonl` | Human review of 55 Generator v2 eval candidates (seed 7; 92.7% label precision). Contains FineWeb-Edu excerpts (ODC-By; attribution in LICENSES.md) | yes |
 
 ## Rebuild
 

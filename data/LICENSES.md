@@ -82,4 +82,13 @@ License column = what we verified against the **upstream** source, not just the 
 
 | ID | Name | License | URL | Use |
 |---|---|---|---|---|
-| `fineweb_edu` | FineWeb-Edu (sample-10BT) | ODC-By-1.0 (drawn from Common Crawl; subject to CommonCrawl terms of use) | https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu | 100–450-word passages used as states for Generator v2 grounded examples (record meta carries the FineWeb id). Per GENERATOR_V2.md §7, the published dataset will ship FineWeb ids + a rebuild script, not the excerpts. Also downloaded for the deferred Track A pretraining. |
+| `fineweb_edu` | FineWeb-Edu (sample-10BT) | ODC-By-1.0 (drawn from Common Crawl; subject to CommonCrawl terms of use) | https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu | 100–450-word passages used as states for Generator v2 grounded examples (record meta carries the FineWeb id). Per GENERATOR_V2.md §7, the published training dataset will ship FineWeb ids + a rebuild script, not the excerpts. **Exception:** `data/eval/synthetic_reviewed_gen2_v0.1.jsonl` (the human-graded v2 eval candidates) includes excerpts verbatim; see the attribution below. Also downloaded for the deferred Track A pretraining. |
+
+#### Attribution: FineWeb-Edu excerpts in this repository
+
+`data/eval/synthetic_reviewed_gen2_v0.1.jsonl` contains short excerpts (100–450 words) from **FineWeb-Edu** by Hugging Face
+(Lozhkov, Ben Allal, von Werra, Wolf, 2024; https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu), made available under the
+**Open Data Commons Attribution License (ODC-By) v1.0** (https://opendatacommons.org/licenses/by/1-0/). FineWeb-Edu is derived from
+Common Crawl, and use is also subject to the Common Crawl terms of use (https://commoncrawl.org/terms-of-use). Each grounded record
+identifies its source document: `passage.id` / `passage.url` in the record and `fineweb-edu <id>` in `example.meta.notes`.
+The questions, labels and review verdicts in that file are Kodiak's (Apache-2.0).
