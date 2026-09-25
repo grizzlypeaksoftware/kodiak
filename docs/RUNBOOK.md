@@ -160,7 +160,10 @@ nohup setsid uv run python -m kodiak_s1.hub push --folder dist/kodiak-small-r1 \
 - **Inference Endpoints:** `release/handler.py` + `release/requirements.txt` are copied into every export; test locally with
   `cd dist/<model> && uv run --project ../.. python -c "from handler import EndpointHandler; ..."`.
 - **Demo Space:** `spaces/kodiak-demo/` (Gradio). Test locally: `KODIAK_MODEL=dist/kodiak-small-r1 uv run --with "gradio>=5" python spaces/kodiak-demo/app.py`.
-  Deploy by creating a Gradio Space under `cortex-agent-llc` and uploading the folder; set the variable `KODIAK_MODEL`, and while the
+  **Live (private):** `comgen42/kodiak-demo` (Shane's personal account, covered by HF Pro; private Spaces in the org need a paid Team plan).
+  On launch day: Settings → "Rename or transfer" to `cortex-agent-llc` and make it public (public Spaces are free), then drop the `HF_TOKEN`
+  secret once the model is public. Update the app with `HfApi().upload_folder(repo_id=..., repo_type="space", folder_path="spaces/kodiak-demo")`.
+  Deploy a new one by creating a Gradio Space and uploading the folder; set the variable `KODIAK_MODEL`, and while the
   model is private, an `HF_TOKEN` secret with read access.
 
 ## 6. Track A pretraining corpus (deferred)
