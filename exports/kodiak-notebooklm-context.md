@@ -439,6 +439,30 @@ questions for real text), pilot #2's disagreement on inferred questions fell fro
 Cost: **about $1.35 per 1,000 jobs**; all pilots together cost 25 cents. Next: Shane reviews 55 examples by hand (target: at least 95% of
 labels correct), then an ~11,000-job batch (~$15) and an A/B test: v1 data vs. v2 data at equal size.
 
+## 14d. The strategy: frontier in its class (Sept 25)
+
+Shane asked whether Kodiak can make a real dent, and whether it can be "frontier." The answer became the project's strategy (docs/STRATEGY.md):
+- **Not** frontier the way GPT or Claude is. A 150–400M-parameter encoder won't out-reason large LLMs, and doesn't need to.
+- **Frontier in its class:** the best open-weights model for *structured decisions*. Near-LLM accuracy on decisions at 100×+ the speed,
+  better calibration than the alternatives, honest abstention, answers that can't go off-menu, and weights plus recipe fully open.
+- **The product shape is System 1 in front of System 2:** Kodiak answers everything in milliseconds; confident answers are used
+  directly; uncertain ones escalate to an LLM or a human. Calibration makes that safe, because "90% sure" really means about 90% right.
+- **The release bar, written before measuring:** beat every open zero-shot classifier (NLI zero-shot models, GLiClass) on never-seen
+  tasks; within ~10 points of a 7–8B LLM at 100× its speed; calibration error ≤ 0.05 and best of all systems; abstain precision ≥ 0.90;
+  fully reproducible. If a criterion fails, the release says so.
+- **The levers, in order:** better data (Generator v2), the training recipe (done: +3.9 points on never-seen tasks), a bigger backbone
+  (ModernBERT-large), hard-example mining and minimal pairs, longer inputs, and a fine-tuning kit so users can adapt Kodiak to their own labels.
+
+**The first scoreboard against the real competition (same day).** Kodiak (150M parameters) was tested against the open models people use for
+zero-shot classification today: NLI-based classifiers and GLiClass (435–439M parameters, about three times bigger). Results on choice questions:
+- **Overall, Kodiak crushed them:** 78% accuracy vs. 55% for the best rival, calibration error 0.049 vs. 0.16 or worse, and 8 ms vs. 14–48 ms, while also
+  handling numeric scores and abstention, which they can't do properly.
+- **But on never-seen tasks, it's close and Kodiak is slightly behind:** GLiClass-instruct-large gets 70.5% forced accuracy vs. Kodiak's 69.1%.
+  Kodiak loses on guessing someone's occupation from a biography and on banking intents (the rivals' specialty), and wins big on detecting
+  jailbreak prompts (68% vs. about 50%). So the "best in class" bar is **not met yet**, which is exactly why the bar was written down before measuring.
+- **A contamination catch:** one rival looked strong on banking intents, and its model card showed it had *trained* on that dataset. Its clean
+  version dropped 12 points there. A zero-shot score is only zero-shot if the model never saw the task.
+
 ## 15. Timeline
 
 - **Sept 23 (day one):** environment check; name collision; architecture designed and approved; 20 datasets converted; eval set

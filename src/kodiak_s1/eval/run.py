@@ -365,8 +365,8 @@ def cmd_baseline(a) -> None:
 # Report
 # ---------------------------------------------------------------------------
 
-COLS = [("n_questions", "n", "{:.0f}"), ("accuracy", "acc", "{:.3f}"), ("macro_f1", "macro-F1", "{:.3f}"),
-        ("ece", "ECE", "{:.3f}"), ("brier", "Brier", "{:.3f}"), ("abstain_precision", "abst-P", "{:.2f}"),
+COLS = [("n_questions", "n", "{:.0f}"), ("accuracy", "acc", "{:.3f}"), ("forced_accuracy", "forced acc", "{:.3f}"),
+        ("macro_f1", "macro-F1", "{:.3f}"), ("ece", "ECE", "{:.3f}"), ("forced_ece", "forced ECE", "{:.3f}"), ("brier", "Brier", "{:.3f}"), ("abstain_precision", "abst-P", "{:.2f}"),
         ("abstain_recall", "abst-R", "{:.2f}"), ("score_mae", "score MAE", "{:.3f}"), ("score_answered", "score given", "{:.2f}"),
         ("score_interval_coverage", "90%-int cov", "{:.2f}"), ("latency_p50_ms", "p50 ms", "{:.0f}")]
 
@@ -379,9 +379,12 @@ def load_preds(p: str) -> tuple[dict, list[dict]]:
 
 def cmd_report(a) -> None:
     systems = [load_preds(p) for p in a.preds]
+    if a.choice_only:  # for baselines that only answer choice questions (eval/zeroshot.py)
+        systems = [(m, [r for r in recs if r["type"] == "choice"]) for m, recs in systems]
     # Compare on the common subset of examples, so baselines evaluated on a sample are compared fairly.
     common = set.intersection(*[{r["ex"] for r in recs} for _, recs in systems])
-    lines = [f"# Kodiak eval report\n", f"Eval set: `{systems[0][0].get('eval', EVAL)}`; examples compared: {len(common)}\n"]
+    lines = [f"# Kodiak eval report\n", f"Eval set: `{systems[0][0].get('eval', EVAL)}`; examples compared: {len(common)}"
+             + ("; **choice questions only**" if a.choice_only else "") + "\n"]
     results = {}
     for meta, recs in systems:
         name = meta.get("system", "?")
@@ -445,6 +448,7 @@ def main(argv=None) -> None:
     r = sub.add_parser("report")
     r.add_argument("preds", nargs="+")
     r.add_argument("--out", default="reports/eval-report.md")
+    r.add_argument("--choice-only", action="store_true", help="compare choice questions only")
     a = ap.parse_args(argv)
     {"calibrate": cmd_calibrate, "predict": cmd_predict, "baseline": cmd_baseline, "report": cmd_report}[a.cmd](a)
 

@@ -131,3 +131,18 @@ def test_null_threshold_moves_up_when_model_over_abstains():
     out = fit_null_threshold(pairs, cal)
     assert 0.6 < out["null_threshold"] <= 0.9
     assert out["decision_acc_at_best"] > out["decision_acc_at_0.5"]
+
+
+def test_zeroshot_records_abstain_rule_and_forced_metrics():
+    from kodiak_s1.eval.metrics import summarize
+    from kodiak_s1.eval.zeroshot import records
+
+    ex = {"meta": {"source": "s", "tags": []},
+          "answers": {"a": {"label": "x"}, "b": {"null": True}, "c": {"label": "y"}}}
+    qs = [{"id": k, "type": "choice", "labels": [{"id": "x", "text": "X"}, {"id": "y", "text": "Y"}]} for k in "abc"]
+    recs = records(0, ex, qs, [[0.9, 0.2], [0.3, 0.1], [0.4, 0.2]], 5.0)
+    assert recs[0]["decision"] == "x" and abs(recs[0]["p_null"] - 0.1) < 1e-9
+    assert recs[1]["decision"] is None and recs[2]["decision"] is None  # best label below 0.5 -> abstain
+    m = summarize(recs)
+    assert abs(m["accuracy"] - 2 / 3) < 1e-9  # a right, b right (abstained on a null), c wrong (abstained)
+    assert m["forced_accuracy"] == 0.5  # answerable a (x: right) and c (argmax x, gold y: wrong)

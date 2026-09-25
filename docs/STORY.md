@@ -181,6 +181,13 @@ know" that would have muddled Kodiak's abstain signal. It had also been asking w
 small rules later, the second pilot's disagreements fell by a third to three quarters, depending on the kind of question, and nearly a quarter
 of all kept questions were the "answerable by inference" kind that v1 never produced. The whole morning of pilots cost 25 cents.
 
+Midway through day three, with the v2 batch humming in the cloud, Shane asked the big question: *can this actually matter? Can it
+be frontier?* The honest answer set the project's direction. Kodiak will never out-reason a 27-billion-parameter LLM, and it shouldn't
+try. But it already matched one on familiar decisions at four hundred times the speed, with confidence you can threshold on. The goal
+became **frontier in its class**: the best open model for structured decisions, the fast "System 1" that handles most traffic and knows
+which cases to hand to a slower "System 2." To keep that claim honest, we wrote down what it would take *before* measuring
+(docs/STRATEGY.md), and added the real competition to the scoreboard: the open zero-shot classifiers people use for this job today.
+
 *(Continued as the project progresses.)*
 
 ---

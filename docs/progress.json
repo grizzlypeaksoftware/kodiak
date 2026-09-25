@@ -293,6 +293,18 @@
   {
    "date": "2026-09-25",
    "text": "Shane's review of v2 eval candidates: 92.7% (unanswerable 100%); added one-defensible-answer rules + two critics; 11k-job batch launched (cap $30)"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "Strategy adopted (D27, docs/STRATEGY.md): frontier-class open-weights decision model, with a release bar written before measuring; open zero-shot classifiers added as baselines"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "Open-classifier baselines: Kodiak far ahead overall (+23 pts acc), best calibration, fastest; but GLiClass-instruct-large edges it on held-out (0.705 vs 0.691 forced). Best-in-class bar not met yet"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "First upload: best model (R1) as a PRIVATE preview at huggingface.co/cortex-agent-llc/kodiak-small-r1-preview (weights verified by SHA-256); public release after the v2 A/B + release kit"
   }
  ]
 }

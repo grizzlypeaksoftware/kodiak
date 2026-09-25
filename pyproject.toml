@@ -31,6 +31,9 @@ train = [
 Repository = "https://github.com/grizzlypeaksoftware/kodiak"
 
 [dependency-groups]
+baselines = [
+    "gliclass>=0.1.20",
+]
 dev = [
     "pytest>=8",
     "transformers>=4.48",  # reference ModernBERT implementation for parity tests

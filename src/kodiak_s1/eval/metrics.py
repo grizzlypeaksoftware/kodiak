@@ -90,6 +90,18 @@ def summarize(records: list[dict]) -> dict:
             briers.append(sum((p - (1.0 if k == g else 0.0)) ** 2 for k, p in d.items()) + (0.0 if g in d else 1.0))
             nlls.append(-math.log(max(d.get(g, 0.0), 1e-12)))
         answerable = [i for i, g in enumerate(golds) if g != NULL]
+        # Forced: on answerable questions, pick the most likely label even if the system would abstain.
+        # Measures pure ranking skill, the fair comparison with baselines that can't abstain.
+        f_correct, f_conf = [], []
+        for i in answerable:
+            probs = ch[i]["probs"]
+            if probs:
+                best = max(probs, key=probs.get)
+                f_correct.append(float(best == golds[i]))
+                f_conf.append(probs[best] / (sum(probs.values()) or 1.0))
+        if f_correct:
+            out.update({"forced_accuracy": float(np.mean(f_correct)),
+                        "forced_ece": ece(np.array(f_conf), np.array(f_correct))})
         out.update({
             "choice_n": len(ch),
             "accuracy": float(correct.mean()),

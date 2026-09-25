@@ -196,3 +196,25 @@ disagreement drove two changes.
 4. **Hand-written sectors, generated domains.** 16 sectors fixed by us (breadth by construction), 320 domains and 971 document types by the writer.
 **Evidence.** Pilot #1 → #2 checker disagreement: stated 8% → 2%, inferred 37% → 20%, unanswerable 44% → 36%, at the same yield (82%) and cost
 ($1.35 per 1k jobs, about half the §4 estimate because the critic and perturber aren't in v2.0).
+
+### D27: The strategy is "frontier-class open-weights decision model"
+**Context.** Shane asked whether Kodiak can provide real-world value and reach "frontier" (2026-09-25). Current numbers: tied with Qwen 27B
+in-domain at ~400× the speed with better calibration, but 66% vs. 86% on never-seen tasks.
+**Decision.** Aim for frontier *in class*, not frontier in general: the best open model for structured decisions (accuracy, calibration,
+abstention, speed), deployed as a System 1 in front of an LLM or a human. A measurable release bar was written *before* the comparison
+runs (docs/STRATEGY.md §6): beat every open zero-shot classifier on held-out choice questions; within ~10 points of a 7–8B LLM at ≥100× speed;
+ECE ≤ 0.05 and best of all systems; abstain precision ≥ 0.90; fully reproducible and permissively licensed.
+**Consequences.** Open zero-shot classifiers (NLI zero-shot v2.0, GLiClass) join the eval as baselines (`eval/zeroshot.py`), with forced
+accuracy as a new metric; a 7–8B LLM baseline and a public benchmark suite are still to be chosen.
+**Not chosen.** Competing with general LLMs on reasoning or knowledge: the wrong fight for a 150–400M encoder.
+**Result (same day).** First baseline comparison (`reports/zeroshot-baselines.md`, STRATEGY.md §4): Kodiak leads overall by a wide
+margin and on calibration and latency, but on held-out choice questions GLiClass-instruct-large (~0.4B) edges it out (forced 0.705 vs. 0.691).
+Criterion 1 is not met yet. The standard NLI zero-shot v2.0 models trained on banking77 (a Kodiak held-out source), so their clean "-28heldout"
+variant is the fair comparison (0.671). The deciding tests are now the Generator v2 A/B and ModernBERT-large.
+
+### D28: Release home on Hugging Face
+**Decision (Shane, 2026-09-25).** Models, datasets and the demo Space are published under the Hugging Face **organization
+`cortex-agent-llc`** (https://huggingface.co/cortex-agent-llc), owned by Shane's personal account, rather than under a personal account or
+a separate company login. The organization owns the artifacts (matching the Cortex Agent LLC copyright), teammates can be added later, and uploads
+use a fine-grained write token scoped to the org. Repo ids will look like `cortex-agent-llc/kodiak-<size>-v0.1` (the public size names are
+still open, D23). The code stays at github.com/grizzlypeaksoftware/kodiak for now; a Cortex Agent GitHub org is a possible later move.

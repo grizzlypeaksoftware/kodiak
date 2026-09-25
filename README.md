@@ -22,6 +22,10 @@ Can this even be answered? Kodiak answers those directly with a small encoder in
 It's inspired by TypeSafe AI's "System One" model Jev (announced September 2026), built independently in the open, and
 it doubles as a learning project whose reasoning is documented at every step. The full story is in [docs/STORY.md](docs/STORY.md).
 
+**The goal: a frontier-class open-weights decision model.** Not a smaller chatbot, but the best open model *in its class*:
+near-LLM accuracy on decisions at 100×+ the speed, better-calibrated than the alternatives, and honest about what it can't tell.
+The definition, the measurable release bar and the plan are in [docs/STRATEGY.md](docs/STRATEGY.md).
+
 ## The contract
 
 Request:
@@ -70,11 +74,12 @@ Checkpoints are named `kodiak-{track}-{size}-v{n}`, for example `kodiak-b-small-
 
 | Doc | Read it for |
 |---|---|
+| [docs/STRATEGY.md](docs/STRATEGY.md) | The goal (frontier-class open decision model), the competition, the release bar, and the levers |
 | [docs/STORY.md](docs/STORY.md) | Why Kodiak exists and how it was built, including the dead ends |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | The model design and the reasoning behind it |
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Every significant decision, the alternatives, and why |
 | [docs/RUNBOOK.md](docs/RUNBOOK.md) | How to build data, run the teacher, and train on a DGX Spark |
-| [docs/GENERATOR_V2.md](docs/GENERATOR_V2.md) | Design for the next synthetic-data generator (draft) |
+| [docs/GENERATOR_V2.md](docs/GENERATOR_V2.md) | Generator v2: design, implementation plan and build log |
 | [LEARNING.md](LEARNING.md) | The technical journal: concepts, experiments, and results, phase by phase |
 | [data/README.md](data/README.md) | How the training and eval data are built, and what the build guarantees |
 | [data/LICENSES.md](data/LICENSES.md) | The source and license of every dataset, and what we excluded |

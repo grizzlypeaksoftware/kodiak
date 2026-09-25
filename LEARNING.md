@@ -544,3 +544,19 @@ both pick the same plausible option. A "critic" that is shown the answer and ask
 only 3 of the 12 bad labels; two different critics together caught 5. Lesson: it's cheaper to *prevent* ambiguity in the writer prompt (one
 defensible answer, one clear referent, no "which is NOT…" questions) than to detect it afterwards. Also: 12 errors in 165 means the true rate
 could plausibly be anywhere from about 4% to 12%, so one review batch can't separate 92.7% from 95% with confidence.
+
+## The real competition: open zero-shot classifiers (2026-09-25)
+
+**Why this comparison.** Beating a 27B LLM on speed says nothing about whether Kodiak is the best *of its kind*. The fair rivals are the open
+models built for zero-shot classification: NLI-based classifiers (MoritzLaurer zeroshot-v2.0) and GLiClass. Numbers are in STRATEGY.md §4.
+
+**Concept: forced accuracy.** These models can't abstain, so plain accuracy punishes them for guessing badly about *when* to abstain. Forced
+accuracy asks only: on answerable questions, is the top-ranked label right? That isolates ranking skill.
+
+**Concept: contamination.** One baseline looked strong on banking77, one of our held-out tasks, and its model card revealed it was trained
+on banking77. Its clean variant (trained without those tasks) lost 12 points there. A "zero-shot" number is only zero-shot if the model never saw
+the task: always check the training data of a baseline, not just of your own model.
+
+**Result.** Kodiak wins overall by a wide margin, and on calibration and speed, but on never-seen *classification* tasks (occupation from a bio,
+banking intent) a GLiClass model with 2.9× the parameters is 1–2 points ahead. That's the honest gap to "best in class," and it lines up with the known
+weakness: inferring a category that isn't stated word for word.
