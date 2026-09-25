@@ -19,6 +19,17 @@ data = [
     "tokenizers>=0.20",
 ]
 
+# Running a released model: `pip install "kodiak-s1[infer] @ git+https://github.com/grizzlypeaksoftware/kodiak"`,
+# then `from kodiak_s1.hub import Kodiak`. CPU works; a GPU is used when available.
+infer = [
+    "torch>=2.9",
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "safetensors>=0.4",
+    "tokenizers>=0.20",
+    "huggingface_hub>=0.25",
+]
+
 # Model training (Phase 3+). torch comes from the official CUDA 13 index (aarch64 wheels for the DGX Spark).
 train = [
     "torch>=2.9",

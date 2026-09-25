@@ -712,6 +712,14 @@ data = [
     { name = "huggingface-hub" },
     { name = "tokenizers" },
 ]
+infer = [
+    { name = "huggingface-hub" },
+    { name = "numpy" },
+    { name = "safetensors" },
+    { name = "scipy" },
+    { name = "tokenizers" },
+    { name = "torch" },
+]
 train = [
     { name = "numpy" },
     { name = "safetensors" },
@@ -732,14 +740,20 @@ dev = [
 requires-dist = [
     { name = "datasets", marker = "extra == 'data'", specifier = ">=3.0" },
     { name = "huggingface-hub", marker = "extra == 'data'", specifier = ">=0.25" },
+    { name = "huggingface-hub", marker = "extra == 'infer'", specifier = ">=0.25" },
+    { name = "numpy", marker = "extra == 'infer'", specifier = ">=1.26" },
     { name = "numpy", marker = "extra == 'train'", specifier = ">=1.26" },
     { name = "pydantic", specifier = ">=2.7" },
+    { name = "safetensors", marker = "extra == 'infer'", specifier = ">=0.4" },
     { name = "safetensors", marker = "extra == 'train'", specifier = ">=0.4" },
+    { name = "scipy", marker = "extra == 'infer'", specifier = ">=1.11" },
     { name = "scipy", marker = "extra == 'train'", specifier = ">=1.11" },
     { name = "tokenizers", marker = "extra == 'data'", specifier = ">=0.20" },
+    { name = "tokenizers", marker = "extra == 'infer'", specifier = ">=0.20" },
+    { name = "torch", marker = "extra == 'infer'", specifier = ">=2.9", index = "https://download.pytorch.org/whl/cu130" },
     { name = "torch", marker = "extra == 'train'", specifier = ">=2.9", index = "https://download.pytorch.org/whl/cu130" },
 ]
-provides-extras = ["data", "train"]
+provides-extras = ["data", "infer", "train"]
 
 [package.metadata.requires-dev]
 baselines = [{ name = "gliclass", specifier = ">=0.1.20" }]

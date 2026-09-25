@@ -560,3 +560,15 @@ the task: always check the training data of a baseline, not just of your own mod
 **Result.** Kodiak wins overall by a wide margin, and on calibration and speed, but on never-seen *classification* tasks (occupation from a bio,
 banking intent) a GLiClass model with 2.9× the parameters is 1–2 points ahead. That's the honest gap to "best in class," and it lines up with the known
 weakness: inferring a category that isn't stated word for word.
+
+## Release kit, and a calibration bug caught before shipping (2026-09-25)
+
+`kodiak_s1.hub.Kodiak` loads a model folder or Hub repo and answers requests; `python -m kodiak_s1.hub export|push` packages and
+uploads. Two findings:
+- **Calibration lived in the wrong place.** The three temperatures are model buffers that default to 1.0; training checkpoints never set
+  them, because the eval harness applied `calibration.json` itself. The first private upload was therefore uncalibrated (intent confidence
+  0.95 instead of 0.84; the default 0.5 abstain threshold instead of 0.75). Eval numbers were unaffected. Now export bakes the temperatures into
+  the weights and the loader assigns them, so it's correct either way. Lesson: test the artifact users get, not just the pipeline you evaluate.
+- **CPU works:** ~80 ms per request on the Spark's 8 ARM cores (fp32), ~8 ms on its GPU; answers agree within bf16 rounding.
+- **Two honest demo misses** kept as before/after tests for Generator v2: "charged twice, nobody answers" gets urgency 1.3/10, and
+  "box arrived crushed, lamp broken" gets intent "delivery status" (0.54) instead of "refund or replacement".

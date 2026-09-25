@@ -140,6 +140,24 @@ for l in sys.stdin:
 **Reference numbers** (Phase 3): b-small ≈ 34k tokens/s with `torch.compile` (≈ 28k during eval-heavy stretches),
 ~11 GB. One epoch of the public data (≈ 53M tokens) ≈ 25 minutes.
 
+## 5b. Exporting and publishing a model
+
+```bash
+# checkpoint + calibration -> a self-contained model folder (weights with temperatures baked in, config, calibration, tokenizer)
+uv run python -m kodiak_s1.hub export --ckpt runs/b-small-s1-R1-cap3/checkpoints/step_0006000.pt \
+  --calibration runs/b-small-s1-R1-cap3/calibration-final-thr.json --out dist/kodiak-small-r1
+uv run python examples/quickstart.py dist/kodiak-small-r1          # smoke test (CPU or GPU)
+# push to the Hugging Face org (D28); the token is HUGGINGFACE_API_KEY in ~/.bashrc, never printed
+eval "$(grep -E '^\s*export HUGGINGFACE_API_KEY=' ~/.bashrc | tail -1)" && export HF_TOKEN="$HUGGINGFACE_API_KEY"
+nohup setsid uv run python -m kodiak_s1.hub push --folder dist/kodiak-small-r1 \
+  --repo cortex-agent-llc/kodiak-small-r1-preview --private > dist/push.log 2>&1 < /dev/null &
+```
+
+- Uploads of ~600 MB take 10–20 minutes over this machine's WiFi; run them detached and verify with the Hub API (file list + SHA-256).
+- `Kodiak.from_pretrained(repo_or_folder)` *assigns* the calibration temperatures and uses the tuned abstain threshold as the default.
+  (Before 2026-09-25, raw checkpoints carried temperatures of 1.0; only the eval harness applied calibration.)
+- The public model card draft is `docs/MODEL_CARD.md`.
+
 ## 6. Track A pretraining corpus (deferred)
 
 Track A is deferred (DECISIONS.md D19). A partial FineWeb-Edu `sample/10BT` download (19 of 28.5 GB, ODC-By) remains in

@@ -26,3 +26,4 @@ node_modules/
 data/synthetic/
 data/pretrain/
 reports/preds/
+dist/
