@@ -188,6 +188,10 @@ became **frontier in its class**: the best open model for structured decisions, 
 which cases to hand to a slower "System 2." To keep that claim honest, we wrote down what it would take *before* measuring
 (docs/STRATEGY.md), and added the real competition to the scoreboard: the open zero-shot classifiers people use for this job today.
 
+That afternoon the repository went public (github.com/grizzlypeaksoftware/kodiak), a few days before the weights: code, docs,
+decisions and dead ends first, so anyone could follow the build as it happened. The model itself stayed private on Hugging Face
+(cortex-agent-llc) until the v2 data test decides which version launches.
+
 *(Continued as the project progresses.)*
 
 ---

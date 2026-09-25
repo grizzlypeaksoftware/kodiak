@@ -313,6 +313,10 @@
   {
    "date": "2026-09-25",
    "text": "Distribution plan: demo Space + Inference Endpoints handler built and tested; hosted Kodiak API by Cortex Agent chosen as the productization path"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "GitHub repo made public (building in public); weights stay private until the v2 A/B picks the launch model"
   }
  ]
 }
