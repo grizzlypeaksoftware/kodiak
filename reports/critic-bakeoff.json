@@ -1,0 +1,134 @@
+{
+ "do:deepseek-3.2": {
+  "questions": 165,
+  "caught_of_human_rejected": "3/12",
+  "false_flags_of_human_ok": "1/153",
+  "precision_before": 0.927,
+  "precision_after": 0.944,
+  "kept_share": 0.976,
+  "missed": [
+   [
+    7,
+    "q1",
+    "stated"
+   ],
+   [
+    16,
+    "q1",
+    "stated"
+   ],
+   [
+    26,
+    "q2",
+    "stated"
+   ],
+   [
+    43,
+    "q2",
+    "stated"
+   ],
+   [
+    50,
+    "q3",
+    "inferred"
+   ],
+   [
+    15,
+    "q1",
+    "stated"
+   ],
+   [
+    53,
+    "q3",
+    "inferred"
+   ],
+   [
+    53,
+    "q4",
+    "stated"
+   ],
+   [
+    61,
+    "q2",
+    "inferred"
+   ]
+  ],
+  "false_flags": [
+   [
+    8,
+    "q4",
+    "inferred",
+    "wrong"
+   ]
+  ]
+ },
+ "do:openai-gpt-oss-120b": {
+  "questions": 165,
+  "caught_of_human_rejected": "3/12",
+  "false_flags_of_human_ok": "2/153",
+  "precision_before": 0.927,
+  "precision_after": 0.944,
+  "kept_share": 0.97,
+  "missed": [
+   [
+    7,
+    "q1",
+    "stated"
+   ],
+   [
+    16,
+    "q1",
+    "stated"
+   ],
+   [
+    26,
+    "q2",
+    "stated"
+   ],
+   [
+    43,
+    "q2",
+    "stated"
+   ],
+   [
+    44,
+    "q2",
+    "stated"
+   ],
+   [
+    48,
+    "q3",
+    "inferred"
+   ],
+   [
+    50,
+    "q3",
+    "inferred"
+   ],
+   [
+    53,
+    "q3",
+    "inferred"
+   ],
+   [
+    53,
+    "q4",
+    "stated"
+   ]
+  ],
+  "false_flags": [
+   [
+    13,
+    "q2",
+    "inferred",
+    "ambiguous"
+   ],
+   [
+    39,
+    "q3",
+    "inferred",
+    "wrong"
+   ]
+  ]
+ }
+}

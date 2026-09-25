@@ -108,6 +108,48 @@ def fit_calibration(pairs: list[tuple[dict, dict, dict]]) -> dict:
     return out
 
 
+def fit_null_threshold(pairs: list[tuple[dict, dict, dict]], cal: dict) -> dict:
+    """Choose the abstain threshold that makes the most correct calls on validation data.
+
+    A call is correct if the model abstains exactly when the question is unanswerable, and otherwise (for choice
+    questions) picks the gold label. The fixed 0.5 default made the model over-abstain on questions that need
+    inference (LEARNING.md, scaling test).
+    """
+    cal_pairs = [(apply_calibration(r, cal), q, g) for r, q, g in pairs]
+    grid = [round(0.30 + 0.05 * i, 2) for i in range(14)]  # 0.30 .. 0.95
+    scores = {}
+    for t in grid:
+        correct = 0
+        for r, q, g in cal_pairs:
+            abstain = r["allow_null"] and r["p_null"] >= t
+            if g.get("null"):
+                correct += abstain
+            elif abstain:
+                continue
+            elif r["type"] == "choice":
+                correct += r["labels"][int(np.argmax(r["cond_probs"]))] == g["label"]
+            else:
+                correct += 1  # answered an answerable score question (value quality is judged separately)
+        scores[t] = correct / len(cal_pairs)
+    best = max(grid, key=lambda t: (scores[t], -abs(t - 0.5)))  # ties go to the threshold nearest 0.5
+    return {"null_threshold": best, "decision_acc_at_best": round(scores[best], 4),
+            "decision_acc_at_0.5": round(scores[0.5], 4)}
+
+
+def synthetic_val_examples(files: str, limit: int) -> list[dict]:
+    """The same ~3% synthetic validation split the trainer holds out (hash of the state text)."""
+    from kodiak_s1.data.sources import hash_split
+
+    out = []
+    for path in files.split(","):
+        for line in open(path.strip(), encoding="utf-8"):
+            r = json.loads(line)
+            if r.get("status") == "ok" and hash_split(render_state(r["example"]["state"]), val=0.03, test=0) == "val":
+                out.append(r["example"])
+    random.Random(0).shuffle(out)
+    return out[:limit]
+
+
 def cmd_calibrate(a) -> None:
     model = load(a.model)
     exs = []
@@ -117,9 +159,13 @@ def cmd_calibrate(a) -> None:
             rows = read_jsonl(p)
             random.Random(0).shuffle(rows)
             exs += rows[: a.per_source]
+    if a.synthetic:
+        exs += synthetic_val_examples(a.synthetic, a.per_source)
     raws = raw_outputs(model, exs)
     pairs = [(r, q, ex["answers"][q["id"]]) for ex, rs in zip(exs, raws) for r, q in zip(rs, ex["questions"])]
     cal = fit_calibration(pairs)
+    if a.tune_threshold:
+        cal.update(fit_null_threshold(pairs, cal))
     cal["fit_on"] = f"validation splits, {len(exs)} examples"
     Path(a.out).write_text(json.dumps(cal, indent=2) + "\n")
     print(json.dumps(cal, indent=2))
@@ -174,7 +220,7 @@ def cmd_predict(a) -> None:
         raw_outputs(model, [exs[i]])
         torch.cuda.synchronize()
         lat[i] = (time.perf_counter() - t) * 1000
-    recs = kodiak_records(exs, raws, cal)
+    recs = kodiak_records(exs, raws, cal, null_threshold=(cal or {}).get("null_threshold", 0.5))
     for r in recs:
         r["latency_ms"] = lat.get(r["ex"])
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
@@ -379,6 +425,8 @@ def main(argv=None) -> None:
     c.add_argument("--model", required=True)
     c.add_argument("--data", default="data/processed")
     c.add_argument("--per-source", type=int, default=300)
+    c.add_argument("--synthetic", default="", help="comma-separated synth files; adds their validation split")
+    c.add_argument("--tune-threshold", action="store_true", help="also choose the abstain threshold on validation data")
     c.add_argument("--out", required=True)
     p = sub.add_parser("predict")
     p.add_argument("--model", required=True)

@@ -152,6 +152,35 @@ So the pipeline moved to the cloud: **gpt-oss-120b writes, DeepSeek V3.2 checks*
 models. The local run stopped at 3,290 examples, and the remaining ~7,700 jobs went to DigitalOcean at 16 in parallel,
 about 1,200 jobs an hour, for roughly $8 in total. That turned a two-day local job into an afternoon and freed the Spark's GPU for training.
 
+That evening the free scaling test ran: three identical models trained on 0, 3,300, and 9,411 synthetic examples. The
+answer was more interesting than "more is better." Synthetic data made Kodiak better overall (+1.2 points), much better on realistic
+LLM-style documents (52% → 93%), and better calibrated. But on the held-out tasks it had never seen, **accuracy didn't move**.
+A mid-test peek showed why the 3,300 model briefly looked *worse* there: it had learned the synthetic data's lesson, "say unanswerable when
+the fact isn't in the text," a little too well, and started abstaining on questions that needed *inference* (a biography that never literally
+says "attorney"; "why hasn't my card arrived?" meaning *card arrival*). Forced to answer, it knew just as much. The verdict followed the rule
+agreed before the test: don't buy more of the same data; build *better* data. That pointed straight at Generator v2.
+
+The night ended with a recipe ablation that ran unattended until 11:30 PM. The scaling test had shown two
+recipe problems: small datasets were being repeated until memorized (the sampler showed the model prompt-injection examples 29 times
+per run and Qasper 23 times), and early stopping kept halting runs before the learning-rate schedule's gentle finish. Capping
+repeats at three passes per dataset produced the day's biggest single gain: **held-out accuracy 62.5% → 66.4%**, with jailbreak
+detection alone up almost 9 points, at the cost of about 1.6 points on the small datasets it had been memorizing. It was a textbook
+demonstration of memorization vs. generalization, and for a model whose whole purpose is handling *new* label sets, the choice was easy.
+The cap and the full schedule became the defaults.
+
+### Day three: building the better generator
+
+With the data test pointing firmly at *better* data rather than more, Generator v2 went from design doc to working code in a morning. The first
+step was the map: sixteen hand-picked sectors (commerce to tool-using AI agents), which the writer model expanded into 320 domains and 971
+kinds of documents, from "tenant noise complaint email" to "soil test laboratory report", for about a penny. Almost half of the new examples
+don't use invented text at all; they're real paragraphs from the web, and the teacher only writes the questions.
+
+The first pilot looked healthy on paper (82% kept) but the checker was rejecting almost half the "unanswerable" questions. Reading them one by
+one showed the culprit wasn't the checker: the writer had been sneaking "Not known" into the answer options, a second way of saying "I don't
+know" that would have muddled Kodiak's abstain signal. It had also been asking which "processing queue" should handle a history article. Two
+small rules later, the second pilot's disagreements fell by a third to three quarters, depending on the kind of question, and nearly a quarter
+of all kept questions were the "answerable by inference" kind that v1 never produced. The whole morning of pilots cost 25 cents.
+
 *(Continued as the project progresses.)*
 
 ---

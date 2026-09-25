@@ -27,6 +27,9 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D20 | 2026-09-24 | Cloud teachers: permissive open-weight models only (pilot: gpt-oss-120b on DigitalOcean) | active |
 | D21 | 2026-09-24 | Checker chosen by bake-off against human review: DeepSeek V3.2 (different family from the gpt-oss writer) | active |
 | D22 | 2026-09-24 | Generator v2: targeted, grounded, hard-example-mined synthetic data; scale in measured steps | active |
+| D23 | 2026-09-24 | Iterate on the small backbone; ModernBERT-large later; public naming decided before release | active |
+| D24 | 2026-09-24 | Scaling test result: don't buy more v1-style data; improve data *kind* (Generator v2) and the training recipe | active |
+| D25 | 2026-09-24 | Training defaults: repeat cap of 3 passes per source, full LR schedule (no early stopping), abstain threshold tuned on validation | active |
 
 ---
 
@@ -145,3 +148,51 @@ mining with the student model, minimal pairs, a validation-driven planner (never
 human review queue. Scale 10k → 30k → (maybe) 100k only as the measured scaling curve justifies it.
 **Resolved at review.** Publish a rebuild script rather than web excerpts; 30% easy-example quota; ~50 human reviews per
 batch; ~$50 for the first 30k-job v2 batch.
+
+### D23: Iterate on small; large later
+**Context.** ModernBERT-large (~395M) would likely generalize better, at roughly 2–3× the inference cost (to be measured) and slower
+CPU serving. Data experiments take ~1 hour on small vs. several hours on large.
+**Decision (Shane).** Keep improving with the small backbone for now; defer a large probe run. The likely release plan is two sizes
+(fast and quality), decided after Phase 5.
+**Open naming question for release.** "b" = Track B. Kodiak's "small" is built on ModernBERT-*base*, which may confuse people;
+a candidate is public names `kodiak-base-v0.1` / `kodiak-large-v0.1` (internal run names unchanged).
+
+### D24: Scaling-test result, better data rather than more data
+**Evidence (three otherwise identical small models, 0 / 3,300 / 9,411 synthetic examples from the same pool; final checkpoints).**
+Overall 0.766 → 0.769 → 0.778; in-domain 0.807 → 0.811 → 0.820; synthetic slice 0.52 → 0.89 → 0.93; calibration error 0.068 → 0.053;
+**held-out 0.639 → 0.617 → 0.625 (flat, within noise), and held-out if forced to answer 0.663 → 0.645 → 0.649 (no gain).**
+**Decision.** Per the rule agreed before the test, a flat held-out curve means more v1-style data won't close the generalization gap.
+Keep the 9.4k synthetic set (it helps overall accuracy, calibration, abstention, and realistic inputs), don't buy a bigger v1 batch, and put effort
+into (1) the training recipe (small-dataset overfitting, checkpoint choice, abstain threshold) and (2) Generator v2, especially
+"answerable by inference" questions (see the over-abstention finding in LEARNING.md).
+**Also confirmed.** For all three models the final checkpoint beat early stopping's "best" overall, so the stopping criterion needs rework.
+
+### D25: New training defaults from the recipe ablation
+**Evidence (same 9.4k synthetic data; full eval set; baseline = scaling-test 9,411 model, final checkpoint).**
+
+| Variant | Overall | In-domain | Held-out | Held-out, forced | ECE |
+|---|---|---|---|---|---|
+| Baseline (early-stopped, threshold 0.5) | 0.778 | 0.820 | 0.625 | 0.649 | 0.053 |
+| R0: + threshold tuned on validation (0.70) | 0.776 | 0.818 | 0.636 | 0.649 | 0.055 |
+| **R1: repeat cap 3 + full schedule + tuned threshold (0.75)** | 0.780 | 0.808 | **0.664** | **0.691** | **0.049** |
+| R2: full schedule, no cap, tuned threshold (0.60) | 0.781 | **0.824** | 0.621 | 0.664 | 0.069 |
+
+**Decision.** Adopt R1's recipe as the default: `max_epochs=3`, `patience=0`, and a threshold tuned at calibration. The cap trades about 1.6
+in-domain points (the losses are concentrated on small, memorizable sets: OpenBookQA, Qasper, WinoGrande) for about 4 points on never-seen tasks
+(jailbreak +8.8, Banking77 +2.8). Kodiak's value is zero-shot decisions with new label sets, so generalization wins.
+**Threshold.** The abstain threshold is a precision/recall dial (users can set it per request); tuning only picks a sensible default.
+**Next.** A cap between 3 and 5 might recover some in-domain accuracy; worth one cheap run later.
+
+### D26: Generator v2.0 as built, and two pilot-driven rules
+**Context.** v2.0 was built per GENERATOR_V2.md §9 (build log §10). Two 50–60-job pilots (seed 8, $0.15 total) and reading every writer/checker
+disagreement drove two changes.
+**Decisions.**
+1. **Answer basis + an inference-tolerant checker.** Every question is `stated`, `inferred` or `unanswerable`; the checker is told that confident
+   inference counts as an answer. This targets the over-abstention measured in D24.
+2. **No "unknown"-style options, ever.** Kodiak abstains through its null head. An option like "Not known" is a second, conflicting way to say
+   "I don't know", and it made unanswerable questions look answerable to the checker. Prompt rule + mechanical filter.
+3. **Reader-style decisions for real web text.** Routing / next action / compliance only on synthetic records; grounded passages get
+   classification, extraction, judgment scores, comparison and claim checks.
+4. **Hand-written sectors, generated domains.** 16 sectors fixed by us (breadth by construction), 320 domains and 971 document types by the writer.
+**Evidence.** Pilot #1 → #2 checker disagreement: stated 8% → 2%, inferred 37% → 20%, unanswerable 44% → 36%, at the same yield (82%) and cost
+($1.35 per 1k jobs, about half the §4 estimate because the critic and perturber aren't in v2.0).

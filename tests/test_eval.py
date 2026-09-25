@@ -115,3 +115,19 @@ def test_llm_score_parsing_is_lenient_and_schema_is_numeric():
     ex = {"meta": {"source": "t", "tags": []}, "questions": [q], "answers": {"s": {"value": 0.8}}}
     (r,) = llm_records(0, ex, {"s": {"answer": ">= 0.8", "confidence": "0.9"}}, 10.0)
     assert r["decision"] == 0.8 and abs(r["unit_pred"] - 0.8) < 1e-9
+
+
+def test_null_threshold_moves_up_when_model_over_abstains():
+    from kodiak_s1.eval.run import fit_null_threshold
+
+    pairs = []
+    for i in range(200):
+        # answerable questions where the model wrongly puts p_null ~0.6 (over-abstaining), and true nulls at ~0.9
+        answerable = i % 4 != 0
+        z_null = math.log(0.6 / 0.4) if answerable else math.log(0.9 / 0.1)
+        raw = _raw_choice([3, 0, 0], z_null)
+        pairs.append((raw, {"type": "choice"}, {"label": "x"} if answerable else {"null": True}))
+    cal = {"t_choice": 1.0, "t_null": 1.0, "kappa_scale": 1.0}
+    out = fit_null_threshold(pairs, cal)
+    assert 0.6 < out["null_threshold"] <= 0.9
+    assert out["decision_acc_at_best"] > out["decision_acc_at_0.5"]

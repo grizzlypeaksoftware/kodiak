@@ -76,13 +76,41 @@ HTTP errors (including 401/402) mark the job `retry`, so rerunning the command r
 **Human review** of synthetic eval candidates: open `tools/review.html` in a browser, load the candidates JSONL,
 mark each question (`a` OK / `x` wrong), export, and save as `data/eval/synthetic_reviewed_*.jsonl`.
 
+**Generator v2** (`src/kodiak_s1/data/gen2/`, design in `docs/GENERATOR_V2.md`): spec-driven, ~45% grounded in real
+FineWeb-Edu passages, writer `do:openai-gpt-oss-120b` + blind checker `do:deepseek-3.2` (the defaults). Load the key first:
+`eval "$(grep -E '^\s*export DO_INFERENCE_KEY=' ~/.bashrc | tail -1)" && export DO_INFERENCE_KEY` (never echo it).
+
+```bash
+uv run python -m kodiak_s1.data.gen2 show --seed 8 --n 10          # taxonomy summary + what sample jobs will ask for
+nohup setsid uv run python -m kodiak_s1.data.gen2 run --n 11000 --seed 6 --workers 16 \
+  --out data/synthetic/gen2_v20.jsonl --max-usd 20 > data/synthetic/gen2_v20.log 2>&1 < /dev/null &
+uv run python -m kodiak_s1.data.gen2 stats --in data/synthetic/gen2_v20.jsonl   # yield, inferred/null share, $ per 1k
+uv run python -m kodiak_s1.data.gen2 queue --in data/synthetic/gen2_v20.jsonl --n 50   # disagreements for human review
+```
+
+- **Budget cap:** `--max-usd` counts the whole output file (token counts × prices in `docs/progress.json`). When reached, running
+  jobs finish, the run exits with a message, and rerunning with a higher cap continues.
+- **Resume:** rerun the same command (finished jobs are skipped; `retry` jobs rerun). Specs are deterministic per (seed, job id), and
+  the coverage snapshot is frozen per output file (`<out>.coverage.json`).
+- **Near-duplicates** (MinHash, Jaccard > 0.8 against v1 + all `gen2_*.jsonl` files) are written with `status: near_duplicate` and not trained on.
+- **Seeds:** 6 = training data, 7 = eval candidates (human review; never train on them), 8 = pilots. File names: `gen2_*` (training;
+  feeds the coverage map `data/gen2/coverage.json`), `eval_gen2_*`, `pilot_gen2_*`.
+- **Taxonomy:** `data/gen2/taxonomy_v2.json` (16 sectors, 320 domains, 971 document types), generated once with
+  `... gen2 taxonomy` (refuses to overwrite without `--force`; it's versioned).
+- Register every run in `docs/progress.json` → `synthetic.runs` so the dashboard shows it.
+
 ## 5. Training
 
 ```bash
 # Track B, stage S1 (short states), ModernBERT-base backbone
-nohup setsid uv run python -m kodiak_s1.train --run runs/b-small-s1-v0 --preset small --init modernbert \
-  --synthetic data/synthetic/synth_v1.jsonl --steps 6000 --lr 5e-5 --head-lr 5e-4 --warmup 300 \
-  > runs/b-small-s1-v0.log 2>&1 < /dev/null &
+# (current best recipe = R1; D25 defaults: --max-epochs 3 --patience 0 are built in)
+nohup setsid uv run python -m kodiak_s1.train --run runs/b-small-s1-R1-cap3 --preset small --init modernbert \
+  --synthetic data/synthetic/synth_v1.jsonl,data/synthetic/synth_v1_cloud.jsonl --steps 6000 --lr 5e-5 --head-lr 5e-4 \
+  --warmup 300 > runs/b-small-s1-R1-cap3.log 2>&1 < /dev/null &
+# then calibrate the final checkpoint and tune the abstain threshold on validation:
+uv run python -m kodiak_s1.eval.run calibrate --model runs/b-small-s1-R1-cap3/checkpoints/step_0006000.pt \
+  --synthetic data/synthetic/synth_v1.jsonl,data/synthetic/synth_v1_cloud.jsonl --tune-threshold \
+  --out runs/b-small-s1-R1-cap3/calibration-final-thr.json
 ```
 
 A run directory contains:
@@ -96,7 +124,9 @@ A run directory contains:
 
 - **Resume:** rerun the same command. Data order is a function of (seed, step), so a resumed run sees the same batches.
 - **Stop cleanly:** send SIGTERM (`kill <pid>`). The trainer finishes the step, checkpoints, and exits (`"event": "stopped"`).
-- **Early stop:** after `--patience` (6) evals without a new best (`"event": "early_stop"`).
+- **Repeat cap (D25):** `--max-epochs 3` (default): no dataset is seen more than ~3 times per run; small sets were memorized otherwise.
+- **Early stop is off by default (D25):** `--patience 0`. The final checkpoint beat "best" in every run we measured; `best.pt` is still
+  saved for reference. `--patience N` turns early stopping back on.
 - **Plumbing check:** `--overfit 32` trains on 32 fixed examples. Any healthy setup memorizes them within ~50 steps.
 
 **Reading progress** (validation summary):

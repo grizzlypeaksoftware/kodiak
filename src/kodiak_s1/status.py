@@ -57,7 +57,12 @@ def _read_run(path: Path) -> dict:
     c = {"key": key, "done": len(done), "ok": sum(r["status"] == "ok" for r in done),
          "retry": sum(r.get("status") == "retry" for r in jobs.values()),
          "gen_in": tok("gen_prompt_tokens"), "gen_out": tok("gen_tokens"),
-         "ver_in": tok("verify_prompt_tokens"), "ver_out": tok("verify_tokens")}
+         "ver_in": tok("verify_prompt_tokens"), "ver_out": tok("verify_tokens"), "critic": {}}
+    for r in jobs.values():  # Generator v2 critic calls
+        for u in r.get("critic_usage", []):
+            m = c["critic"].setdefault(u["model"], [0, 0])
+            m[0] += u.get("prompt_tokens") or 0
+            m[1] += u.get("tokens") or 0
     _synth_cache[path] = c
     return c
 
@@ -67,14 +72,15 @@ def synth_status(procs: list[str], cfg: dict) -> dict:
     runs, total_ok = [], 0
     for run in cfg.get("runs", []):
         path = ROOT / run["file"]
-        running = any("kodiak_s1.data.synth" in c and run["file"].rsplit("/", 1)[-1] in c for c in procs)
+        running = any(("kodiak_s1.data.synth" in c or "kodiak_s1.data.gen2" in c) and run["file"].rsplit("/", 1)[-1] in c for c in procs)
         r = {"name": run["name"], "pilot": run.get("pilot", False), "writer": run.get("writer"),
              "verifier": run.get("verifier"), "target_jobs": run.get("target_jobs"), "running": running}
         if path.exists():
             c = _read_run(path)
             cost = 0.0
             for model, (i, o) in ((run.get("writer"), (c["gen_in"], c["gen_out"])),
-                                  (run.get("verifier"), (c["ver_in"], c["ver_out"]))):
+                                  (run.get("verifier"), (c["ver_in"], c["ver_out"])),
+                                  *((m, tuple(t)) for m, t in c.get("critic", {}).items())):
                 if model in prices:
                     cost += i / 1e6 * prices[model][0] + o / 1e6 * prices[model][1]
             r.update(done_jobs=c["done"], ok_examples=c["ok"], retry=c["retry"], cost_usd=round(cost, 4) if cost else None)

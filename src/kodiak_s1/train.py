@@ -41,7 +41,8 @@ class TrainConfig:
     preset: str = "tiny"
     init: str = "scratch"  # "scratch" (Track A) or "modernbert" (Track B)
     data: str = "data/processed"
-    synthetic: str = ""  # optional synth JSONL (generator output; status == ok records are used)
+    synthetic: str = ""  # comma-separated synth JSONL files (generator output; status == ok records are used)
+    synthetic_max: int = -1  # use at most this many synthetic training examples (a fixed random subset); -1 = all
     overfit: int = 0  # >0: train on only this many examples, repeatedly
     steps: int = 1000
     max_len: int = 2048  # tokens per packed row
@@ -53,13 +54,18 @@ class TrainConfig:
     weight_decay: float = 0.01
     grad_clip: float = 1.0
     sample_temp: float = 0.3  # source sampling probability ∝ size^temp
+    # Cap on expected passes over any one source during the run (0 = no cap). Default 3 from the recipe test (D25):
+    # held-out +3.9 points; without it, small datasets were seen 20-30 times and memorized.
+    max_epochs: float = 3.0
     # Train-time null augmentation (docs/ARCHITECTURE.md §9). Gold removal only applies to intent/occupation/MC
     # sources (~25% of samples), so its rate is higher to land near ~4% of all examples.
     p_gold_removed: float = 0.15
     p_mismatch: float = 0.04
     eval_every: int = 250
     val_per_source: int = 300
-    patience: int = 6  # stop after this many evals without a new best validation loss (0 = never)
+    # Stop after this many evals without a new best validation loss (0 = never). Off by default (D25): in every run so far,
+    # the full LR schedule's final checkpoint beat early stopping's pick. Validation is still logged, and best.pt still saved.
+    patience: int = 0
     seed: int = 0
     log_every: int = 10
     ckpt_every: int = 500
@@ -94,21 +100,32 @@ class Mixture:
                 with gzip.open(p, "rt", encoding="utf-8") as f:
                     self.val_lines[sid] = f.readlines()
         if cfg.synthetic:
-            syn, syn_val = [], []
-            for line in open(cfg.synthetic, encoding="utf-8"):
-                r = json.loads(line)
-                if r.get("status") == "ok":
+            syn, syn_val, seen = [], [], set()
+            for path in cfg.synthetic.split(","):
+                for line in open(path.strip(), encoding="utf-8"):
+                    r = json.loads(line)
+                    if r.get("status") != "ok" or (path, r["job"]) in seen:
+                        continue
+                    seen.add((path, r["job"]))
                     ex = r["example"]
-                    # Hold out ~3% of synthetic states for validation (by content, so it's stable as the file grows).
+                    # Hold out ~3% of synthetic states for validation (by content, so it's stable as files grow).
                     split = hash_split(render_state(ex["state"]), val=0.03, test=0)
                     (syn_val if split == "val" else syn).append(json.dumps(ex, ensure_ascii=False))
+            if cfg.synthetic_max >= 0:
+                # A fixed random subset, so data-scaling runs differ only in *how much* synthetic data they see.
+                random.Random(12345).shuffle(syn)
+                syn = syn[: cfg.synthetic_max]
             if syn:
                 self.lines["kodiak_synth_v1"] = syn
-                self.val_lines["kodiak_synth_v1"] = syn_val
+            if syn_val:
+                self.val_lines["kodiak_synth_v1"] = syn_val  # same val set for every scaling run
         self.names = sorted(self.lines)
         sizes = [len(self.lines[n]) for n in self.names]
         w = [s ** cfg.sample_temp for s in sizes]
         self.probs = [x / sum(w) for x in w]
+        self.epochs: dict[str, float] = {}
+        if cfg.max_epochs > 0 and not cfg.overfit:
+            self.probs = self._cap_repeats(cfg)
         self.family = {n: (SOURCES[n].family if n in SOURCES else "synthetic") for n in self.names}
         self.donors = [line for n in ("mnli", "scitail") for line in self.lines.get(n, []) if '"id": "yes"' in line]
         self.p_gold_removed, self.p_mismatch = cfg.p_gold_removed, cfg.p_mismatch
@@ -117,8 +134,45 @@ class Mixture:
             rng = random.Random(cfg.seed)
             self.fixed = [rng.choice(self.lines[rng.choices(self.names, self.probs)[0]]) for _ in range(cfg.overfit)]
 
+    def _cap_repeats(self, cfg: TrainConfig) -> list[float]:
+        """Lower the sampling share of sources that would otherwise be repeated more than `max_epochs` times.
+
+        Temperature sampling boosts small datasets (good for diversity), but over a whole run a 558-example dataset
+        was being seen dozens of times and memorized (Qasper, OpenBookQA). The freed probability mass is spread
+        over the uncapped sources in proportion to their current share.
+        """
+        rng = random.Random(cfg.seed + 99)
+        sample = [pack_example(self.sample_raw(rng), Limits(max_state=cfg.max_state)) for _ in range(400)]
+        mean_len = sum(len(p) for p in sample) / len(sample)
+        total = cfg.steps * cfg.rows * cfg.max_len * 0.97 / mean_len  # examples seen over the run
+        sizes = [len(self.lines[n]) for n in self.names]
+        caps = [cfg.max_epochs * n / total for n in sizes]
+        p = list(self.probs)
+        capped: set[int] = set()
+        for _ in range(len(p)):
+            over = [i for i in range(len(p)) if i not in capped and p[i] > caps[i]]
+            if not over:
+                break
+            capped.update(over)
+            fixed = sum(caps[i] for i in capped)
+            free = [i for i in range(len(p)) if i not in capped]
+            free_mass = sum(p[i] for i in free)
+            for i in capped:
+                p[i] = caps[i]
+            for i in free:
+                p[i] = p[i] / free_mass * (1 - fixed) if free_mass else 0.0
+        total_p = sum(p)
+        p = [x / total_p for x in p]
+        self.epochs = {n: round(pi * total / sz, 2) for n, pi, sz in zip(self.names, p, sizes)}
+        return p
+
+    def sample_raw(self, rng: random.Random) -> dict:
+        src = rng.choices(self.names, self.probs)[0]
+        return json.loads(rng.choice(self.lines[src]))
+
     def describe(self) -> dict:
-        return {n: {"examples": len(self.lines[n]), "p": round(p, 4)} for n, p in zip(self.names, self.probs)}
+        return {n: {"examples": len(self.lines[n]), "p": round(p, 4), **({"epochs": self.epochs[n]} if n in self.epochs else {})}
+                for n, p in zip(self.names, self.probs)}
 
     def sample(self, rng: random.Random) -> dict:
         if self.fixed is not None:

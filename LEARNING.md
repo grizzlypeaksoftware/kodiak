@@ -468,3 +468,79 @@ against human review.
 Also learned: "thinking" models can burn their whole token budget reasoning and return an empty answer; the backend now
 raises a clear error instead of crashing. Process lesson: I piped the bake-off through `tail`, which hid per-model progress
 for 30 minutes; long jobs should stream their progress.
+
+### Result: the data-scaling test (2026-09-24)
+Three otherwise identical small models (same seed and recipe), trained on 0 / 3,300 / 9,411 synthetic examples drawn from the same
+pool; each calibrated on validation and scored on the full eval set (4,189 questions). Final checkpoints:
+
+| Synthetic examples | Overall | In-domain | Held-out | Held-out, forced to answer | Synthetic slice | ECE | Abstain P/R |
+|---|---|---|---|---|---|---|---|
+| 0 | 0.766 | 0.807 | 0.639 | 0.663 | 0.52 | 0.068 | 0.86 / 0.88 |
+| 3,300 | 0.769 | 0.811 | 0.617 | 0.645 | 0.89 | 0.067 | 0.86 / 0.89 |
+| 9,411 | **0.778** | **0.820** | 0.625 | 0.649 | **0.93** | **0.053** | **0.89 / 0.90** |
+
+**What it says:**
+- Synthetic data **helps**: overall +1.2 points (about 2 standard errors on 4,189 questions), in-domain +1.3, realistic LLM-style inputs
+  +41 points (on only 61 questions), and better calibration and abstention.
+- It does **not** transfer to held-out tasks: 0.64 → 0.62 → 0.63, and forced-answer accuracy is flat too. The held-out slice has about 750
+  choice questions (±~1.7 points), so this is "no gain," not a clear loss.
+- **Over-abstention, caught mid-test:** the 3,300 "best" checkpoint abstained on 11% of held-out questions (Banking77 19%, Bias in Bios 15%),
+  which all have answers. Forced to answer, it was *more* accurate than the no-synthetic model. The synthetic data's unanswerable
+  questions ("the fact isn't in the text") taught the model to treat **"not stated literally"** as **"unanswerable,"** when the right line is
+  "inferable" vs. "truly missing." Generator v2 should teach the distinction explicitly (answerable-by-inference questions, minimal pairs).
+- **Early stopping keeps picking the wrong checkpoint:** for all three sizes, the final checkpoint beat "best" overall. The stopping metric
+  is dominated by small datasets that overfit (Qasper, OpenBookQA, CommonsenseQA), so the recipe needs fixing: cap repeats of small
+  datasets, and choose checkpoints by a better criterion.
+**Decision (D24):** keep the 9.4k synthetic set; don't buy more v1-style data; fix the recipe and build Generator v2.
+
+### Result: recipe ablation (2026-09-24, late)
+Same 9.4k synthetic data. Full table in DECISIONS.md D25. Key rows (overall / in-domain / **held-out** / held-out forced):
+- Baseline (early-stopped, threshold 0.5): 0.778 / 0.820 / 0.625 / 0.649
+- **Repeat cap 3 + full schedule + tuned threshold: 0.780 / 0.808 / 0.664 / 0.691**
+- Full schedule, no cap: 0.781 / 0.824 / 0.621 / 0.664
+
+**Concept: memorization vs. generalization, in one experiment.** Without the cap, a few small datasets were seen 20–30 times
+per run. The model got better at *those* datasets (in-domain +1.6), and worse at everything it had never seen. With the cap, those
+examples are seen at most three times, and the freed training time goes to large, varied sources. The model memorizes less and
+learns more transferable skill: never-seen tasks +3.9 points (jailbreak detection +8.8, Banking77 +2.8), and even with forced answers
+(no abstaining) +4.2. Per-dataset in-domain losses were concentrated on small, memorizable sets (OpenBookQA −6, Qasper −5, WinoGrande −4,
+each ±~4.5 points of noise with ~100 questions).
+
+**Concept: early stopping vs. a full schedule.** The learning rate follows a curve: warm up, then decay to 10%. The last stretch at a low
+learning rate settles the weights, and early stopping never let runs reach it. With the cap in place, the final checkpoint doesn't
+overfit badly, so the full schedule simply wins. New defaults: `max_epochs=3`, `patience=0` (validation still logged; `best.pt` still saved).
+
+**Concept: the abstain threshold is a dial.** Tuning it on validation moved it to 0.70–0.75: fewer wrong refusals and higher
+abstain precision (0.94), but a few more missed unanswerables. There's no free lunch; it's a precision/recall choice users can make per request.
+
+## Generator v2.0 built (2026-09-25)
+
+**What changed from v1, in one line each.** Every job starts from a *spec* (setting, decision type, scale, difficulty, how many inferred and
+unanswerable questions, and of which kind); the settings come from a 971-document-type taxonomy instead of 60 hand-typed strings; ~45% of states
+are real web passages (FineWeb-Edu) instead of teacher-written text; near-duplicates are detected with MinHash; a budget cap stops the run cleanly.
+
+**Concept: MinHash, or how to find "almost the same" text cheaply.** Break each text into overlapping 5-word phrases ("shingles"). Two texts'
+similarity is the share of shingles they have in common (Jaccard similarity). Comparing every pair is too slow at 20k+ examples, so each text is
+summarized by 64 numbers: for each of 64 random hash functions, the *smallest* hash of any of its shingles. The chance that two texts share that
+minimum equals their Jaccard similarity, so the fraction of matching numbers estimates it. Banding (16 groups of 4) finds likely matches without
+comparing everything to everything. Our threshold: 0.8.
+
+**Concept: the checker's instructions define what "correct" means.** v1's checker was told "answer using ONLY information in the state; otherwise
+UNANSWERABLE." That sounds rigorous, but it quietly defined *inference* as unanswerable, and every inference question would have been filtered out.
+Changing one sentence ("confident inference counts") changed which data survives. A filter is also a specification.
+
+**Pilot lesson: read the disagreements, not just the rates.** Pilot #1 had 44% disagreement on unanswerable questions. The number alone said
+"the checker is too strict." Reading them said something else: the *writer* was adding options like "Not known", so the checker (reasonably)
+picked them. The fix was a writer rule plus a regex filter, not a checker change. A second pattern: routing questions about web articles were
+nonsense, so real passages now get reader-style questions. Disagreement on inferred questions went 37% → 20% and on stated ones 8% → 2%.
+
+**Concept: two ways to say "I don't know" is one too many.** Kodiak abstains through a dedicated null head with its own calibrated probability.
+If training data also had "Unknown" as a regular option, the model would have to learn two competing mechanisms for the same thing, and the
+calibrated abstain signal (which users threshold on) would leak into an ordinary label.
+
+**Human review result: 92.7%, and why agreement isn't correctness.** Shane approved 153 of 165 v2 labels. All 33 unanswerable questions were right,
+but ~9% of answerable ones were not, and the typical failure was a question with *two* defensible answers. Two models agreeing doesn't catch that:
+both pick the same plausible option. A "critic" that is shown the answer and asked to attack it is a different task, but each critic model caught
+only 3 of the 12 bad labels; two different critics together caught 5. Lesson: it's cheaper to *prevent* ambiguity in the writer prompt (one
+defensible answer, one clear referent, no "which is NOT…" questions) than to detect it afterwards. Also: 12 errors in 165 means the true rate
+could plausibly be anywhere from about 4% to 12%, so one review batch can't separate 92.7% from 95% with confidence.

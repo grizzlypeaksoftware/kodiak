@@ -76,3 +76,10 @@ License column = what we verified against the **upstream** source, not just the 
 | ID | Generator | Teacher | License | Notes |
 |---|---|---|---|---|
 | `kodiak_synth_v1` | `src/kodiak_s1/data/synth.py` | `qwen3.8:27b` via Ollama (model license: Apache-2.0) | Apache-2.0 | Generated states + questions (including deliberately unanswerable ones); kept only where an independent verification pass agrees |
+| `kodiak_gen2` | `src/kodiak_s1/data/gen2/` (Generator v2) | writer `openai/gpt-oss-120b` (Apache-2.0), checker `deepseek-ai/DeepSeek-V3.2` (MIT), both via DigitalOcean serverless inference | Apache-2.0 (synthetic states, all questions and labels); grounded states: ODC-By-1.0 (see below) | Spec-driven (taxonomy in `data/gen2/taxonomy_v2.json`); ~45% of jobs use a real FineWeb-Edu passage as the state; kept only where the blind checker agrees |
+
+### Grounding text
+
+| ID | Name | License | URL | Use |
+|---|---|---|---|---|
+| `fineweb_edu` | FineWeb-Edu (sample-10BT) | ODC-By-1.0 (drawn from Common Crawl; subject to CommonCrawl terms of use) | https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu | 100–450-word passages used as states for Generator v2 grounded examples (record meta carries the FineWeb id). Per GENERATOR_V2.md §7, the published dataset will ship FineWeb ids + a rebuild script, not the excerpts. Also downloaded for the deferred Track A pretraining. |

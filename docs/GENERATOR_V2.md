@@ -1,6 +1,7 @@
 # Generator v2: targeted, grounded synthetic data (design proposal)
 
-> **Status: APPROVED 2026-09-24** (answers to §7 below). Not built yet; build starts after the data scaling test.
+> **Status: APPROVED 2026-09-24** (answers to §7 below). **v2.0 BUILT 2026-09-25** (`src/kodiak_s1/data/gen2/`; build log in §10).
+> Waiting on: human review of the eval candidates, then the full batch and the A/B test.
 > Generator v1 is `src/kodiak_s1/data/synth.py`.
 
 ## 1. Why a v2
@@ -174,3 +175,102 @@ All four recommendations were accepted: publish a rebuild script instead of web 
 - Training the generator itself (RL on the teacher). The teachers stay off-the-shelf open models.
 - Fully autonomous loops that generate, train and evaluate without a human checkpoint.
 - Closed-model teachers (DECISIONS.md D20).
+
+## 9. Implementation plan (written 2026-09-25, before building)
+
+State of play when this plan was written:
+- **Best model:** `runs/b-small-s1-R1-cap3/checkpoints/step_0006000.pt` + `calibration-final-thr.json` (abstain threshold 0.75).
+  Full eval: overall 0.780, in-domain 0.808, held-out 0.664 (forced 0.691), ECE 0.049. It's the student for v2.1 screening.
+- **v1 synthetic data:** `data/synthetic/synth_v1.jsonl` (3,290 local Qwen) + `data/synthetic/synth_v1_cloud.jsonl` (6,412 cloud), 9,702 examples.
+- **Training defaults (D25):** `--max-epochs 3 --patience 0` (now the defaults in `TrainConfig`), 6,000 steps, lr 5e-5 / heads 5e-4.
+- **Cloud teacher:** writer `do:openai-gpt-oss-120b`, checker `do:deepseek-3.2` (DECISIONS D20/D21). The key is `DO_INFERENCE_KEY`, loaded with
+  `eval "$(grep -E '^\s*export DO_INFERENCE_KEY=' ~/.bashrc | tail -1)" && export DO_INFERENCE_KEY` (never print it).
+- **Known weakness to target:** over-abstention on questions answerable **by inference** (Banking77, Bias in Bios), plus the held-out gap
+  to Qwen (66% vs. 86%) and the "urgency score" demo miss.
+
+### v2.0: build first (A/B against v1 at equal size)
+New package `src/kodiak_s1/data/gen2/`:
+
+| Module | Job |
+|---|---|
+| `taxonomy.py` | Generate `data/gen2/taxonomy_v2.json` once with the writer model: ~12 sectors → ~300 domains → 3–6 document types each, plus the cross-cutting axes in §3.1. Deterministic loader; the human skims before first use. **Committed** (small). |
+| `specs.py` | `Spec` dataclass and sampler (seeded per job id). Decision types, scale wordings (urgency, severity, confidence, risk, quality, sentiment…), difficulty, null kind. Coverage map `data/gen2/coverage.json`. v2.0 weights: 60% coverage, 40% exploration (the planner comes in v2.2). |
+| `passages.py` | FineWeb-Edu passage sampler from `data/pretrain/fineweb-edu/sample/10BT/*.parquet` (19 GB, 9 files on disk): pick 100–450-word windows at paragraph boundaries, deterministic by job id. ~50% of prose specs are grounded. |
+| `prompts.py` | Writer prompt built from the spec (and the passage when grounded). **Must include:** ≥1 question answerable only **by inference** (labeled answerable; evidence = the supporting quote), unanswerable questions that are *truly missing* the fact, varied scale wording with anchors, and exact-quote evidence rules (v1 lessons: evidence before verdict, separate choice/score schemas, real JSON objects, no double quotes in prose). |
+| `pipeline.py` | `run_job(job_id)`: spec → (passage) → writer → `synth.build_questions` (reuse) → checker via `synth.verify_*` (reuse) → keep agreements. Disagreements go to `data/gen2/review_queue.jsonl` (compatible with `tools/review.html`). Records carry the spec and tags: `gen2`, `grounded`, `inference`, `null:<kind>`, `scale:<wording>`. |
+| `dedupe.py` | MinHash over word 5-shingles of state + questions (a pure-Python implementation, no new dependency); drop Jaccard > 0.8 against the v1 files and earlier gen2 output. |
+| `__main__.py` | CLI: `python -m kodiak_s1.data.gen2 --n N --seed 6 --workers 16 --out data/synthetic/gen2_v20.jsonl --max-usd 15`. Resumable like v1; the **budget cap** comes from the token counts × `docs/progress.json` prices. |
+
+**Seeds:** 6 = gen2 training data, 7 = gen2 eval candidates (human review), 8 = pilots. Never train on seed 7.
+**Tests (`tests/test_gen2.py`):** taxonomy load/shape, deterministic spec sampling, passage windowing/filters, MinHash near-duplicate detection,
+a pipeline run with a mocked teacher, and the budget-cap stop.
+**Licensing:** add FineWeb-Edu (ODC-By; used for grounding) to `data/LICENSES.md`. Release policy (§7): publish a rebuild script, not the excerpts.
+**Dashboard:** register every gen2 run in `docs/progress.json` → `synthetic.runs`, and add milestones.
+
+**Execution order:**
+1. Build the modules + tests; generate and skim the taxonomy (show Shane a sample).
+2. Pilot 50 jobs (seed 8): check yield (target ≥ 80%), inference-question share, grounded share, and cost per 1k; read 10 examples by hand.
+3. Eval candidates: ~70 jobs (seed 7) → Shane reviews ~50 in `tools/review.html` → label precision (target ≥ 95%).
+4. Full v2.0 batch: ~11k jobs (seed 6) → ~9.4k kept (equal to v1), about $10–15.
+5. **A/B test** (new defaults, same seed/steps): (a) public + v1 9.4k [already = R1], (b) public + v2 9.4k, (c) public + v1 + v2.
+   Compare held-out accuracy, held-out wrong-abstain rate, Banking77/Bias in Bios, the urgency demo, in-domain, ECE, and the synthetic slice.
+6. Record in STORY, DECISIONS (D26), LEARNING, progress.json, the NotebookLM export. Commit after Shane approves.
+
+### v2.1: after v2.0 is measured
+Student screen with the best model (≈8 ms/request): classify hard vs. easy (wrong, or top probability < 0.6); keep all hard + a 30% easy quota
+per spec cell; critic call on all hard examples + a 10% sample of the rest ("more than one defensible answer?"); the review queue is weighted to hard examples.
+Ablate: v2.0 vs. v2.1 at equal size.
+
+### v2.2: then
+Minimal pairs (flip via the writer + re-check; null via mechanical removal of the evidence sentence + re-check; pairs share a `pair_id` and a split);
+the planner (reads **validation** per-source metrics + an error sample from the latest run, never the eval set; 40/40/20 targeted/coverage/explore).
+
+### Other small queued items
+- A cap experiment: `--max-epochs 5` vs. 3 (free, ~1 hour) to see whether in-domain accuracy recovers without losing held-out.
+- RUNBOOK §5 still shows the old training flags; update to the D25 defaults.
+- Uncommitted work since `f6deff9`: scaling test, recipe test, new defaults, docs. Commit when Shane approves.
+
+## 10. Build log: v2.0 (2026-09-25)
+
+**Built.** `src/kodiak_s1/data/gen2/`: `taxonomy.py`, `specs.py`, `passages.py`, `prompts.py`, `pipeline.py`, `dedupe.py`, `__main__.py`
+(subcommands `taxonomy`, `show`, `run`, `stats`, `queue`, `coverage`); `tests/test_gen2.py` (11 tests, mocked teacher, no network).
+Differences from the plan:
+- The taxonomy's **sectors are hand-written** (16), and the model fills in domains and document types. Result: **16 sectors, 320 domains,
+  971 document types** (v1: 60 settings). Cost about $0.01.
+- **Coverage mode** walks a seed-shuffled list of all 971 document types (each used once before any repeats), and weights the other axes by
+  `1 / (0.1 + count / average)` from a coverage snapshot frozen per output file (so resumes stay deterministic).
+- **Every question declares a basis** (`stated` / `inferred` / `unanswerable`) and the **checker prompt now accepts sound inference**. v1's checker
+  ("using ONLY information in the state") would have vetoed exactly the inference questions v2 exists to add.
+- The review queue is a `queue` subcommand (disagreements sampled by their cell's disagreement rate), not written live.
+- DeepSeek V3.2 price (DO pricing page): $0.50 in / $1.60 out per 1M tokens, now in `docs/progress.json`.
+
+**Pilot #1 (50 jobs, seed 8, $0.07).** Yield 82%, grounded 44% of kept examples, inferred 22% of kept questions, cost $1.34 per 1k jobs.
+But the checker disputed 37% of inferred and 44% of unanswerable questions. Reading every disagreement showed two writer faults:
+1. **"Unknown" options:** for unanswerable questions the writer added options like "Not known" / "Result is not yet known"; the checker then
+   picked them. That duplicates the null answer (two ways to abstain), so now the prompt forbids them and a regex filter drops any choice
+   question with an unknown-style option (`pipeline.has_unknown_option`).
+2. **Contrived questions on real text:** routing / next-action questions about web articles ("which processing queue should handle a
+   correction about Nakhichevan?"). Grounded jobs now use reader-style decisions (classification, extraction, judgment score, comparison,
+   and a new `claim_check`); synthetic jobs keep the full list.
+Also seen: hard multi-step arithmetic errors by the writer (caught by the checker, as designed).
+
+**Pilot #2 (60 jobs, seed 8, jobs 50–109, $0.08).** Yield 82%, grounded 47%, inferred 24%, null 16% of kept questions. Checker disagreement:
+stated 8% → **2%**, inferred 37% → **20%**, unanswerable 44% → **36%**. The remaining null disagreements are mostly the *writer* being wrong
+(calling a question unanswerable when the text answers it); the checker removes them. Spot-checks of kept inferred and null questions looked right.
+
+**Eval candidates (70 jobs, seed 7, $0.10):** `data/synthetic/eval_gen2_v20.jsonl`: 55 kept examples, 165 questions (93 stated, 39 inferred,
+33 unanswerable). **Next: Shane reviews them in `tools/review.html`** (target ≥ 95% label precision), then step 4 (the ~11k-job batch).
+
+**Human review of the eval candidates (Shane, 2026-09-25): 153 / 165 = 92.7% label precision, below the 95% gate.**
+By basis: unanswerable 33/33 (100%), inferred 35/39 (90%), stated 85/93 (91%). Grounded 69/72 (96%), synthetic 84/93 (90%). Errors were spread
+evenly across easy/medium/hard. Most rejections had **more than one defensible answer** ("which is NOT listed" with two unlisted options, "which term
+is defined" with two defined, "the next stop" in a thread with two stops, overheated vs. mechanical failure); others were a stale "current status"
+(both models answered from an old log line) and a score whose end labels didn't match its dimension (from my "rate the closest judgment" rule).
+Saved: `data/eval/synthetic_reviewed_gen2_v0.1.jsonl`.
+
+**Critic bake-off** (`gen2/critic_bakeoff.py`, report `reports/critic-bakeoff.json`): shown the proposed answer and asked to attack it, each
+critic alone caught only 3 of the 12 rejections (DeepSeek 1 false flag of 153, gpt-oss 2). They catch *different* ones: flagging when either
+objects catches 5/12 with 3 false flags → estimated precision ≈ 95.5% (measured on the same set used to pick it, so optimistic).
+**Response (v2.0c):** (1) prompt rules aimed at the observed failures: one defensible answer (check every option), no negative/set-membership
+questions, one unambiguous referent, latest information wins, confident inferences only, scale anchors on the same dimension; (2) an optional
+`--critics do:deepseek-3.2,do:openai-gpt-oss-120b` step (the v2.1 critic pulled forward), about +$0.9 per 1k jobs.

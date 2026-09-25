@@ -1,207 +1,298 @@
 {
-  "updated": "2026-09-24",
-  "phases": [
-    {
-      "id": "0",
-      "name": "Environment check",
-      "status": "done"
-    },
-    {
-      "id": "1",
-      "name": "Scaffold, schema, architecture",
-      "status": "done"
-    },
-    {
-      "id": "2",
-      "name": "Data pipeline and eval set",
-      "status": "done"
-    },
-    {
-      "id": "3",
-      "name": "Tiny model end to end",
-      "status": "done"
-    },
-    {
-      "id": "4",
-      "name": "Track B training",
-      "status": "in_progress",
-      "steps": [
-        {
-          "name": "First run (b-small-s1-v0)",
-          "status": "done"
-        },
-        {
-          "name": "Synthetic data, local run (3,290 examples; stopped for cloud)",
-          "status": "done"
-        },
-        {
-          "name": "Cloud teacher: DigitalOcean backend + pilots",
-          "status": "done"
-        },
-        {
-          "name": "Verifier bake-off vs. human review",
-          "status": "done"
-        },
-        {
-          "name": "Synthetic data: finish in the cloud",
-          "status": "in_progress"
-        },
-        {
-          "name": "Data scaling test: 0 vs 3k vs 10k synthetic",
-          "status": "pending"
-        },
-        {
-          "name": "Generator v2 design (docs/GENERATOR_V2.md)",
-          "status": "done"
-        },
-        {
-          "name": "Build Generator v2 (v2.0 \u2192 v2.1 \u2192 v2.2)",
-          "status": "pending"
-        },
-        {
-          "name": "Final run with full synthetic data",
-          "status": "pending"
-        },
-        {
-          "name": "Track A (from-scratch encoder)",
-          "status": "deferred"
-        }
-      ]
-    },
-    {
-      "id": "5",
-      "name": "Eval report vs. Qwen baseline",
-      "status": "in_progress",
-      "steps": [
-        {
-          "name": "Harness: calibration, metrics, LLM baseline",
-          "status": "done"
-        },
-        {
-          "name": "Preliminary comparison (200 examples)",
-          "status": "done"
-        },
-        {
-          "name": "Full comparison on the final model",
-          "status": "pending"
-        }
-      ]
-    },
-    {
-      "id": "6",
-      "name": "ONNX export + Node.js server + demo page",
-      "status": "pending"
-    },
-    {
-      "id": "later",
-      "name": "Model card + Hugging Face release; scaling plan",
-      "status": "pending"
-    }
-  ],
-  "synthetic": {
-    "goal_examples": 10000,
-    "prices_per_million": {
-      "do:openai-gpt-oss-120b": [
-        0.1,
-        0.7
-      ]
-    },
-    "runs": [
-      {
-        "name": "Local: Qwen 35B writer + Qwen 27B checker (stopped at 3,921 jobs)",
-        "file": "data/synthetic/synth_v1.jsonl",
-        "log": "data/synthetic/synth_v1.log",
-        "target_jobs": 3921,
-        "writer": "qwen3.6:35b-a3b",
-        "verifier": "qwen3.8:27b"
-      },
-      {
-        "name": "Cloud pilot #1: gpt-oss writer",
-        "file": "data/synthetic/pilot_do.jsonl",
-        "log": "data/synthetic/pilot_do.log",
-        "target_jobs": 50,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "qwen3.8:27b",
-        "pilot": true
-      },
-      {
-        "name": "Cloud pilot #2: gpt-oss writer (fixed checks)",
-        "file": "data/synthetic/pilot_do_v2.jsonl",
-        "target_jobs": 50,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "qwen3.8:27b",
-        "pilot": true
-      },
-      {
-        "name": "Cloud: gpt-oss-120b writer + DeepSeek V3.2 checker",
-        "file": "data/synthetic/synth_v1_cloud.jsonl",
-        "log": "data/synthetic/synth_v1_cloud.log",
-        "target_jobs": 7700,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2"
-      }
-    ]
+ "updated": "2026-09-24",
+ "phases": [
+  {
+   "id": "0",
+   "name": "Environment check",
+   "status": "done"
   },
-  "milestones": [
+  {
+   "id": "1",
+   "name": "Scaffold, schema, architecture",
+   "status": "done"
+  },
+  {
+   "id": "2",
+   "name": "Data pipeline and eval set",
+   "status": "done"
+  },
+  {
+   "id": "3",
+   "name": "Tiny model end to end",
+   "status": "done"
+  },
+  {
+   "id": "4",
+   "name": "Track B training",
+   "status": "in_progress",
+   "steps": [
     {
-      "date": "2026-09-23",
-      "text": "Phase 0: environment checked; 'kodiak' taken everywhere, so kodiak-s1 under grizzlypeaksoftware"
+     "name": "First run (b-small-s1-v0)",
+     "status": "done"
     },
     {
-      "date": "2026-09-23",
-      "text": "Phase 1: architecture approved (packed sequence + structured attention mask)"
+     "name": "Synthetic data, local run (3,290 examples; stopped for cloud)",
+     "status": "done"
     },
     {
-      "date": "2026-09-23",
-      "text": "Phase 2: 20 datasets converted; eval set v0.1 with 24 human-reviewed synthetic examples"
+     "name": "Cloud teacher: DigitalOcean backend + pilots",
+     "status": "done"
     },
     {
-      "date": "2026-09-23",
-      "text": "Phase 3: bit-identical ModernBERT parity; both overfit tests pass; torch.compile 2x"
+     "name": "Verifier bake-off vs. human review",
+     "status": "done"
     },
     {
-      "date": "2026-09-23",
-      "text": "Track A deferred: Track B trains in an hour, pretraining would take days"
+     "name": "Synthetic data: finish in the cloud (9,702 examples total)",
+     "status": "done"
     },
     {
-      "date": "2026-09-23",
-      "text": "First Track B run: early stopping misfired on a 7-example group (fixed)"
+     "name": "Data scaling test: 0 vs 3k vs 10k synthetic",
+     "status": "done"
     },
     {
-      "date": "2026-09-23",
-      "text": "Preliminary eval: Kodiak ties Qwen 27B in-domain, 400x faster, better calibrated; weaker on new tasks"
+     "name": "Generator v2 design (docs/GENERATOR_V2.md)",
+     "status": "done"
     },
     {
-      "date": "2026-09-23",
-      "text": "Local status dashboard added"
+     "name": "Recipe fixes: repeat cap, full schedule, tuned abstain threshold",
+     "status": "done"
     },
     {
-      "date": "2026-09-24",
-      "text": "DigitalOcean inference: key was clipped (68 vs 71 chars), then a billing gate cleared at 10:33"
+     "name": "Generator v2.0: build + taxonomy + pilots (done 2026-09-25)",
+     "status": "done"
     },
     {
-      "date": "2026-09-24",
-      "text": "Cloud pilot #1: 26% kept (gpt-oss paraphrased its evidence)"
+     "name": "Generator v2.0: Shane reviewed 55 eval candidates (92.7%; fixes + critics added)",
+     "status": "done"
     },
     {
-      "date": "2026-09-24",
-      "text": "Cloud pilot #2: 88% kept after fixes; $0.73 per 1,000 jobs"
+     "name": "Generator v2.0: ~11k-job batch (seed 6, ~$15) + A/B vs v1",
+     "status": "in_progress"
     },
     {
-      "date": "2026-09-24",
-      "text": "Verifier bake-off: DeepSeek V3.2 wins (97% agreement with human review, 0 failures, 10x faster than gpt-oss)"
+     "name": "Generator v2.1 (student screen, critic) and v2.2 (minimal pairs, planner)",
+     "status": "pending"
     },
     {
-      "date": "2026-09-24",
-      "text": "Switched synthetic generation to the cloud: gpt-oss writes, DeepSeek checks (7,700 jobs, ~$8)"
+     "name": "Final run with full synthetic data",
+     "status": "pending"
     },
     {
-      "date": "2026-09-24",
-      "text": "Generator v2 design drafted: taxonomy, real-document grounding, hard-example mining, minimal pairs"
-    },
-    {
-      "date": "2026-09-24",
-      "text": "Generator v2 design approved"
+     "name": "Track A (from-scratch encoder)",
+     "status": "deferred"
     }
+   ]
+  },
+  {
+   "id": "5",
+   "name": "Eval report vs. Qwen baseline",
+   "status": "in_progress",
+   "steps": [
+    {
+     "name": "Harness: calibration, metrics, LLM baseline",
+     "status": "done"
+    },
+    {
+     "name": "Preliminary comparison (200 examples)",
+     "status": "done"
+    },
+    {
+     "name": "Full comparison on the final model",
+     "status": "pending"
+    }
+   ]
+  },
+  {
+   "id": "6",
+   "name": "ONNX export + Node.js server + demo page",
+   "status": "pending"
+  },
+  {
+   "id": "later",
+   "name": "Model card + Hugging Face release; scaling plan",
+   "status": "pending"
+  }
+ ],
+ "synthetic": {
+  "goal_examples": 10000,
+  "prices_per_million": {
+   "do:openai-gpt-oss-120b": [
+    0.1,
+    0.7
+   ],
+   "do:deepseek-3.2": [
+    0.5,
+    1.6
+   ]
+  },
+  "runs": [
+   {
+    "name": "Local: Qwen 35B writer + Qwen 27B checker (stopped at 3,921 jobs)",
+    "file": "data/synthetic/synth_v1.jsonl",
+    "log": "data/synthetic/synth_v1.log",
+    "target_jobs": 3921,
+    "writer": "qwen3.6:35b-a3b",
+    "verifier": "qwen3.8:27b"
+   },
+   {
+    "name": "Cloud pilot #1: gpt-oss writer",
+    "file": "data/synthetic/pilot_do.jsonl",
+    "log": "data/synthetic/pilot_do.log",
+    "target_jobs": 50,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "qwen3.8:27b",
+    "pilot": true
+   },
+   {
+    "name": "Cloud pilot #2: gpt-oss writer (fixed checks)",
+    "file": "data/synthetic/pilot_do_v2.jsonl",
+    "target_jobs": 50,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "qwen3.8:27b",
+    "pilot": true
+   },
+   {
+    "name": "Cloud: gpt-oss-120b writer + DeepSeek V3.2 checker",
+    "file": "data/synthetic/synth_v1_cloud.jsonl",
+    "log": "data/synthetic/synth_v1_cloud.log",
+    "target_jobs": 7700,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2"
+   },
+   {
+    "name": "Generator v2.0 pilot (50 jobs, seed 8)",
+    "file": "data/synthetic/pilot_gen2.jsonl",
+    "log": "data/synthetic/pilot_gen2.log",
+    "target_jobs": 50,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Generator v2.0 pilot #2 (no 'unknown' options, reader-style grounded questions)",
+    "file": "data/synthetic/pilot_gen2b.jsonl",
+    "log": "data/synthetic/pilot_gen2b.log",
+    "target_jobs": 60,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Generator v2.0 eval candidates for human review (seed 7, never trained on)",
+    "file": "data/synthetic/eval_gen2_v20.jsonl",
+    "log": "data/synthetic/eval_gen2_v20.log",
+    "target_jobs": 70,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Generator v2.0c training batch (seed 6; new rules + 2 critics; cap $30)",
+    "file": "data/synthetic/gen2_v20.jsonl",
+    "log": "data/synthetic/gen2_v20.log",
+    "target_jobs": 11000,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2"
+   }
   ]
+ },
+ "milestones": [
+  {
+   "date": "2026-09-23",
+   "text": "Phase 0: environment checked; 'kodiak' taken everywhere, so kodiak-s1 under grizzlypeaksoftware"
+  },
+  {
+   "date": "2026-09-23",
+   "text": "Phase 1: architecture approved (packed sequence + structured attention mask)"
+  },
+  {
+   "date": "2026-09-23",
+   "text": "Phase 2: 20 datasets converted; eval set v0.1 with 24 human-reviewed synthetic examples"
+  },
+  {
+   "date": "2026-09-23",
+   "text": "Phase 3: bit-identical ModernBERT parity; both overfit tests pass; torch.compile 2x"
+  },
+  {
+   "date": "2026-09-23",
+   "text": "Track A deferred: Track B trains in an hour, pretraining would take days"
+  },
+  {
+   "date": "2026-09-23",
+   "text": "First Track B run: early stopping misfired on a 7-example group (fixed)"
+  },
+  {
+   "date": "2026-09-23",
+   "text": "Preliminary eval: Kodiak ties Qwen 27B in-domain, 400x faster, better calibrated; weaker on new tasks"
+  },
+  {
+   "date": "2026-09-23",
+   "text": "Local status dashboard added"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "DigitalOcean inference: key was clipped (68 vs 71 chars), then a billing gate cleared at 10:33"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Cloud pilot #1: 26% kept (gpt-oss paraphrased its evidence)"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Cloud pilot #2: 88% kept after fixes; $0.73 per 1,000 jobs"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Verifier bake-off: DeepSeek V3.2 wins (97% agreement with human review, 0 failures, 10x faster than gpt-oss)"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Switched synthetic generation to the cloud: gpt-oss writes, DeepSeek checks (7,700 jobs, ~$8)"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Generator v2 design drafted: taxonomy, real-document grounding, hard-example mining, minimal pairs"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Generator v2 design approved"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Synthetic batch complete: 9,702 examples (3,290 local + 6,412 cloud); cloud cost ~$5.50 + checker"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Data scaling test started: 0 vs 3,300 vs 9,411 synthetic examples (same pool)"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Scaling test: synthetic data helps overall (+1.2 pts), calibration, and synthetic-style tasks, but NOT held-out tasks (flat), so build better data, not more of the same"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Recipe test started: repeat cap (Qasper was seen 23x, prompt-injections 29x), full LR schedule, tuned abstain threshold"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Recipe test: repeat cap lifts held-out accuracy 62.5% -> 66.4% (jailbreak +8.8) for -1.6 in-domain; cap + full schedule become defaults"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "Generator v2.0 built: taxonomy of 16 sectors / 320 domains / 971 document types, ~45% real FineWeb passages, inference questions, MinHash dedupe, budget cap (11 tests)"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "v2 pilots ($0.15): removing 'unknown' options + reader-style questions on real text cut checker disagreement (inferred 37% -> 20%, stated 8% -> 2%)"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "55 v2 eval candidates (165 questions) ready for Shane's review in tools/review.html"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "Shane's review of v2 eval candidates: 92.7% (unanswerable 100%); added one-defensible-answer rules + two critics; 11k-job batch launched (cap $30)"
+  }
+ ]
 }

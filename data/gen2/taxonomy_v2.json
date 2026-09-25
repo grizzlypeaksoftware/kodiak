@@ -1,0 +1,7849 @@
+{
+ "version": "v2",
+ "sectors": [
+  {
+   "name": "commerce, retail and e-commerce",
+   "domains": [
+    {
+     "name": "B2C Online Retail Checkout",
+     "doc_types": [
+      {
+       "name": "online purchase order email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "shopping cart JSON payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "order confirmation SMS thread",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "payment gateway webhook",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "B2B Wholesale Order Management",
+     "doc_types": [
+      {
+       "name": "bulk purchase requisition form",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "enterprise ERP order export",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "approval workflow email chain",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Consumer Returns & Refunds",
+     "doc_types": [
+      {
+       "name": "product return request email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "return merchandise authorization (RMA) JSON record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "customer chat transcript about return",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Product Warranty & Service Claims",
+     "doc_types": [
+      {
+       "name": "warranty claim form PDF (OCR‑text extracted)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "service ticket API payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "follow‑up email thread with technician",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Physical Store Inventory Control",
+     "doc_types": [
+      {
+       "name": "store inventory shortage alert email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "POS inventory dump JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "stocktake spreadsheet rows (CSV‑like list)",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Supplier Invoice Processing",
+     "doc_types": [
+      {
+       "name": "supplier invoice PDF (OCR‑text extracted)",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "e‑invoicing EDI JSON document",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "payment schedule email thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Customer Experience & Sentiment Monitoring",
+     "doc_types": [
+      {
+       "name": "customer complaint email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "social‑media mention stream",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "NPS survey response JSON",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Dynamic Pricing & Price Optimization",
+     "doc_types": [
+      {
+       "name": "price‑change batch API payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "competitor price monitoring email report",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "price audit spreadsheet rows",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Transaction Fraud Detection",
+     "doc_types": [
+      {
+       "name": "fraud alert webhook from payment processor",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "risk‑review internal chat transcript",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "device fingerprint JSON record",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Order Fulfillment & Logistics Coordination",
+     "doc_types": [
+      {
+       "name": "shipping label generation request",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "carrier delayed‑delivery email notification",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "last‑mile driver dispatch chat thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Recurring Subscription Management",
+     "doc_types": [
+      {
+       "name": "subscription renewal webhook",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "cancellation request email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "billing cycle change chat log",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Digital Gift Card Operations",
+     "doc_types": [
+      {
+       "name": "gift card activation email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "gift card balance query API payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "gift‑card redemption audit list",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Customer Loyalty & Rewards",
+     "doc_types": [
+      {
+       "name": "loyalty program points transaction record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "tier upgrade notification email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "reward redemption request thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Marketplace Vendor Onboarding",
+     "doc_types": [
+      {
+       "name": "vendor onboarding questionnaire PDF (text extracted)",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "vendor compliance JSON checklist",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "contract negotiation email thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "E‑commerce Platform Product Management",
+     "doc_types": [
+      {
+       "name": "mobile‑app crash log JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "feature‑request ticket list (CSV‑like rows)",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "beta‑tester feedback email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Regulatory & Data‑Privacy Compliance",
+     "doc_types": [
+      {
+       "name": "privacy policy compliance audit report",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "GDPR data‑subject request JSON payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "legal hold email chain",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Third‑Party Fulfillment Center Operations",
+     "doc_types": [
+      {
+       "name": "warehouse pick‑list JSON feed",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "loading dock schedule email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "inventory reconciliation excel rows",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Seasonal / Pop‑up Retail Events",
+     "doc_types": [
+      {
+       "name": "pop‑up store event brief email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "temporary staff shift schedule list",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "point‑of‑sale transaction dump",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Content Creation & Merchandising Automation",
+     "doc_types": [
+      {
+       "name": "AI‑generated product description JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "copy‑editor review email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "keyword SEO audit list",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Wholesale Marketplace Transaction Processing",
+     "doc_types": [
+      {
+       "name": "B2B marketplace order feed JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "partner negotiation email thread",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "credit limit request API payload",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "banking, payments, insurance and personal finance",
+   "domains": [
+    {
+     "name": "Consumer personal‑loan underwriting",
+     "doc_types": [
+      {
+       "name": "personal loan application form",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "credit bureau score pull response",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "applicant email correspondence",
+       "formats": [
+        "text",
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Business account opening (SME)",
+     "doc_types": [
+      {
+       "name": "merchant onboarding KYC questionnaire",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "business registration certificate scan",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "transaction volume CSV uploads",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Auto insurance claims processing",
+     "doc_types": [
+      {
+       "name": "claims adjustment note (auto accident)",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "police report metadata",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "damage‑photo URLs list",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Homeowners insurance loss assessment",
+     "doc_types": [
+      {
+       "name": "property loss claim narrative",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "satellite flood‑risk assessment payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "receipts for rebuilding expenses",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Real‑time payment fraud detection",
+     "doc_types": [
+      {
+       "name": "fraud alert email from customer",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "device‑fingerprint log record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "chronology of recent transactions",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Business-to‑business ACH reconciliation",
+     "doc_types": [
+      {
+       "name": "ACH return code file",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "customer dispute letter",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "batch settlement report",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Residential mortgage underwriting",
+     "doc_types": [
+      {
+       "name": "mortgage loan pre‑approval email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "property appraisal appraisal JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "title‑search document list",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "SME term‑loan credit review",
+     "doc_types": [
+      {
+       "name": "small‑business loan request memo",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "financial‑statement extraction payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "bank‑statement CSV pages",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "E‑commerce merchant risk scoring",
+     "doc_types": [
+      {
+       "name": "payment‑gateway webhook event",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "merchant settlement dispute email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "daily transaction log files",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Digital account opening (consumer)",
+     "doc_types": [
+      {
+       "name": "customer onboarding chat transcript",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "digital identity verification response",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "list of required supporting documents",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Wealth‑management client profiling",
+     "doc_types": [
+      {
+       "name": "investment‑account suitability questionnaire",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "risk‑tolerance score payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "list of disclosed holdings",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Short‑term travel insurance issuance",
+     "doc_types": [
+      {
+       "name": "travel insurance policy request email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "flight itinerary JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "receipts for travel expenses",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Policy termination & refund processing",
+     "doc_types": [
+      {
+       "name": "policy cancellation letter from consumer",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "cancellation fee calculation record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "historical premium payment list",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Anti‑money‑laundering (AML) screening",
+     "doc_types": [
+      {
+       "name": "AML transaction monitoring alert",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "SAR (Suspicious Activity Report) narrative",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "linked account relationship map",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Consumer dispute resolution (billing)",
+     "doc_types": [
+      {
+       "name": "customer complaint email (billing dispute)",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "call‑center interaction log",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "escalation workflow steps",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Card‑limit management & alerts",
+     "doc_types": [
+      {
+       "name": "real‑time credit‑limit usage event",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "over‑limit notification SMS",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "historical utilization snapshots",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Loan pre‑payment & closure processing",
+     "doc_types": [
+      {
+       "name": "loan payoff request letter",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "early‑repayment penalty calculation",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "amortization schedule CSV",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Enterprise regulatory reporting",
+     "doc_types": [
+      {
+       "name": "regulatory filing cover letter (e.g., FINRA report)",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "risk‑weighted asset report payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "supporting schedule PDFs list",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Chargeback dispute adjudication",
+     "doc_types": [
+      {
+       "name": "batch credit‑card chargeback file",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "merchant rebuttal letter",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "related transaction IDs list",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Consumer digital‑wallet enrollment",
+     "doc_types": [
+      {
+       "name": "digital wallet onboarding checklist",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "mobile device attestation token",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "user consent email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "healthcare administration, pharmacy logistics and wellness (no diagnosis)",
+   "domains": [
+    {
+     "name": "Health plan member onboarding",
+     "doc_types": [
+      {
+       "name": "patient enrollment questionnaire",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "insurance eligibility verification form",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "pre‑authorization request packet",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Retail pharmacy fulfillment",
+     "doc_types": [
+      {
+       "name": "pharmacy dispense transaction log",
+       "formats": [
+        "json",
+        "text"
+       ]
+      },
+      {
+       "name": "automated refill reminder email",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "controlled substance inventory audit report",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "out‑of‑stock notification batch",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Outpatient clinic operations",
+     "doc_types": [
+      {
+       "name": "clinic appointment scheduling request",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "daily provider roster spreadsheet",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "patient no‑show SMS log",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Corporate wellness program engagement",
+     "doc_types": [
+      {
+       "name": "medication adherence survey response",
+       "formats": [
+        "json",
+        "text"
+       ]
+      },
+      {
+       "name": "wellness coach chat transcript",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "daily step‑count batch upload",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Hospital logistics & supply chain",
+     "doc_types": [
+      {
+       "name": "hospital supply purchase order",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "equipment maintenance request ticket",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "monthly consumables usage report",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Central drug distribution center",
+     "doc_types": [
+      {
+       "name": "pharmaceutical batch shipment manifest",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "temperature excursion alert message",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "carrier proof‑of‑delivery receipts",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Health plan member service center",
+     "doc_types": [
+      {
+       "name": "patient satisfaction email survey",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "call‑center interaction logs",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "escalation ticket JSON",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Virtual care platform",
+     "doc_types": [
+      {
+       "name": "telehealth session metadata record",
+       "formats": [
+        "json",
+        "text"
+       ]
+      },
+      {
+       "name": "post‑visit patient feedback note",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "prescription e‑order batch",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Pharmaceutical research site administration",
+     "doc_types": [
+      {
+       "name": "clinical trial eligibility screening form",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "adverse event report email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "study participant consent batch",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Skilled nursing & assisted living",
+     "doc_types": [
+      {
+       "name": "long‑term care facility medication administration record (MAR)",
+       "formats": [
+        "json",
+        "text"
+       ]
+      },
+      {
+       "name": "resident transfer request list",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "family member communication email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Urgent care center triage",
+     "doc_types": [
+      {
+       "name": "urgent care walk‑in intake form",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "lab test requisition PDF (text‑extracted)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "batch drug interaction check request",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Corporate HR health benefits administration",
+     "doc_types": [
+      {
+       "name": "employee health benefits enrollment portal data",
+       "formats": [
+        "json",
+        "text"
+       ]
+      },
+      {
+       "name": "HR‑issued wellness stipend request email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "annual health risk assessment responses",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Home health and hospice agency",
+     "doc_types": [
+      {
+       "name": "home health visit scheduling JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "caregiver shift change note",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "medical equipment delivery confirmation batch",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Patient self‑service portal",
+     "doc_types": [
+      {
+       "name": "patient portal secure message",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "bulk prescription renewal requests",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "insurance claim status webhook payload",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Healthcare quality & compliance office",
+     "doc_types": [
+      {
+       "name": "clinical quality metric submission form",
+       "formats": [
+        "json",
+        "text"
+       ]
+      },
+      {
+       "name": "peer‑review audit checklist batch",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "regulatory compliance exception email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Pharmacy benefit management",
+     "doc_types": [
+      {
+       "name": "pharmacy benefit manager (PBM) formulary update feed",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "step‑therapy authorization request",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "generic substitution recommendation batch",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Non‑emergency medical transportation",
+     "doc_types": [
+      {
+       "name": "ambulance dispatch incident report",
+       "formats": [
+        "json",
+        "text"
+       ]
+      },
+      {
+       "name": "medical transport routing log",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "patient hand‑off summary email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Community public‑health vaccination program",
+     "doc_types": [
+      {
+       "name": "vaccination campaign consent roster",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "mass‑mail appointment reminder template",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "immunization inventory tally batch",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Medical device field service",
+     "doc_types": [
+      {
+       "name": "medical device warranty claim form",
+       "formats": [
+        "json",
+        "text"
+       ]
+      },
+      {
+       "name": "service technician dispatch list",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "field engineer incident note",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Compounding pharmacy compliance",
+     "doc_types": [
+      {
+       "name": "pharmacy compounding batch record",
+       "formats": [
+        "json",
+        "text"
+       ]
+      },
+      {
+       "name": "hazardous material disposal request",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "regulatory inspection finding email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "software engineering, IT operations and DevOps",
+   "domains": [
+    {
+     "name": "Container orchestration & release management",
+     "doc_types": [
+      {
+       "name": "deployment manifest (Kubernetes YAML/JSON)",
+       "formats": [
+        "json",
+        "text"
+       ]
+      },
+      {
+       "name": "helm chart values file",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "release notes email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "IT incident response & alert triage",
+     "doc_types": [
+      {
+       "name": "incident ticket (Jira/ServiceNow)",
+       "formats": [
+        "json",
+        "text"
+       ]
+      },
+      {
+       "name": "on‑call rotation chat transcript",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "monitoring alert payload (Prometheus/Datadog)",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Source‑code management & code review",
+     "doc_types": [
+      {
+       "name": "pull‑request description",
+       "formats": [
+        "json",
+        "text"
+       ]
+      },
+      {
+       "name": "code review comment thread",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "merge‑conflict resolution checklist",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Continuous integration & build automation",
+     "doc_types": [
+      {
+       "name": "CI pipeline definition (GitHub Actions, Azure Pipelines)",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "build failure log excerpt",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "artifact publishing metadata",
+       "formats": [
+        "json",
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Customer‑facing support ticket routing",
+     "doc_types": [
+      {
+       "name": "service‑level agreement (SLA) performance report",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "customer support chat transcript",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "escalation request email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Infrastructure provisioning & change management",
+     "doc_types": [
+      {
+       "name": "infrastructure‑as‑code plan (Terraform JSON output)",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "change‑request approval email chain",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "maintenance window announcement",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Application security & vulnerability triage",
+     "doc_types": [
+      {
+       "name": "security scan vulnerability report (Dependabot, Snyk)",
+       "formats": [
+        "json",
+        "text"
+       ]
+      },
+      {
+       "name": "penetration test executive summary",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "remediation ticket backlog",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Cloud cost management & budgeting",
+     "doc_types": [
+      {
+       "name": "cost‑allocation billing CSV/JSON export",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "budget approval request email",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "forecasting spreadsheet (plain‑text export)",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Post‑incident analysis & learning",
+     "doc_types": [
+      {
+       "name": "post‑mortem incident report",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "root‑cause analysis data bundle",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "action‑item tracker document",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Service discovery & network configuration",
+     "doc_types": [
+      {
+       "name": "service discovery registration payload (Consul, etcd)",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "DNS change request ticket",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "network topology diagram description",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Feature flag management & experiment rollout",
+     "doc_types": [
+      {
+       "name": "feature flag definition payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "A/B test hypothesis document",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "experiment result dataset",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Logging, monitoring & compliance audit",
+     "doc_types": [
+      {
+       "name": "log aggregation query (ElasticSearch DSL)",
+       "formats": [
+        "json",
+        "text"
+       ]
+      },
+      {
+       "name": "daily log rotation summary",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "audit‑trail compliance report",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Reliability engineering & SLO enforcement",
+     "doc_types": [
+      {
+       "name": "service level indicator (SLI) measurement record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "capacity‑planning meeting minutes",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "threshold breach notification email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Software composition analysis & licensing",
+     "doc_types": [
+      {
+       "name": "container image vulnerability SBOM (CycloneDX JSON)",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "license compliance questionnaire",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "open‑source component inventory",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Configuration management & drift remediation",
+     "doc_types": [
+      {
+       "name": "configuration drift detection report (Chef InSpec JSON)",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "environment variables baseline file",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "manual config change request email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Identity & access governance",
+     "doc_types": [
+      {
+       "name": "on‑boarding checklist for new developer",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "access‑request form (ITSM)",
+       "formats": [
+        "json",
+        "text"
+       ]
+      },
+      {
+       "name": "role‑based permission matrix",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Incident communication & status reporting",
+     "doc_types": [
+      {
+       "name": "service health webhook payload (PagerDuty, OpsGenie)",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "outage communication thread (Slack)",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "public status‑page incident post",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Automatic scaling & resource optimization",
+     "doc_types": [
+      {
+       "name": "resource utilization metric dump (CloudWatch JSON)",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "autoscaling policy document",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "scale‑out approval email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Runbook automation & procedural execution",
+     "doc_types": [
+      {
+       "name": "runbook step definition (JSON workflow engine)",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "manual remediation guide PDF (text extraction)",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "post‑run verification checklist",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "IT asset management & procurement",
+     "doc_types": [
+      {
+       "name": "service request ticket (internal help desk)",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "hardware asset inventory CSV (text export)",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "vendor warranty claim email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "cybersecurity, fraud and trust & safety",
+   "domains": [
+    {
+     "name": "Enterprise email security triage",
+     "doc_types": [
+      {
+       "name": "phishing incident ticket",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "email header logs",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "user‑reported suspicious‑email thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Consumer account protection (login fraud)",
+     "doc_types": [
+      {
+       "name": "account takeover alert email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "login event stream record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "multi‑factor authentication challenge logs",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "E‑commerce payment fraud detection",
+     "doc_types": [
+      {
+       "name": "payment gateway transaction record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "chargeback dispute letter",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "order fulfillment status updates",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "SaaS platform abuse monitoring",
+     "doc_types": [
+      {
+       "name": "API request audit log",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "developer support bug report",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "rate‑limit violation alerts",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Insurance fraud detection",
+     "doc_types": [
+      {
+       "name": "insurance claim form",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "adjuster inspection data packet",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "claim correspondence thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Banking transaction fraud screening",
+     "doc_types": [
+      {
+       "name": "bank wire transfer SWIFT message",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "customer complaint email about unauthorized debit",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "daily settlement reconciliation report",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "User‑generated content trust & safety",
+     "doc_types": [
+      {
+       "name": "social‑media post reporting abuse",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "moderator review comments thread",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "automated content‑policy violation payload",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Mobile device anti‑tampering",
+     "doc_types": [
+      {
+       "name": "mobile app crash dump with telemetry",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "device integrity check results",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "user complaint about suspicious app behavior",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Corporate remote‑access risk analysis",
+     "doc_types": [
+      {
+       "name": "VPN connection log entry",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "remote‑access request approvals",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "security operations center (SOC) ticket",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Industrial IoT supply‑chain integrity",
+     "doc_types": [
+      {
+       "name": "IoT firmware update manifest",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "manufacturer defect report",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "device health metric series",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Insider threat detection (enterprise)",
+     "doc_types": [
+      {
+       "name": "employee whistle‑blower email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "access‑control system event record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "HR investigation interview notes",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Cloud data exfiltration monitoring",
+     "doc_types": [
+      {
+       "name": "cloud‑storage bucket access audit record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "object‑level permission change log",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "security incident notification email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Marketplace fraud & counterfeit detection",
+     "doc_types": [
+      {
+       "name": "online marketplace seller dispute letter",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "listing metadata record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "buyer‑seller message thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Blockchain / crypto fraud monitoring",
+     "doc_types": [
+      {
+       "name": "cryptocurrency transaction ledger entry",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "wallet address verification request",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "on‑chain alert feed",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Travel & transportation identity verification",
+     "doc_types": [
+      {
+       "name": "airport security checkpoint incident report",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "passenger watch‑list query responses",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "biometric verification log",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Retail point‑of‑sale fraud detection",
+     "doc_types": [
+      {
+       "name": "POS terminal transaction packet",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "customer dispute form",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "daily sales reconciliation statements",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Charitable‑organization grant fraud screening",
+     "doc_types": [
+      {
+       "name": "grant application PDF (text extracted)",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "non‑profit financial statement file",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "review committee comment thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Vulnerability management & exploit abuse",
+     "doc_types": [
+      {
+       "name": "automated vulnerability scanner report",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "patch deployment status logs",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "security advisory email to customers",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Regulatory compliance data‑request handling",
+     "doc_types": [
+      {
+       "name": "legal subpoena for user data",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "data‑access request audit log",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "compliance officer review notes",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Corporate phishing awareness program",
+     "doc_types": [
+      {
+       "name": "e‑mail archive (MBOX)",
+       "formats": [
+        "json",
+        "text"
+       ]
+      },
+      {
+       "name": "mailing‑list discussion thread",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "phishing‑suspect complaint",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "government, legal, compliance and civic services",
+   "domains": [
+    {
+     "name": "Municipal Planning & Permit Processing",
+     "doc_types": [
+      {
+       "name": "building permit application",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "zoning variance request",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "environmental impact assessment report",
+       "formats": [
+        "text",
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Tax Administration and Compliance",
+     "doc_types": [
+      {
+       "name": "tax return filing (individual)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "tax return filing (small business)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "audit findings summary",
+       "formats": [
+        "text",
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Social Welfare Benefit Eligibility",
+     "doc_types": [
+      {
+       "name": "social security benefit application",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "income verification letters",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "disability determination decision",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Freedom of Information & Public Records",
+     "doc_types": [
+      {
+       "name": "public records request email",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "records retrieval log (system output)",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "denial letter for records request",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Motor Vehicle Licensing",
+     "doc_types": [
+      {
+       "name": "vehicle registration renewal form",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "vehicle title transfer affidavit",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "emissions test certificate",
+       "formats": [
+        "text",
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Law Enforcement Incident Management",
+     "doc_types": [
+      {
+       "name": "police incident report",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "evidence chain‑of‑custody log",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "citizen complaint email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Judicial Case Administration",
+     "doc_types": [
+      {
+       "name": "court docket entry",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "judgment summary",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "case file index",
+       "formats": [
+        "text",
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Government Grants & Funding",
+     "doc_types": [
+      {
+       "name": "grant proposal submission",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "grant award notice",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "post‑award compliance report",
+       "formats": [
+        "text",
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Public Procurement & Contracting",
+     "doc_types": [
+      {
+       "name": "procurement solicitation (RFP)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "vendor bid submission",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "contract award letter",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Health & Safety Inspection Services",
+     "doc_types": [
+      {
+       "name": "building inspection checklist",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "code violation notice",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "re‑inspection request email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Election Administration",
+     "doc_types": [
+      {
+       "name": "voter registration form",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "ballot mailing notice",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "polling‑place assignment record",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Immigration & Citizenship Services",
+     "doc_types": [
+      {
+       "name": "immigration visa application",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "border entry/exit record",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "naturalization decision letter",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Child Protective Services",
+     "doc_types": [
+      {
+       "name": "child welfare case note",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "foster care placement order",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "abuse investigation report",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Housing Authority & Public Housing Management",
+     "doc_types": [
+      {
+       "name": "building lease agreement",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "maintenance request ticket",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "tenant noise complaint email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Environmental Regulation & Enforcement",
+     "doc_types": [
+      {
+       "name": "environmental permit compliance report",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "spill incident notification",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "hazardous waste disposal manifest",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Utility Service Management (Water/Electric/Gas)",
+     "doc_types": [
+      {
+       "name": "public utility outage report",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "service restoration work order",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "customer reconnection request email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Professional Licensing Boards",
+     "doc_types": [
+      {
+       "name": "licensing examination result",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "professional conduct complaint",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "license renewal notice",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Civic Engagement & Open Council",
+     "doc_types": [
+      {
+       "name": "public meeting agenda",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "minutes of council meeting",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "public comment submission email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Economic Development & Small Business Support",
+     "doc_types": [
+      {
+       "name": "small business loan application",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "loan underwriting decision",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "repayment status notice",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Public Health Surveillance & Response",
+     "doc_types": [
+      {
+       "name": "COVID‑19 exposure notification report",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "vaccination record entry",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "public health advisory email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "education, academic research and libraries",
+   "domains": [
+    {
+     "name": "College undergraduate admissions",
+     "doc_types": [
+      {
+       "name": "student admission application form",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "high‑school transcript PDF (OCR‑converted to text)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "recommendation letter email thread",
+       "formats": [
+        "text",
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Graduate school applications",
+     "doc_types": [
+      {
+       "name": "graduate program research proposal",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "faculty CV (plain‑text export)",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "GRE/GMAT score report (multiple pages)",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Scholarship & fellowship award processing",
+     "doc_types": [
+      {
+       "name": "scholarship award letter",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "financial need questionnaire",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "supporting document checklist (receipts, tax forms)",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "University registration & enrollment office",
+     "doc_types": [
+      {
+       "name": "course registration request email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "student schedule change log",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "automated seat‑availability feed",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Teaching effectiveness & evaluation",
+     "doc_types": [
+      {
+       "name": "faculty teaching evaluation survey response",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "student feedback comment thread",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "course rating analytics dump",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Academic library collection development",
+     "doc_types": [
+      {
+       "name": "library book acquisition request",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "interlibrary loan fulfillment logs",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "metadata record from publisher feed",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Public library patron services",
+     "doc_types": [
+      {
+       "name": "patron overdue notice email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "fine payment transaction list",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "circulation system activity log",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "University research data repository",
+     "doc_types": [
+      {
+       "name": "research data management plan document",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "dataset metadata record (JSON‑LD)",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "ethical clearance correspondence thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "External grant award office",
+     "doc_types": [
+      {
+       "name": "grant proposal submission PDF (OCR text)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "budget line‑item spreadsheet export (CSV treated as list)",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "grant agency reviewer score JSON",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Campus conduct & disciplinary affairs",
+     "doc_types": [
+      {
+       "name": "student misconduct incident report",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "disciplinary hearing transcript",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "sanction decision record",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Tenure and promotion review",
+     "doc_types": [
+      {
+       "name": "faculty tenure dossier narrative",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "publication list (BibTeX entries)",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "external citation metric API response",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Curriculum design & accreditation",
+     "doc_types": [
+      {
+       "name": "course syllabus PDF (text extracted)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "weekly lesson‑plan bullet list",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "learning‑outcome mapping JSON",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Academic IT support desk",
+     "doc_types": [
+      {
+       "name": "student help‑desk chat transcript",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "FAQ suggestion email thread",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "ticket status feed",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Massive Open Online Course (MOOC) platform",
+     "doc_types": [
+      {
+       "name": "online course discussion forum post",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "peer‑review comment chain",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "auto‑graded assignment JSON payload",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Student financial aid & loan processing",
+     "doc_types": [
+      {
+       "name": "student loan application form",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "payment schedule table",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "loan servicing API response",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Institutional Review Board administration",
+     "doc_types": [
+      {
+       "name": "research ethics board (IRB) amendment request",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "protocol revision comment thread",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "approval status webhook payload",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Academic conference travel & expense management",
+     "doc_types": [
+      {
+       "name": "faculty travel request email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "expense receipt image list (OCR‑text version)",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "reimbursement approval record",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Data privacy & records‑retention compliance in education",
+     "doc_types": [
+      {
+       "name": "library patron privacy request letter",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "access‑log extraction for user",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "compliance audit JSON report",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "K‑12 district governance and board proceedings",
+     "doc_types": [
+      {
+       "name": "school board meeting agenda PDF (text extracted)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "public comments submitted via web form",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "vote tally JSON feed",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Educational content publishing & licensing",
+     "doc_types": [
+      {
+       "name": "online textbook licensing agreement email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "chapter usage statistics CSV (treated as list)",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "digital rights management (DRM) token record",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "media, publishing, entertainment and games",
+   "domains": [
+    {
+     "name": "Newsroom public‑relations & media outreach",
+     "doc_types": [
+      {
+       "name": "press release text",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "media contact spreadsheet",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "editorial calendar email thread",
+       "formats": [
+        "text",
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Book publishing acquisition & editorial",
+     "doc_types": [
+      {
+       "name": "manuscript submission PDF",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "author revision comment thread",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "submission metadata record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "contract negotiation email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Video‑game development & design",
+     "doc_types": [
+      {
+       "name": "game design document (GDD) draft",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "feature backlog ticket",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "playtester feedback form",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Streaming platform creator‑relations",
+     "doc_types": [
+      {
+       "name": "streamer partnership proposal email",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "live‑stream analytics report",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "content‑ID takedown notice",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Film production & script management",
+     "doc_types": [
+      {
+       "name": "movie script PDF",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "script coverage notes thread",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "production schedule JSON export",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "casting call email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Advertising sales & campaign ops",
+     "doc_types": [
+      {
+       "name": "advertiser brief email chain",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "ad inventory allocation record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "creative asset approval form",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Live‑event ticketing & box office",
+     "doc_types": [
+      {
+       "name": "ticket purchase receipt email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "event‑day check‑in log",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "seat‑assignment JSON file",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Social‑media platform content moderation",
+     "doc_types": [
+      {
+       "name": "user‑generated content moderation report",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "flagged comment payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "community guideline update memo",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Podcast production & distribution",
+     "doc_types": [
+      {
+       "name": "podcast episode transcript",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "episode metadata record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "sponsor ad‑slot schedule",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Online game community management",
+     "doc_types": [
+      {
+       "name": "in‑game chat log",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "player behavior event JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "ban appeal email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Music publishing & rights administration",
+     "doc_types": [
+      {
+       "name": "digital asset licensing contract JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "royalty statement PDF",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "usage‑report CSV attachment",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Corporate media‑company governance",
+     "doc_types": [
+      {
+       "name": "board meeting minutes email",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "budget allocation JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "risk‑assessment narrative",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Customer support for subscription streaming services",
+     "doc_types": [
+      {
+       "name": "consumer complaint email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "support ticket thread",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "issue‑resolution status record",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Product analytics & experimentation",
+     "doc_types": [
+      {
+       "name": "A/B test configuration file",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "experiment result CSV logs",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "hypothesis write‑up document",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Online magazine editorial workflow",
+     "doc_types": [
+      {
+       "name": "guest‑author pitch email",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "content calendar entry JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "fact‑check report PDF",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Digital‑book retailer operations",
+     "doc_types": [
+      {
+       "name": "e‑book distribution metadata feed",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "license agreement PDF",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "price‑change notification email thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Immersive media (AR/VR) content compliance",
+     "doc_types": [
+      {
+       "name": "VR experience safety briefing PDF",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "session performance metrics JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "user feedback questionnaire responses",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Esports tournament organization",
+     "doc_types": [
+      {
+       "name": "sponsor proposal email thread",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "sponsorship contract JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "post‑event sponsor report PDF",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Live‑performance theater ticketing & production",
+     "doc_types": [
+      {
+       "name": "local‑theater play script PDF",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "rehearsal schedule email chain",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "ticket‑sale daily summary",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Influencer marketing for gaming and entertainment",
+     "doc_types": [
+      {
+       "name": "gaming influencer contract email",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "campaign performance metrics JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "content usage authorization form PDF",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "travel, hospitality, transportation and logistics",
+   "domains": [
+    {
+     "name": "Hotel front‑desk reservation handling",
+     "doc_types": [
+      {
+       "name": "hotel reservation request email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "online booking API payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "guest special‑request note",
+       "formats": [
+        "text",
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Airline ticketing and re‑booking",
+     "doc_types": [
+      {
+       "name": "flight offer JSON from GDS",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "customer itinerary change email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "airline crew schedule CSV exported as JSON",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Car‑rental reservation & return processing",
+     "doc_types": [
+      {
+       "name": "rental car pickup confirmation SMS",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "vehicle inventory database record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "damage inspection checklist form",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Freight forwarder shipment creation",
+     "doc_types": [
+      {
+       "name": "cargo shipment booking email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "bill of lading JSON export",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "container seal number log",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Customs brokerage document review",
+     "doc_types": [
+      {
+       "name": "customs clearance query email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "import declaration API payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "tariff classification list",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Tour‑package recommendation engine",
+     "doc_types": [
+      {
+       "name": "tour operator package brochure PDF (text‑extracted)",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "tour itinerary JSON feed",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "customer FAQs thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Hospitality facility‑maintenance routing",
+     "doc_types": [
+      {
+       "name": "maintenance request ticket from hotel staff",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "asset management system record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "parts ordering checklist",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Ride‑hailing driver assignment",
+     "doc_types": [
+      {
+       "name": "driver dispatch chat transcript",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "real‑time GPS ping record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "shift‑handover log entries",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Airport baggage‑service incident handling",
+     "doc_types": [
+      {
+       "name": "passenger lost‑baggage claim email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "baggage tracking system event",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "airport carousel status messages",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Business travel meeting‑room management",
+     "doc_types": [
+      {
+       "name": "conference room booking request Slack message",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "room‑resource calendar entry",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "catering preference checklist",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Corporate travel expense audit",
+     "doc_types": [
+      {
+       "name": "travel expense receipt image OCR‑text",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "expense‑report API payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "policy compliance checklist",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Shipping line crew compliance",
+     "doc_types": [
+      {
+       "name": "maritime crew visa application email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "crew‑list manifest export",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "port‑call schedule entries",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Railway passenger ticket validation",
+     "doc_types": [
+      {
+       "name": "e‑ticket PDF (text‑extracted) for train journey",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "rail reservation system record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "station announcement script lines",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Ferry operator service recovery",
+     "doc_types": [
+      {
+       "name": "customer complaint email about delayed ferry",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "ferry‑schedule change webhook payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "crew‑shift roster entries",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Large‑scale event venue compliance",
+     "doc_types": [
+      {
+       "name": "venue safety inspection report PDF (text‑extracted)",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "event‑site risk‑assessment record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "emergency‑equipment checklist",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Cold‑chain air‑cargo monitoring",
+     "doc_types": [
+      {
+       "name": "air cargo perishable‑goods declaration email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "temperature‑monitoring sensor data feed",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "handling‑instruction bullet list",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Hospitality housekeeping workflow automation",
+     "doc_types": [
+      {
+       "name": "hotel housekeeping task assignment chat",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "room‑status API update",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "linen‑inventory count log",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Travel‑agency B2B contract compliance",
+     "doc_types": [
+      {
+       "name": "travel‑agency partner contract PDF (text‑extracted)",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "commission settlement record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "service‑level agreement clause list",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Cruise‑line passenger incident triage",
+     "doc_types": [
+      {
+       "name": "incident report email from cruise ship guest",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "onboard sensor alert payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "deck‑log entry series",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Smart‑city parking enforcement",
+     "doc_types": [
+      {
+       "name": "parked‑car violation ticket PDF (text‑extracted)",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "parking‑lot sensor event JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "vehicle‑license‑plate capture list",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "real estate, construction and facilities management",
+   "domains": [
+    {
+     "name": "Residential property leasing",
+     "doc_types": [
+      {
+       "name": "Residential lease agreement",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Tenant rent payment record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "Maintenance request email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Move‑out inspection checklist",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Commercial office leasing",
+     "doc_types": [
+      {
+       "name": "Commercial lease contract",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Square‑footage allocation spreadsheet",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "Tenant improvement change order thread",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "Common‑area service charge invoice",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "General contractor bidding",
+     "doc_types": [
+      {
+       "name": "Construction bid proposal PDF (OCR‑converted to text)",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Bid submission metadata record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "RFI (Request for Information) email thread",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "Award notice letter",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Construction site safety management",
+     "doc_types": [
+      {
+       "name": "Site safety inspection report",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Daily construction log entries",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "Equipment usage telemetry record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "Incident/accident narrative",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Facilities maintenance ticketing",
+     "doc_types": [
+      {
+       "name": "Work order creation API payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "Technician dispatch chat thread",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "Service completion report PDF (text extracted)",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Customer satisfaction survey response",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Building systems operations (HVAC, ELV, etc.)",
+     "doc_types": [
+      {
+       "name": "HVAC system performance metrics dump",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "Preventive maintenance schedule email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Filter replacement log entries",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Regulatory compliance and permitting",
+     "doc_types": [
+      {
+       "name": "Property tax assessment notice",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Assessment appeal filing record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "Municipal zoning variance request letter",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Sustainability and energy efficiency programs",
+     "doc_types": [
+      {
+       "name": "Energy audit report",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Utility meter reading feed",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "Retrofit recommendation checklist",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Real‑estate title and ownership verification",
+     "doc_types": [
+      {
+       "name": "Title deed abstract",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Land parcel GIS record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "Chain‑of‑title document list",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Residential sales marketing",
+     "doc_types": [
+      {
+       "name": "Property listing API payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "Seller marketing brochure (text extracted)",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Open‑house visitor sign‑in log",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Mortgage financing underwriting",
+     "doc_types": [
+      {
+       "name": "Loan commitment letter",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Underwriting risk score file",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "Borrower questionnaire responses",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Tenant relations and dispute handling",
+     "doc_types": [
+      {
+       "name": "Tenant noise complaint email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Neighbor dispute resolution chat thread",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "Building policy violation notice",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Security and access management",
+     "doc_types": [
+      {
+       "name": "Smart‑building sensor event stream",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "Access‑card swipe logs",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "Visitor management request email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Property insurance claims processing",
+     "doc_types": [
+      {
+       "name": "Insurance claim form (PDF‑to‑text)",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Claim status API response",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "Adjuster notes thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Procurement and vendor management",
+     "doc_types": [
+      {
+       "name": "Vendor contract amendment email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Purchase order record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "Invoice receipt batch",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Asset portfolio management",
+     "doc_types": [
+      {
+       "name": "Annual property performance review memo",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "KPIs dashboard export",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "Executive board meeting minutes (bullet list)",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Business continuity and emergency response",
+     "doc_types": [
+      {
+       "name": "Emergency flood alert SMS",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Disaster recovery drill checklist",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "Backup system status log",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Lease renewal and renegotiation",
+     "doc_types": [
+      {
+       "name": "Lease renewal negotiation email thread",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Renewal offer generation record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "Tenant consent form signatures",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Parking and traffic management for facilities",
+     "doc_types": [
+      {
+       "name": "Parking violation citation notice",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Vehicle registration log",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "Automated ticket payment webhook payload",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Project change management in construction",
+     "doc_types": [
+      {
+       "name": "Construction change order request form",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "Change order approval workflow record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "Cost impact analysis entries",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "human resources, recruiting and the workplace",
+   "domains": [
+    {
+     "name": "Talent acquisition – resume screening",
+     "doc_types": [
+      {
+       "name": "candidate resume/CV",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "cover letter",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "recruiter screening notes",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "online application form submission",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Performance management – appraisal evaluation",
+     "doc_types": [
+      {
+       "name": "employee performance self‑assessment",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "manager performance review comments",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "360‑degree feedback questionnaire",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Job posting & requisition routing",
+     "doc_types": [
+      {
+       "name": "job posting description",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "internal job requisition workflow log",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "external recruitment agency brief",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Onboarding automation",
+     "doc_types": [
+      {
+       "name": "employee onboarding checklist email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "new‑hire equipment provisioning request",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "background‑check result report",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Work‑time & attendance verification",
+     "doc_types": [
+      {
+       "name": "time‑sheet entry CSV (exported as text)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "daily attendance punch‑in/out log",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "overtime request form",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Expense claim processing",
+     "doc_types": [
+      {
+       "name": "expense receipt image OCR output (text)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "travel‑booking confirmation emails",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "corporate card transaction log",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Employee relations & grievance handling",
+     "doc_types": [
+      {
+       "name": "employee grievance email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "HR case‑management system notes",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "legal counsel recommendation memo",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Health & safety compliance monitoring",
+     "doc_types": [
+      {
+       "name": "workplace safety incident report",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "near‑miss audit checklist",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "OSHA compliance audit JSON export",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Policy dissemination & acknowledgment",
+     "doc_types": [
+      {
+       "name": "internal policy update announcement",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "employee acknowledgment receipt log",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "policy violation incident ticket",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Off‑boarding & separation processing",
+     "doc_types": [
+      {
+       "name": "employee exit interview transcript",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "off‑boarding checklist items",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "final pay & benefits settlement record",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Talent development & promotion routing",
+     "doc_types": [
+      {
+       "name": "internal promotion recommendation email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "career‑pathing competency matrix",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "salary benchmark data feed",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Remote‑work support & equipment provisioning",
+     "doc_types": [
+      {
+       "name": "remote‑work equipment request form",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "home‑office safety self‑check questionnaire",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "IT asset allocation log",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Diversity, equity & inclusion analytics",
+     "doc_types": [
+      {
+       "name": "diversity & inclusion survey response",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "EEO (Equal Employment Opportunity) filing XML/JSON",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "affinity‑group membership request email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Mentorship program coordination",
+     "doc_types": [
+      {
+       "name": "internal mentorship program match request",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "mentor‑mentee meeting log",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "skill‑endorsement database export",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Contingent labor management",
+     "doc_types": [
+      {
+       "name": "temporary/contract worker timesheet PDF (OCR text)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "vendor labor invoice batch",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "contingent workforce compliance JSON feed",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Employee wellness & benefits engagement",
+     "doc_types": [
+      {
+       "name": "employee wellness program enrollment form",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "fitness challenge activity log",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "health‑risk assessment questionnaire data",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Shift scheduling & compliance routing",
+     "doc_types": [
+      {
+       "name": "internal chat transcript about shift swap",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "shift‑schedule change request batch",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "labor‑law compliance rule set",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Idea management & continuous improvement",
+     "doc_types": [
+      {
+       "name": "employee suggestion box email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "innovation‑challenge submission portal entries",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "idea‑evaluation scoring matrix",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "HR self‑service virtual assistant",
+     "doc_types": [
+      {
+       "name": "HR chatbot conversation transcript",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "FAQ knowledge‑base article metadata",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "automated intent‑recognition output",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Litigation hold & records preservation",
+     "doc_types": [
+      {
+       "name": "legal subpoena for employee records (redacted)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "e‑discovery document bundle manifest",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "court‑ordered data request JSON",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "manufacturing, energy, utilities and IoT",
+   "domains": [
+    {
+     "name": "Industrial plant preventive‑maintenance scheduling",
+     "doc_types": [
+      {
+       "name": "maintenance work order request",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "equipment sensor telemetry batch",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "shift hand‑over notes",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Consumer appliance warranty processing",
+     "doc_types": [
+      {
+       "name": "customer warranty claim form",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "product serial‑number lookup record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "repair technician email thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Residential utility billing & outage management",
+     "doc_types": [
+      {
+       "name": "smart‑meter daily consumption file",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "outage notification email to customers",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "meter reading dispute chat log",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Critical incident detection in chemical plants",
+     "doc_types": [
+      {
+       "name": "industrial gas leak incident report",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "SCADA alarm event payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "emergency response radio transcript",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Large‑scale IoT firmware rollout for smart factories",
+     "doc_types": [
+      {
+       "name": "IoT device firmware update manifest",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "field engineer upgrade checklist",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "deployment status Slack thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Capital‑equipment procurement for power utilities",
+     "doc_types": [
+      {
+       "name": "vendor quotation email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "procurement purchase‑order record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "bid evaluation comment log",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Wind‑farm turbine health monitoring",
+     "doc_types": [
+      {
+       "name": "remote turbine performance audit report",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "blade vibration sensor dataset",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "maintenance crew dispatch messages",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Residential energy‑efficiency program enrollment",
+     "doc_types": [
+      {
+       "name": "customer energy‑efficiency retrofit request",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "home energy‑usage baseline record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "installer appointment confirmation chain",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Oil‑and‑gas pipeline integrity monitoring",
+     "doc_types": [
+      {
+       "name": "pipeline pressure sensor CSV export (json wrapper)",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "operator anomaly investigation note",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "regulatory compliance checklist entries",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Utility demand‑response program management",
+     "doc_types": [
+      {
+       "name": "smart‑grid demand‑response enrollment form",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "real‑time load‑curtailment command",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "customer opt‑out email thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Factory equipment commissioning",
+     "doc_types": [
+      {
+       "name": "equipment installation acceptance certificate",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "as‑built BIM record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "punch‑list issue log",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Solar‑panel installation after‑sale support",
+     "doc_types": [
+      {
+       "name": "customer service ticket about a faulty inverter",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "remote diagnostics JSON dump",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "support chat transcript",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Manufacturing line safety‑system monitoring",
+     "doc_types": [
+      {
+       "name": "automated safety‑shutdown command log",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "operator incident summary memo",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "safety audit questionnaire responses",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Statistical process control in automotive parts making",
+     "doc_types": [
+      {
+       "name": "daily production KPI spreadsheet rows",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "machine‑learning quality‑score record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "quality‑engineer escalation email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Commercial building HVAC service routing",
+     "doc_types": [
+      {
+       "name": "customer complaint about noisy HVAC unit",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "service‑call scheduling payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "field‑technician status updates thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Distributed energy storage dispatch optimization",
+     "doc_types": [
+      {
+       "name": "grid‑edge battery state‑of‑charge packet",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "customer consent form for storage participation",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "dispatch algorithm round‑trip logs",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Regulatory permitting for utility infrastructure projects",
+     "doc_types": [
+      {
+       "name": "permit application for new substation construction",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "environmental impact assessment file",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "public comment submission list",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Real‑time energy market trading desk",
+     "doc_types": [
+      {
+       "name": "energy‑trading order message (FIX/JSON)",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "trade confirmation email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "margin call correspondence thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Critical‑infrastructure restoration for SMEs after storm",
+     "doc_types": [
+      {
+       "name": "small‑business outage impact survey",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "priority‑restore schedule record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "field‑crew GPS check‑in log",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Smart‑building facilities management",
+     "doc_types": [
+      {
+       "name": "tenant noise complaint email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "building management system alarm event",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "maintenance request ticket thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "personal life, households and community organizations",
+   "domains": [
+    {
+     "name": "Home appliance warranty & repair",
+     "doc_types": [
+      {
+       "name": "home warranty claim form",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "appliance repair service request email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "product return shipping log",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Residential leasing & property management",
+     "doc_types": [
+      {
+       "name": "rental application PDF",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "tenant noise complaint email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "lease renewal reminder SMS thread",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "move‑out inspection checklist",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Homeowners association administration",
+     "doc_types": [
+      {
+       "name": "HOA board meeting minutes",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "community event proposal submissions",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "neighbor dispute resolution request",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Individual health & medical paperwork",
+     "doc_types": [
+      {
+       "name": "personal health insurance claim form",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "doctor appointment confirmation email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "pharmacy refill request chat transcript",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Personal vehicle & DMV interactions",
+     "doc_types": [
+      {
+       "name": "vehicle registration renewal notice",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "traffic ticket citation PDF",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "parking permit application email thread",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Household utilities billing & support",
+     "doc_types": [
+      {
+       "name": "utility bill (electricity) PDF",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "payment dispute email chain",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "service outage notification SMS",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Home food & grocery delivery",
+     "doc_types": [
+      {
+       "name": "online grocery order confirmation",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "delivery driver dispatch chat",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "return label email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Residential property insurance",
+     "doc_types": [
+      {
+       "name": "home insurance policy PDF",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "claim status update email thread",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "damage assessment photo metadata (json)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "In‑home IoT device monitoring",
+     "doc_types": [
+      {
+       "name": "smart thermostat daily usage log (json)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "security camera alert notifications",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "voice‑assistant command transcript",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Personal finance & budgeting",
+     "doc_types": [
+      {
+       "name": "family budget spreadsheet (json export)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "expense receipt email attachments",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "savings goal progress notification",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "K‑12 education administration (parents)",
+     "doc_types": [
+      {
+       "name": "school enrollment application PDF",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "parent‑teacher conference scheduling emails",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "student report card PDF",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Local nonprofit & volunteer coordination",
+     "doc_types": [
+      {
+       "name": "volunteer shift sign‑up spreadsheet",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "community fundraiser donation receipt email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "neighborhood watch incident report form",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Pet care & animal shelter services",
+     "doc_types": [
+      {
+       "name": "pet adoption application PDF",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "veterinary appointment reminder SMS thread",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "vaccination record (json)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Home improvement & construction permits",
+     "doc_types": [
+      {
+       "name": "home renovation contractor bid proposals",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "building permit application PDF",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "inspection scheduling email chain",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Personal travel planning & booking",
+     "doc_types": [
+      {
+       "name": "travel itinerary email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "flight status push notifications",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "hotel reservation confirmation PDF",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Adult lifelong learning & e‑learning platforms",
+     "doc_types": [
+      {
+       "name": "online course enrollment receipt",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "certificate of completion PDF",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "assignment feedback thread",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Civic engagement & government outreach",
+     "doc_types": [
+      {
+       "name": "census questionnaire response (json)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "local referendum petition signatures list",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "public service announcement email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Disaster response & household emergency management",
+     "doc_types": [
+      {
+       "name": "homeowner insurance claim chat transcript",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "storm damage damage‑assessment photo metadata",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "emergency alert SMS broadcast",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Family life‑event planning",
+     "doc_types": [
+      {
+       "name": "marriage license application PDF",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "wedding vendor contract email thread",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "guest RSVP form (json)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Sustainable home upgrades & incentives",
+     "doc_types": [
+      {
+       "name": "home energy audit report (json)",
+       "formats": [
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "solar panel installation contract PDF",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "rebate application email chain",
+       "formats": [
+        "list",
+        "json"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "automotive, vehicles and repair",
+   "domains": [
+    {
+     "name": "New‑car retail sales",
+     "doc_types": [
+      {
+       "name": "vehicle purchase contract",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "buyer financing application",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "pre‑delivery inspection checklist",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Manufacturer warranty administration",
+     "doc_types": [
+      {
+       "name": "warranty registration form",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "recall notification email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "dealer warranty claim packet",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Independent auto repair shop",
+     "doc_types": [
+      {
+       "name": "repair order ticket",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "parts requisition list",
+       "formats": [
+        "text",
+        "list",
+        "json"
+       ]
+      },
+      {
+       "name": "service technician notes",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Corporate fleet management",
+     "doc_types": [
+      {
+       "name": "fleet vehicle maintenance schedule",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "daily mileage log",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "vehicle usage policy acknowledgment",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Motor insurance claims processing",
+     "doc_types": [
+      {
+       "name": "accident report form",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "insurance claim submission",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "police incident narrative",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "DMV / government registration",
+     "doc_types": [
+      {
+       "name": "vehicle registration application",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "title transfer request",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "emissions test certificate",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "OEM direct‑to‑consumer support center",
+     "doc_types": [
+      {
+       "name": "customer support chat transcript",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "service appointment email thread",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "service reminder SMS",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Connected‑car data platform",
+     "doc_types": [
+      {
+       "name": "vehicle telematics event log",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "over‑the‑air (OTA) update status report",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "diagnostic trouble code dump",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Ride‑hailing fleet operations",
+     "doc_types": [
+      {
+       "name": "driver dispatch chat",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "ride‑hailing trip summary",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "vehicle compliance checklist (commercial use)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Auto leasing company",
+     "doc_types": [
+      {
+       "name": "vehicle acquisition purchase order",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "lease contract",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "residual value appraisal report",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "OEM parts distribution center",
+     "doc_types": [
+      {
+       "name": "parts supplier invoice batch",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "inventory on‑hand snapshot",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "backorder status update",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Recall remediation program",
+     "doc_types": [
+      {
+       "name": "recall service bulletin",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "field technician case notes",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "repair compliance audit report",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Third‑party inspection stations",
+     "doc_types": [
+      {
+       "name": "vehicle safety inspection report",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "roadworthiness certificate batch",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "inspection station audit log",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Used‑car auction house",
+     "doc_types": [
+      {
+       "name": "vehicle auction lot description",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "bidding transaction record",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "post‑sale condition report",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "International vehicle shipping & customs",
+     "doc_types": [
+      {
+       "name": "vehicle import customs declaration",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "border compliance checklist",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "temporary import permit",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Field mobile repair service",
+     "doc_types": [
+      {
+       "name": "mobile service technician dispatch memo",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "on‑site repair completion report",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "customer satisfaction survey responses",
+       "formats": [
+        "text",
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Auto finance lender",
+     "doc_types": [
+      {
+       "name": "vehicle financing payment statement",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "delinquency notice email",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "loan payoff confirmation",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "IT operations for automotive SaaS platform",
+     "doc_types": [
+      {
+       "name": "daily backup job log",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "system health monitoring JSON",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "security incident ticket",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Commercial trucking compliance",
+     "doc_types": [
+      {
+       "name": "employee driver safety training record",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "driver qualification file (DOT)",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "incident investigation report",
+       "formats": [
+        "text",
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Automotive R&D engineering",
+     "doc_types": [
+      {
+       "name": "vehicle design specification sheet",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "concept review meeting minutes",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "prototype test result log",
+       "formats": [
+        "text",
+        "json"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "agriculture, environment and the natural sciences",
+   "domains": [
+    {
+     "name": "Precision crop management for large commodity farms",
+     "doc_types": [
+      {
+       "name": "soil test laboratory report",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "precision‑agriculture sensor data dump",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "field observation notebook entries",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Small‑scale organic farm direct‑to‑consumer sales",
+     "doc_types": [
+      {
+       "name": "organic produce certification application",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "farm inventory tracking export",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "customer foot‑traffic logs from farm‑stand POS",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Regulatory compliance for commercial pesticide applicators",
+     "doc_types": [
+      {
+       "name": "pesticide usage permit request",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "sprayer GPS spray‑event record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "field worker daily spray logs",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Irrigation management for arid‑region agribusinesses",
+     "doc_types": [
+      {
+       "name": "water‑rights allocation notice",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "irrigation system telemetry feed",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "farm‑level water‑usage meter readings",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Commercial timber plantation disease monitoring",
+     "doc_types": [
+      {
+       "name": "forest health inspection report",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "satellite imagery metadata batch",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "field crew disease symptom checklist",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "University agricultural research lab data pipelines",
+     "doc_types": [
+      {
+       "name": "grant application for climate‑resilient agriculture research",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "experiment sensor data set (soil moisture, temperature, CO₂)",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "weekly progress notes from research plot",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Citizen‑science biodiversity monitoring program",
+     "doc_types": [
+      {
+       "name": "species‑occurrence field survey form",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "automated camera‑trap image metadata",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "volunteer sighting entries (mobile app)",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Agricultural research facility safety compliance",
+     "doc_types": [
+      {
+       "name": "hazardous waste disposal manifest",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "lab chemical inventory export",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "incident report emails from field technicians",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Dairy herd management for mid‑size farms",
+     "doc_types": [
+      {
+       "name": "livestock health treatment record",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "RFID ear‑tag event stream (feeding, movement)",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "daily milking logs",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Commercial beekeeping operation monitoring",
+     "doc_types": [
+      {
+       "name": "beehive inspection checklist",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "apiary temperature & humidity sensor feed",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "harvest weight entries per colony",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Agricultural insurance underwriting for large estates",
+     "doc_types": [
+      {
+       "name": "crop insurance claim form",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "damage assessment drone image metadata",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "adjuster field notes (threaded email exchange)",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Processing plant compliance for fruit & vegetable canning",
+     "doc_types": [
+      {
+       "name": "food safety audit checklist",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "cold‑chain temperature logger export",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "batch production record entries",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Wetland restoration project management",
+     "doc_types": [
+      {
+       "name": "permit to cut invasive aquatic plants",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "river flow sensor time series",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "field crew removal activity log",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Agricultural machinery fleet service for contractor fleet",
+     "doc_types": [
+      {
+       "name": "farm equipment maintenance request ticket",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "tractor telematics session dump",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "parts inventory change log",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Seed company quality assurance and shipping",
+     "doc_types": [
+      {
+       "name": "seed lot certification statement",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "genomic marker assay results",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "order fulfillment emails from seed distributor",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Fire‑prevention planning for forest‑adjacent farms",
+     "doc_types": [
+      {
+       "name": "wildfire risk assessment report",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "weather station real‑time feed",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "fire‑break construction daily logs",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Municipal community‑garden plot allocation",
+     "doc_types": [
+      {
+       "name": "urban community garden plot application",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "soil amendment sensor package export",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "volunteer shift sign‑up thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "International fresh‑produce export compliance",
+     "doc_types": [
+      {
+       "name": "export phytosanitary certificate",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "customs cargo manifest data feed",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "logistics carrier status updates (email chain)",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Regulatory review for new agritech facility siting",
+     "doc_types": [
+      {
+       "name": "environmental impact assessment (EIA) executive summary",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "air‑quality sensor network aggregate",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "public comment submission entries",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Biotech crop‑trait development lab documentation",
+     "doc_types": [
+      {
+       "name": "herbicide resistance monitoring survey",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "gene‑editing trial results record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "researcher peer‑review email thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "AI assistants, chatbots and tool-using agents",
+   "domains": [
+    {
+     "name": "E‑commerce help‑desk automation",
+     "doc_types": [
+      {
+       "name": "customer support ticket",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "live chat transcript",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "issue escalation payload",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Insurance claims triage bot",
+     "doc_types": [
+      {
+       "name": "insurance claim form",
+       "formats": [
+        "text",
+        "json"
+       ]
+      },
+      {
+       "name": "accident police report",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "policy eligibility record",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Residential property management assistant",
+     "doc_types": [
+      {
+       "name": "rental application email",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "background‑check API response",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "lease agreement PDF (OCR‑ed to text)",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Healthcare pre‑visit routing bot",
+     "doc_types": [
+      {
+       "name": "doctor referral message thread",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "lab test result record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "patient intake questionnaire",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Internal corporate help‑desk agent",
+     "doc_types": [
+      {
+       "name": "employee IT support chat",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "system error log entry",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "hardware warranty claim form",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Small‑business tax assistant",
+     "doc_types": [
+      {
+       "name": "tax filing email thread",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "W‑2/1099 data payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "audit request letter",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Restaurant booking and floor‑plan bot",
+     "doc_types": [
+      {
+       "name": "restaurant reservation request email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "table‑assignment schedule (CSV‑like list)",
+       "formats": [
+        "list"
+       ]
+      },
+      {
+       "name": "guest preferences record",
+       "formats": [
+        "json"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Agile sprint retrospection assistant",
+     "doc_types": [
+      {
+       "name": "project status update thread",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "JIRA ticket payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "risk‑assessment memo",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Travel‑agency re‑booking chatbot",
+     "doc_types": [
+      {
+       "name": "flight change request email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "airline itinerary JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "passenger‑feedback survey responses",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Legal‑practice intake and routing bot",
+     "doc_types": [
+      {
+       "name": "legal demand letter",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "case‑management system record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "court filing email thread",
+       "formats": [
+        "text",
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "University admissions assistant",
+     "doc_types": [
+      {
+       "name": "student admissions inquiry email chain",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "high‑school transcript JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "personal statement PDF (OCR‑ed to text)",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Facilities‑management routing bot",
+     "doc_types": [
+      {
+       "name": "maintenance work order email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "equipment sensor reading payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "daily shift‑log entries",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "SaaS customer‑success automation",
+     "doc_types": [
+      {
+       "name": "customer churn warning Slack thread",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "usage‑analytics event stream record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "cancellation request form",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Non‑profit funding application triage",
+     "doc_types": [
+      {
+       "name": "grant proposal abstract",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "budget‑allocation spreadsheet exported as JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "reviewer comments thread",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "K‑12 school administration assistant",
+     "doc_types": [
+      {
+       "name": "parent‑teacher conference scheduling email",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "student‑attendance record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "disciplinary incident report",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Enterprise procurement routing bot",
+     "doc_types": [
+      {
+       "name": "procurement requisition form",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "vendor quote API payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "purchase‑order approval chain",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "E‑commerce logistics exception handler",
+     "doc_types": [
+      {
+       "name": "order‑fulfillment exception email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "warehouse inventory delta record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "pick‑list manifest",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Recruiting intake and shortlisting bot",
+     "doc_types": [
+      {
+       "name": "candidate screening questionnaire response",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "resume parsed as JSON",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "reference‑check email",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Cyber‑security SOC triage assistant",
+     "doc_types": [
+      {
+       "name": "security incident report email",
+       "formats": [
+        "text"
+       ]
+      },
+      {
+       "name": "IDS alert JSON payload",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "forensic log excerpt list",
+       "formats": [
+        "list"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Pharmacy virtual assistant",
+     "doc_types": [
+      {
+       "name": "patient medication refill request SMS thread",
+       "formats": [
+        "text",
+        "list"
+       ]
+      },
+      {
+       "name": "pharmacy inventory record",
+       "formats": [
+        "json"
+       ]
+      },
+      {
+       "name": "prescription image OCR‑ed to text",
+       "formats": [
+        "text"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "writer": "do:openai-gpt-oss-120b"
+}
