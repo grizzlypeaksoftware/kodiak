@@ -97,6 +97,19 @@ so it is cheap to host anywhere. Four ways to run it, from free to product:
 The hosted API is the business model: open weights build trust and adoption, and the hosted service (plus, later, fine-tuning on a
 customer's own labels) is what customers pay for. It is also what could fund the larger models and a custom encoder (Track A).
 
+## 5c. Use cases to lead with, and parked product ideas
+
+**Use cases for the pitch** (all "decisions, not writing"): support triage (intent, urgency, routing, "missing info → ask"); agent tool
+routing and next-action guards; prompt-injection / jailbreak / toxicity screening in front of LLMs; RAG answerability ("can this be answered
+from the retrieved context?"); form and record completeness checks; a cheap LLM-output judge; the System 1 → System 2 cascade.
+
+**Parked (back burner, 2026-09-25): Kodiak Compliance.** A vertical product on top of a compliance-fine-tuned Kodiak: extract text from
+Word/PDF, chunk it, check each requirement of a standard (PCI DSS, SOC 2, HIPAA…) against each chunk, and report met / gap / partial with
+the supporting section, where calibrated abstention *is* the gap list. Positioned as a gap-analysis and evidence-finding assistant (a human
+signs off), private/on-prem and cheap per check. Open issues: long documents (chunking now, longer states later), standards' license terms,
+competition (Vanta, Drata, Secureframe). Validation plan when revived: one standard, ~100 human-labeled requirement checks, baseline vs. a
+compliance-weighted generator batch + fine-tune. Keep the open model general; verticals are the product layer.
+
 ## 6. The release bar ("frontier in class", defined before we measure)
 
 Kodiak v0.1 is called frontier-class only if all of these hold on the frozen eval set (and, once chosen, a public benchmark suite):
