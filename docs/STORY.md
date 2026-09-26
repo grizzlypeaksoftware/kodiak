@@ -192,6 +192,12 @@ That afternoon the repository went public (github.com/grizzlypeaksoftware/kodiak
 decisions and dead ends first, so anyone could follow the build as it happened. The model itself stayed private on Hugging Face
 (cortex-agent-llc) until the v2 data test decides which version launches.
 
+The overnight showdown delivered a twist. At 9 p.m. the first comparison looked like a triumph: the new data beat the old by five to seven
+points on never-seen tasks. Rather than celebrate on one run, Shane approved repeats with different random seeds, and at 3 a.m. they told a
+more honest story. On never-seen tasks, old and new data tied (72% each); the earlier run of the old data had simply been unlucky. What the new
+data *did* fix, in every single run, was the problem it was built for: far fewer wrong "can't tell" answers, more trustworthy abstention, and
+better calibration. The lesson went straight into the rules: no claim without three seeds.
+
 *(Continued as the project progresses.)*
 
 ---

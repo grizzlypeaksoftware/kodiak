@@ -1,7 +1,7 @@
 # Generator v2: targeted, grounded synthetic data (design proposal)
 
 > **Status: APPROVED 2026-09-24** (answers to §7 below). **v2.0 BUILT 2026-09-25** (`src/kodiak_s1/data/gen2/`; build log in §10).
-> Waiting on: human review of the eval candidates, then the full batch and the A/B test.
+> v2.0 batch and A/B done (§11): v2.0 fixes over-refusal and improves calibration; no gain in never-seen ranking.
 > Generator v1 is `src/kodiak_s1/data/synth.py`.
 
 ## 1. Why a v2
@@ -274,3 +274,26 @@ objects catches 5/12 with 3 false flags → estimated precision ≈ 95.5% (measu
 **Response (v2.0c):** (1) prompt rules aimed at the observed failures: one defensible answer (check every option), no negative/set-membership
 questions, one unambiguous referent, latest information wins, confident inferences only, scale anchors on the same dimension; (2) an optional
 `--critics do:deepseek-3.2,do:openai-gpt-oss-120b` step (the v2.1 critic pulled forward), about +$0.9 per 1k jobs.
+
+## 11. Result: v2.0 vs v1 at equal size (2026-09-25/26)
+
+Batch: `data/synthetic/gen2_v20.jsonl`, 11,800 jobs → **9,428 kept** (80%), **$25.38** (writer + checker + 2 critics; $2.69 per 1k kept).
+A/B (`scripts/ab_test.sh`, `scripts/seed_repeats.sh`): public data + 9,137 synthetic training examples from v1 or v2.0, D25 recipe, 6,000 steps,
+**three training seeds each** (same data subset; seeds change order, augmentation and head init). Full table: `reports/generator-ab-seeds.md`.
+
+| Measure (mean ± sd over 3 seeds) | v1 | v2.0 | v2 − v1 | Consistent across seeds? |
+|---|---|---|---|---|
+| Held-out, forced accuracy | 0.721 ± 0.043 | 0.720 ± 0.012 | 0.000 | no difference |
+| Held-out, accuracy | 0.678 ± 0.039 | 0.703 ± 0.019 | +0.025 | mostly |
+| Held-out wrong-refusal gap (forced − acc) | 0.043 (0.037–0.047) | 0.017 (0.009–0.024) | −0.026 | **yes, every v2 seed < every v1 seed** |
+| Abstain precision | 0.844 ± 0.005 | 0.917 ± 0.018 | +0.073 | **yes** |
+| Calibration error (ECE) | 0.038 ± 0.004 | 0.029 ± 0.003 | −0.008 | yes |
+| Familiar tasks | 0.814 ± 0.001 | 0.817 ± 0.004 | +0.003 | tie |
+| Constructed unanswerables | 0.942 ± 0.011 | 0.927 ± 0.023 | −0.016 | slight v1 edge |
+
+**Reading.** v2.0 did what it was designed to do (stop refusing inference questions; make "can't tell" trustworthy; calibrate better) and did
+**not** improve ranking on never-seen tasks. The single-seed result the night before (+4.9 forced, jailbreak +15) was mostly training noise:
+the jailbreak source alone swings 0.65–0.86 between v1 seeds with identical data. Combining v1 + v2 (one seed) brought the wrong refusals back
+(gap 0.059), so v1's "fact missing = unanswerable" style is the likely cause of over-abstention. Judgment scores (urgency, risk) remain broken.
+**Next:** the held-out eval is too noisy to steer by (grow it, and use ≥ 3 seeds for decisions); raw generalization now points at the backbone
+(ModernBERT-large) and at score-question data (v2.1/v2.2).

@@ -67,8 +67,12 @@
      "status": "done"
     },
     {
-     "name": "Generator v2.0: 11.8k-job batch (seed 6; $~25) + A/B vs v1 (running overnight)",
-     "status": "in_progress"
+     "name": "Generator v2.0: 11.8k-job batch + A/B vs v1 (3 seeds): fixes over-refusal, no never-seen gain",
+     "status": "done"
+    },
+    {
+     "name": "ModernBERT-large backbone test (3 seeds) + bigger held-out eval",
+     "status": "pending"
     },
     {
      "name": "Generator v2.1 (student screen, critic) and v2.2 (minimal pairs, planner)",
@@ -363,6 +367,14 @@
   {
    "date": "2026-09-25",
    "text": "Research preview public: cortex-agent-llc/kodiak-small-r1-preview (weights, handler, preview model card); demo Space gets a preview banner"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "v2.0 batch done: 9,428 kept examples for $25.38 (Stage 2 goal met)"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "A/B with 3 seeds each: v2.0 cuts wrong refusals ~60%, abstain precision 0.84→0.92, better calibration; never-seen forced accuracy unchanged (0.72 vs 0.72). The single-run '+5–7 pts' was noise"
   }
  ]
 }

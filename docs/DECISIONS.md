@@ -218,3 +218,18 @@ variant is the fair comparison (0.671). The deciding tests are now the Generator
 a separate company login. The organization owns the artifacts (matching the Cortex Agent LLC copyright), teammates can be added later, and uploads
 use a fine-grained write token scoped to the org. Repo ids will look like `cortex-agent-llc/kodiak-<size>-v0.1` (the public size names are
 still open, D23). The code stays at github.com/grizzlypeaksoftware/kodiak for now; a Cortex Agent GitHub org is a possible later move.
+
+### D29: What v2.0 bought, and three seeds before any claim
+**Evidence.** GENERATOR_V2.md §11 (three seeds each, equal size). v2.0 vs v1: held-out forced accuracy unchanged (0.720 vs 0.721); wrong
+refusals on held-out tasks cut by about 60% in every seed; abstain precision 0.84 → 0.92; ECE 0.038 → 0.029; familiar tasks tied.
+**Correction.** The single-seed comparison the night before reported +4.9 to +6.8 points on never-seen tasks and a jailbreak jump; the seed
+repeats show that was training noise (the jailbreak source swings ±10 points between identical runs). It was reported to Shane as a single run
+with a noise caveat and corrected the same night.
+**Decisions.**
+1. **v2-style data replaces v1 going forward** (it fixes over-abstention, which v1 causes; mixing them brings it back). v1 stays archived.
+2. **Any claimed improvement needs ≥ 3 training seeds** (mean ± sd), and the held-out set gets bigger before we steer by it.
+3. **Next public preview:** a v2.0 model, with the seed chosen on *validation* data, never on the eval set.
+4. **Release criterion 1 (best in class):** v1 and v2 both average ~0.72 held-out forced vs 0.705 for GLiClass-instruct, inside the noise:
+   call it **roughly tied**, not met.
+5. **Next levers:** ModernBERT-large for raw generalization; score-question data (anchored scales, urgency/risk minimal pairs) for the
+   judgment-score weakness.

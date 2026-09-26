@@ -1,7 +1,7 @@
 # Kodiak: one engineer, one box, and a bet against the big models
 
 *A story-first briefing on the Kodiak project, written as a source for podcast-style audio overviews (NotebookLM). Everything
-here is true and every number is measured; the tone is meant to be fun. Current as of September 25, 2026.*
+here is true and every number is measured; the tone is meant to be fun. Current as of September 26, 2026.*
 
 ---
 
@@ -253,10 +253,35 @@ zero-shot model.
 
 ---
 
+## Episode 8: The showdown, and the 3 a.m. plot twist
+
+The new factory's 11,800 jobs finished with **9,428 examples for $25**, and the showdown ran on the Box overnight: same model, same recipe, old
+data vs. new data at exactly equal size.
+
+**9 p.m.: victory!** The first comparison said the new data won by five to seven points on never-seen tasks. Jailbreak detection jumped to
+80%. The crushed-box customer finally got "refund or replacement." It looked like the villain was finally wounded.
+
+**Then the team did the unglamorous thing.** One training run is an anecdote: training is random (which examples come first, how the new layers
+start out), so they ran each version **three times** with different random seeds. Four more hours of the Box humming in the dark.
+
+**3 a.m.: wait, WHAT?** Averaged over three runs, old and new data **tied** on never-seen tasks: 72% each. The first run of the old data had just
+been unlucky. The "jailbreak jump" was noise too: that one task swings from 65% to 86% between runs with *identical* data.
+
+**But here's what held up in every single run:** the new data did exactly what it was built to do. Wrong "I can't tell" answers dropped by about
+60%, and when it abstains it's now right 92% of the time instead of 84%. It's better calibrated too. The coworker who wouldn't infer anything had
+been cured. Mixing the old data back in? The over-refusing came right back.
+
+**The lesson that went straight into the rulebook:** no claim without three seeds. And the honest scoreboard now reads: roughly tied with the best
+open classifier on never-seen tasks, more trustworthy than all of them, and the next suspect for the remaining gap is model size. Enter the bigger
+brain.
+
+---
+
 ## The cliffhanger
 
-Tonight, the new factory's 11,000 jobs finish, and the showdown runs: Kodiak trained on the old data vs. the new data, same size, same recipe.
-Does "better data" finally move the never-seen-task number? After that come the next moves:
+The new data fixed the refusals but not raw generalization. So the next questions are: does a **bigger brain** (ModernBERT-large, about 400M
+parameters) finally move the never-seen-task number, and can targeted data fix the judgment scores (Kodiak still rates "charged twice and
+nobody answers!" as barely urgent)? The next moves:
 - **Hard-example mining:** Kodiak screens every new practice question in 8 ms, and the factory keeps mostly the ones it gets *wrong*, like a
   tutor who stops drilling what you've mastered.
 - **Minimal pairs:** twin examples where one word flips the answer ("arrived yesterday" vs. "still in transit"), which teach *exactly* which
@@ -280,6 +305,7 @@ what changes for everyone building with AI if it does?*
 
 ## "Wait, what?" moments (quick reference)
 
+- The new data "won by 7 points" at 9 p.m. and **tied** by 3 a.m., once the runs were repeated. Honesty beat the hype.
 - 8 milliseconds vs. 3.4 seconds: about **400× faster** than a 27B chatbot on the same machine.
 - The first working model trained in **35 minutes**.
 - A cloud pilot of new training data cost **four cents**; a morning of pilots, **25 cents**.
@@ -300,6 +326,7 @@ what changes for everyone building with AI if it does?*
 - "Decide what would change your mind before you run the experiment."
 - "Frontier in its class, not frontier in general."
 - "Test the thing users download, not the pipeline you evaluate."
+- "One training run is an anecdote."
 
 ---
 
@@ -372,7 +399,8 @@ what changes for everyone building with AI if it does?*
 - **Sept 23:** architecture, 20 datasets, eval set, bit-identical backbone, first model in 35 minutes, first bout with Qwen 27B.
 - **Sept 24:** cloud data factory, checker bake-off, 9.7k synthetic examples, the "more data didn't help" twist, the overnight repeat-cap fix.
 - **Sept 25:** Generator v2 built and piloted, human review, the frontier-in-class strategy, the rival scoreboard, the repo and research
-  preview go public, demo built; the overnight v2 batch and the old-vs-new-data showdown are next.
+  preview go public, demo built; the overnight showdown.
+- **Sept 26, 3 a.m.:** three-seed repeats: new data ties old on never-seen tasks but fixes over-refusal and calibration; "no claim without three seeds."
 
 **Open source.** Apache-2.0 code and weights; every dataset's license documented; the code is at github.com/grizzlypeaksoftware/kodiak and the
 model is on Hugging Face under cortex-agent-llc.

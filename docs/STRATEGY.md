@@ -47,13 +47,17 @@ so the open classifiers can be compared (`reports/zeroshot-baselines.md`); "forc
 
 | System | Params | Overall acc | Overall forced | **Held-out forced** | Held-out acc | ECE (overall) | p50 latency |
 |---|---|---|---|---|---|---|---|
-| **Kodiak small (R1)** | 150M | **0.780** | **0.774** | 0.691 | 0.664 | **0.049** | **8 ms** |
-| GLiClass instruct large v1.0 | 439M | 0.548 | 0.655 | **0.705** | **0.689** | 0.156 | 27 ms |
+| **Kodiak small, v2.0 data (mean of 3 seeds)** | 150M | **0.799**† | – | 0.720 ± 0.012 | **0.703** ± 0.019 | **0.029**† | **8 ms** |
+| Kodiak small, v1 data (mean of 3 seeds, equal size) | 150M | 0.792† | – | **0.721** ± 0.043 | 0.678 ± 0.039 | 0.038† | 8 ms |
+| Kodiak small (R1, single run, 2026-09-24) | 150M | 0.780 | 0.774 | 0.691 | 0.664 | 0.049 | 8 ms |
+| GLiClass instruct large v1.0 | 439M | 0.548 | 0.655 | 0.705 | 0.689 | 0.156 | 27 ms |
 | GLiClass large v3.0 | 439M | 0.533 | 0.630 | 0.681 | 0.605 | 0.203 | 26 ms |
 | NLI DeBERTa-v3-large zeroshot v2.0 | 435M | 0.398 | 0.684 | 0.712* | 0.291 | 0.450 | 47 ms |
 | NLI DeBERTa-v3-large v2.0 **-28heldout** (clean) | 435M | 0.332 | 0.629 | 0.671 | 0.247 | 0.515 | 48 ms |
 | NLI ModernBERT-large zeroshot v2.0 | 395M | 0.404 | 0.676 | 0.708* | 0.360 | 0.451 | 14 ms |
 | Qwen 27B (LLM, 200-example sample, all question types) | 27B | – | – | ≈ 0.86 | – | worse | ≈ 3,400 ms |
+
+† All question types (choice + score); the other rows are choice questions only. Seed means: `reports/generator-ab-seeds.md` (D29).
 
 \* Trained on banking77, one of our held-out sources (it's one of their 28 training tasks). Their clean "-28heldout" variant drops
 from 0.812 to 0.692 forced accuracy on banking77.
@@ -62,7 +66,10 @@ from 0.812 to 0.692 forced accuracy on banking77.
 - **Overall, Kodiak is far ahead** (+23 points accuracy, +9 forced) at a third of the latency or less, with 3–10× lower calibration error, while
   also answering score questions and abstaining, which the others can't do properly. Much of the overall lead is on task types Kodiak trained on,
   so the held-out row is the real test.
-- **Held-out: criterion 1 (§6) is NOT met yet.** GLiClass-instruct-large beats Kodiak by 1.4 points forced (0.705 vs. 0.691) and 2.5 points in
+- **Update 2026-09-26 (3 seeds, D29):** averaged over three training runs, Kodiak scores ~0.72 held-out forced with either v1 or v2 data,
+  vs. 0.705 for GLiClass-instruct. That difference is inside the run-to-run noise, so criterion 1 is **roughly tied, not met**. v2 data makes
+  Kodiak refuse far less often and abstain more trustworthily (held-out accuracy 0.703 vs. GLiClass-instruct 0.689).
+- **Held-out (first single-run read, 2026-09-25): criterion 1 (§6) is NOT met yet.** GLiClass-instruct-large beats Kodiak by 1.4 points forced (0.705 vs. 0.691) and 2.5 points in
   accuracy, with 2.9× the parameters (439M vs. 150M). Against the clean NLI model, Kodiak leads (0.691 vs. 0.671).
 - **Where Kodiak loses:** occupation from a biography (Bias in Bios: 0.64 vs. 0.79–0.82 forced) and banking intents (0.76 vs. 0.84). These are
   classic "infer the category" tasks, the classifiers' specialty, and exactly the over-abstention/inference weakness Generator v2 targets.

@@ -572,3 +572,17 @@ uploads. Two findings:
 - **CPU works:** ~80 ms per request on the Spark's 8 ARM cores (fp32), ~8 ms on its GPU; answers agree within bf16 rounding.
 - **Two honest demo misses** kept as before/after tests for Generator v2: "charged twice, nobody answers" gets urgency 1.3/10, and
   "box arrived crushed, lamp broken" gets intent "delivery status" (0.54) instead of "refund or replacement".
+
+## Lesson: one training run is an anecdote (2026-09-26)
+
+Last night a single training run said the new data added 5–7 points on never-seen tasks. Three training seeds each (same data, different random
+order and initialization) said: **no difference** in raw accuracy on never-seen tasks (0.720 vs 0.721), because one run of the *old* data had
+simply been unlucky. One held-out task, jailbreak detection, swings from 65% to 86% between identical runs.
+
+**Concept: training noise.** Fine-tuning is a random process: the order examples arrive in, random augmentations and the new layers' starting
+weights all change the result. With a small held-out set (1,000 questions from four tasks), that noise is several points. The standard fix is
+to run each setup several times and compare means with their spread; a difference smaller than the spread isn't a finding.
+
+**What was real, because it held in every seed:** v2 cut wrong refusals by about 60%, made "can't tell" more trustworthy (abstain precision
+0.84 → 0.92) and improved calibration. That's exactly what v2 was designed to fix. It just didn't make the model better at *ranking* answers on
+tasks it has never seen. That's a different problem, probably about model size, and the next experiments target it.
