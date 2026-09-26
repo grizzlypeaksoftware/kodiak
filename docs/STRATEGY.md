@@ -136,7 +136,8 @@ compliance-weighted generator batch + fine-tune. Keep the open model general; ve
    tokens, candidate models with prices and speeds; questions: which model, which reasoning effort, task difficulty (score); abstain = use the
    strong model. The open, self-hostable counterpart to `jev-router`. Hard part: outcome labels (which model would have succeeded), from running
    candidate models on real prompts and grading, or from public router datasets with verified licenses.
-3. **Kodiak plays Zork** (see below): the fun, viral one.
+3. **Kodiak plays Zork** (see below): the fun, viral one. **In progress (2026-09-26):** being built by a separate agent from the brief in this
+   conversation, running evals with the public v2 preview; likely the first demo to ship.
 
 **Kodiak plays Zork (2026-09-25).** Kodiak can't type, so it plays by *choosing*: a text-game harness
 (e.g. Microsoft Research's Jericho) lists the valid actions each turn, Kodiak picks one ("What's the best next command?"), and when it
