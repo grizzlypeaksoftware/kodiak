@@ -1,4 +1,6 @@
-"""Mean ± spread over seeds for the generator A/B (v1 vs v2 at equal size)."""
+"""Mean ± spread over seeds. Default groups: the generator A/B (v1 vs v2 at equal size).
+    python scripts/seed_summary.py --groups "name=pred1,pred2,..." "name2=..."   (prediction file stems in reports/preds/)"""
+import argparse
 import statistics as st
 
 from kodiak_s1.eval.metrics import report
@@ -11,10 +13,16 @@ ROWS = [("eval:heldout", "accuracy", "Never-seen tasks, accuracy"), ("eval:heldo
         ("source:banking77", "forced_accuracy", "Banking77 (forced)"), ("source:bias_in_bios", "forced_accuracy", "Bias in Bios (forced)"),
         ("source:jailbreak_classification", "forced_accuracy", "Jailbreak (forced)")]
 from pathlib import Path
+ap = argparse.ArgumentParser()
+ap.add_argument("--groups", nargs="*")
+a = ap.parse_args()
+if a.groups:
+    GROUPS = {g.split("=", 1)[0]: g.split("=", 1)[1].split(",") for g in a.groups}
 res = {g: [report(load_preds(f"reports/preds/{f}.jsonl")[1]) for f in files if Path(f"reports/preds/{f}.jsonl").exists()]
        for g, files in GROUPS.items()}
-print("# Generator A/B: v1 vs v2.0 at equal size (9,137 synthetic examples), 3 training seeds each\n")
-print("| Measure | " + " | ".join(GROUPS) + " | Difference (v2 - v1) |\n|---|---|---|---|")
+print("# Seed comparison: " + " vs ".join(GROUPS) + "\n")
+names = list(GROUPS)
+print("| Measure | " + " | ".join(names) + f" | Difference ({names[1]} − {names[0]}) |\n|---|---|---|---|")
 for sl, key, label in ROWS:
     cells, means = [], []
     for g in GROUPS:
