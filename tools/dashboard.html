@@ -92,7 +92,11 @@ function synth(y) {
         <span class="small">${s.examples.toLocaleString()} / ${s.goal.toLocaleString()} examples · ${pct(s.examples, s.goal)}%</span></div>
       <div class="progress my-1" style="height:${s.current ? 10 : 6}px"><div class="progress-bar ${s.state === "done" ? "bg-success" : ""}" style="width:${pct(s.examples, s.goal)}%"></div></div>
       <div class="small muted">${esc(s.why)}</div></div>`).join("");
-  const bar = (stages || "") + `<div class="small muted mb-3">${y.total_examples.toLocaleString()} synthetic training examples in total
+  const budget = y.budget_usd ? `<div class="mb-3"><div class="d-flex justify-content-between"><span><b>Cloud budget:</b> $${y.spent_usd.toFixed(2)} spent of $${y.budget_usd}</span>
+      <span class="small">$${(y.budget_usd - y.spent_usd).toFixed(2)} left</span></div>
+      <div class="progress my-1" style="height:8px"><div class="progress-bar bg-warning" style="width:${pct(y.spent_usd, y.budget_usd)}%"></div></div>
+      <div class="small muted">${esc(y.budget_note)}</div></div>` : "";
+  const bar = budget + (stages || "") + `<div class="small muted mb-3">${y.total_examples.toLocaleString()} synthetic training examples in total
     (pilots excluded). Stages measure <i>better</i> data, not just more: each one ships only if it beats the last.</div>`;
   const state = r => r.state === "running" ? `<span class="badge text-bg-primary">running</span>`
     : r.state === "done" ? `<span class="badge text-bg-success">done</span>` : `<span class="badge text-bg-secondary">${esc(r.state)}</span>`;

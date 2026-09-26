@@ -111,7 +111,10 @@ def synth_status(procs: list[str], cfg: dict) -> dict:
         stages.append({"name": st["name"], "why": st.get("why", ""), "goal": st["goal"], "examples": n, "state": state,
                        "current": current})
     # Pilots are experiments; their examples aren't counted toward the goal (they may still be used later).
-    return {"goal_examples": cfg.get("goal_examples"), "total_examples": total_ok, "stages": stages, "runs": runs}
+    spent = round(sum(r.get("cost_usd") or 0 for r in runs), 2)
+    budget = cfg.get("budget") or {}
+    return {"goal_examples": cfg.get("goal_examples"), "total_examples": total_ok, "stages": stages, "runs": runs,
+            "spent_usd": spent, "budget_usd": budget.get("total_usd"), "budget_note": budget.get("note", "")}
 
 
 def training_runs(procs: list[str]) -> list[dict]:

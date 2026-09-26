@@ -232,24 +232,36 @@
     ]
    },
    {
-    "name": "Stage 3 · Generator v2.1: hard examples",
+    "name": "Stage 3 · Generator v2.0s: judgment scores",
+    "why": "Anchored urgency/risk/priority scales + minimal pairs where one detail flips the score (the weakest skill)",
+    "goal": 10000,
+    "files": [
+     "data/synthetic/gen2_s3_scores.jsonl"
+    ]
+   },
+   {
+    "name": "Stage 4 · Generator v2.1: hard examples",
     "why": "Kodiak screens candidates; keep what it gets wrong (+30% easy); ablation vs v2.0",
     "goal": 10000,
     "files": []
    },
    {
-    "name": "Stage 4 · Generator v2.2: minimal pairs + planner",
+    "name": "Stage 5 · Generator v2.2: minimal pairs + planner",
     "why": "Twins that isolate the key fact; batches aimed at validation weak spots",
     "goal": 10000,
     "files": []
    },
    {
-    "name": "Stage 5 · Scale the winner to 30k",
+    "name": "Stage 6 · Scale the winner to 30k",
     "why": "The 10k → 30k scaling curve decides whether a 100k batch is worth buying",
     "goal": 30000,
     "files": []
    }
-  ]
+  ],
+  "budget": {
+   "total_usd": 535,
+   "note": "$500 preloaded on DigitalOcean 2026-09-26 (plus the ~$35 already spent). Plan: Stage 3 ~$30, Stage 4 ~$40, Stage 5 ~$40, scale-up ~$100 only if a 3-seed test justifies it, ~$250 reserve. Every batch: pilot first, --max-usd cap, measured with 3 seeds on eval v0.2 before the next spend."
+  }
  },
  "milestones": [
   {
