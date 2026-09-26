@@ -110,6 +110,13 @@ signs off), private/on-prem and cheap per check. Open issues: long documents (ch
 competition (Vanta, Drata, Secureframe). Validation plan when revived: one standard, ~100 human-labeled requirement checks, baseline vs. a
 compliance-weighted generator batch + fine-tune. Keep the open model general; verticals are the product layer.
 
+**Post-launch demo backlog (2026-09-25): Kodiak plays Zork.** Kodiak can't type, so it plays by *choosing*: a text-game harness
+(e.g. Microsoft Research's Jericho) lists the valid actions each turn, Kodiak picks one ("What's the best next command?"), and when it
+abstains the turn goes to exploration or an LLM. That makes it a live System 1 / System 2 demo ("Kodiak made 85% of the moves; the LLM 15%;
+total cost 2 cents") and a real long-horizon decision benchmark (game score). Expect weak play at first (Zork is hard even for LLMs);
+the point is the cascade and the "can't go off-menu" property. Before building: verify the licenses for the game files and the harness;
+state = last few turns + location + inventory (512-token limit). Effort: about a day for a playable demo.
+
 ## 6. The release bar ("frontier in class", defined before we measure)
 
 Kodiak v0.1 is called frontier-class only if all of these hold on the frozen eval set (and, once chosen, a public benchmark suite):
