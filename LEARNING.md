@@ -621,3 +621,17 @@ that has to be trained (unfamiliar inputs labeled "can't tell") and measured (an
 
 **Concept: multi-question guards.** Jev knew it was in danger and walked north anyway because the harness ignored that answer. With several
 questions in one pass, one answer can veto another. That's a usage pattern worth documenting.
+
+## Bigger brain, bigger test: the large model clears the bar (2026-09-26)
+
+With the never-seen test grown from 4 tasks to 12, the noise that plagued single comparisons shrank (spreads of ±0.6–0.8 points instead of ±4),
+and a clear result appeared: **ModernBERT-large (about 400M parameters) beats every open zero-shot classifier on never-seen tasks**, 60.9% vs.
+57.9% for the best clean rival, where the small model only ties. Size helped exactly where the small model was weakest: inferring a category
+(occupation from a bio +14 points, financial topics, scientific fields) and long legal clauses. Two things size did *not* fix: rating scales
+(label noise, not capacity, see D31) and calibration on unfamiliar tasks (see D32).
+
+**Concept: a bigger test set beats more cleverness.** The same comparison on the old 1,000-question held-out set was "promising, within noise."
+On 4,200 questions across 12 tasks it's decisive. When results are noisy, measure more before theorizing more.
+
+**Concept: absolute numbers depend on the test.** Never-seen accuracy "dropped" from ~72% to ~61% only because the new tasks are harder (legal
+holdings, arXiv fields, poetry). Compare systems on the same test, never numbers across tests.

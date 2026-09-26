@@ -270,3 +270,18 @@ over-confident System 1 is the dangerous failure: the fallback never gets the tu
    decisions in context (agent logs, practice games with verified licenses), and (c) more descriptive question phrasings.
 3. Re-run the frozen Zork harness on every candidate model (including ModernBERT-large) as a standing long-horizon benchmark.
 4. Product: "the second question guards the first" (e.g., act only if "in danger?" is no) becomes a documented usage pattern for cascades.
+
+### D33: ModernBERT-large clears the best-in-class bar on eval v0.2
+**Evidence (3 training seeds each; eval v0.2; reports/v02-backbone.md, reports/v02-vs-baselines.md).** Never-seen tasks, choice questions,
+forced accuracy: **large 0.609 ± 0.008**, small 0.553 ± 0.007; open classifiers: NLI DeBERTa-v3-large *-28heldout* (clean) 0.579, NLI
+ModernBERT-large 0.569, NLI DeBERTa-v3-large 0.556, GLiClass-instruct-large 0.550, GLiClass-large 0.528. New tasks only (v0.2): large 0.570,
+small 0.505, best rival 0.552. Large also improves familiar tasks (0.817 → 0.855), Bias in Bios (+14), banking (+4), ContractNLI (0.84 vs. rivals
+0.20–0.63), financial topics and arXiv fields. Rivals win on poem sentiment and financial sentiment.
+**What didn't move.** Ratings: clickbait score error 0.28–0.32 (poor for both sizes). Calibration on never-seen tasks: held-out ECE ~0.13 for
+both sizes; better than every rival (0.21–0.60) but far from the 0.05 target, consistent with D32 (calibration degrades off-distribution).
+**Release criteria (STRATEGY §6).** (1) best in class on never-seen tasks: **met by large** (+3.0 over the best clean rival, >3 sd), small roughly
+tied; (3) calibration: best of all systems, but ECE ≤ 0.05 **not met** off-distribution; (2) 7–8B LLM comparison and (4) abstain precision on v0.2
+still to confirm (large 0.84 ± 0.08 is noisy; small 0.91).
+**Decisions.** ModernBERT-large becomes the quality tier; small stays the fast tier (8 ms vs. 16 ms GPU). Next levers, in order: calibration
+off-distribution (D32: unfamiliar inputs labeled "can't tell", a sequential eval slice, Zork re-run on large), then ratings (bands, D31).
+v1 vs v2 on v0.2 confirms D29: v2 abstain precision 0.69 → 0.91, never-seen forced +0.8 (small, within noise).

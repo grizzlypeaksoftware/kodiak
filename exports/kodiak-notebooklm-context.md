@@ -178,11 +178,12 @@ within about 10 points of an 8-billion-parameter chatbot at 100 times its speed,
 Then they measured against the real rivals, the open models people actually use to label text, each about **three times Kodiak's size**:
 - **Overall, a clear win:** 78% accuracy vs. 55% for the best rival, calibration error 0.049 vs. 0.156, and faster (8 ms vs. 27 ms), while also
   handling numeric scores and "can't tell," which the rivals can't do properly.
-- **On never-seen tasks: roughly tied.** About 72% averaged over three runs, vs. 70.5% for the best rival; that's inside the noise.
+- **On never-seen tasks: small roughly tied, large won.** On the original four-task test the small model was inside the noise of the best
+  rival; on the bigger twelve-task test the large model beat every rival by three points.
 - **The contamination catch:** one rival looked great on banking intents, one of Kodiak's supposedly never-seen tests, until its model card
   showed it had *trained on that dataset*. Its clean version dropped 12 points. A zero-shot score only counts if the model never saw the test.
 
-Verdict: **ahead on almost everything, tied where it matters most, not frontier-class yet.** Writing the bar down first is what keeps that
+Verdict: **ahead on almost everything, and with the larger model now ahead where it matters most, but not frontier-class yet:** calibration on unfamiliar tasks and ratings are still weak. Writing the bar down first is what keeps that
 sentence honest.
 
 ### Shipping it, bootstrapper style
@@ -202,10 +203,20 @@ can flip on small wording changes. The business plan is bootstrapped too: the we
 Kodiak API from Cortex Agent is for teams that just want an API key. Shane has set aside a $500 cloud budget, to be spent only where an
 experiment proves it's worth it.
 
+### The bigger brain reports back
+
+Next came the experiment the whole week had been pointing at: a bigger reader. The desk machine trained **ModernBERT-large**, about three times
+the size, three times over (free, overnight-style, on hardware already paid for), and every model was re-graded on the new twelve-task test.
+The result was the first clean win against the field: **on never-seen tasks, large Kodiak scored 60.9%, beating every open zero-shot
+classifier** (the best clean rival scored 57.9%), with the three runs agreeing within less than a point. The small model only tied. It was
+strongest exactly where Kodiak had been weakest: guessing someone's job from a biography jumped 14 points, and on legal contract clauses it
+scored 84% while the rivals managed 20 to 63%. The first line of the bar written down days earlier, "beat every open classifier on never-seen
+tasks," was finally met. Two things size didn't fix: ratings, and knowing when it's out of its depth.
+
 ### Where it stands right now
 
-As this was written, the desk machine was training **ModernBERT-large**, a reader about three times bigger, three times over, to answer the next
-question: is model size what's holding back never-seen tasks, and ratings? The answer decides where the next dollars go.
+The next fights are the two honest weak spots: calibration on unfamiliar tasks (the Zork lesson: a System 1 that knows when it's lost) and
+ratings. The large model becomes the quality tier; the small one stays the fast tier.
 
 The open question to end on: **can a self-funded, one-desk project with a fully open recipe become the go-to open model for decisions, and what
 changes for every small team building with AI if the answer is yes?**
@@ -251,6 +262,7 @@ changes for every small team building with AI if the answer is yes?**
 - A rival "zero-shot" model had **trained on the test**.
 - Twenty thousand Zork moves, **zero invalid**; Kodiak still lost to random exploration on Zork.
 - One sentence of question wording made Kodiak's moves **35× more productive**.
+- The bigger model beat every open rival on never-seen tasks, with three runs agreeing **within less than a point**.
 
 ## Fact sheet (for accuracy)
 

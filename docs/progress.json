@@ -71,16 +71,16 @@
      "status": "done"
     },
     {
-     "name": "ModernBERT-large backbone test: 3 seeds on v2 data (~2 h each; results ~1:30 PM)",
-     "status": "in_progress"
+     "name": "ModernBERT-large backbone test (3 seeds): beats all open classifiers on never-seen tasks (D33)",
+     "status": "done"
     },
     {
      "name": "Eval set v0.2 built and frozen: 12 never-seen tasks / 4,200 examples (was 4 / 1,000)",
      "status": "done"
     },
     {
-     "name": "Re-score every model on eval v0.2 (queued after the large runs; scripts/rescore_v02.sh)",
-     "status": "in_progress"
+     "name": "Re-scored every model on eval v0.2 (reports/v02-*.md)",
+     "status": "done"
     },
     {
      "name": "Stage 3 data (judgment scores): PAUSED after 5 pilots ($0.54) — raters disagree; next try low/medium/high bands if the large model doesn't fix scores",
@@ -464,6 +464,10 @@
   {
    "date": "2026-09-26",
    "text": "Zork showdown published (Shane): 0 invalid moves in ~20k, but Jev beat Kodiak, and v2 was confidently wrong on game states. Calibration doesn't survive distribution shift (D32)"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "ModernBERT-large (3 seeds) beats every open zero-shot classifier on eval v0.2 never-seen tasks: 60.9% vs 57.9% best clean rival. Release criterion 1 met by large (D33); ratings and off-distribution calibration still weak"
   }
  ]
 }

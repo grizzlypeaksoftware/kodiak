@@ -209,6 +209,11 @@ The sharpest lesson came from the new v2 model: it was confident, not right, loo
 the best ever measured on the eval set, meant nothing on game states it had never seen anything like. That became the next thing to fix: a
 System 1 that knows when it's lost.
 
+The same afternoon, the bigger brain reported back. On the new, larger never-seen test (twelve tasks instead of four), the ModernBERT-large
+version of Kodiak beat every open zero-shot classifier, by three points and far beyond the noise, while the small one only tied. The bar written
+down two days earlier, before any of these measurements, had its first criterion met. Ratings and calibration on unfamiliar tasks were still
+weak, which gave the next week its shape.
+
 *(Continued as the project progresses.)*
 
 ---

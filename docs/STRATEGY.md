@@ -80,6 +80,19 @@ from 0.812 to 0.692 forced accuracy on banking77.
 ~0–2 for Kodiak; Kodiak lost to a no-model exploration baseline on Zork I, and v2 was confidently wrong on game states. Zero invalid moves for all.
 Kodiak's calibration does not yet hold on out-of-distribution sequential decisions; closing that is now a release-relevant gap for the cascade story.
 
+**Update 2026-09-26 afternoon: eval v0.2 (12 never-seen tasks, 4,200 examples), 3 seeds each (D33).**
+
+| System (choice questions) | Params | Overall | **Never-seen, forced** | New tasks only, forced | Never-seen ECE |
+|---|---|---|---|---|---|
+| **Kodiak large, v2 data** | ~400M | **0.674** | **0.609 ± 0.008** | **0.570** | **0.128** |
+| Kodiak small, v2 data | 152M | 0.629 | 0.553 ± 0.007 | 0.505 | 0.136 |
+| NLI DeBERTa-v3-large -28heldout (clean) | 435M | 0.266 | 0.579 | 0.552 | 0.596 |
+| NLI ModernBERT-large zeroshot v2.0 | 395M | 0.385 | 0.569 | 0.529 | 0.414 |
+| GLiClass instruct large v1.0 | 439M | 0.502 | 0.550 | 0.505 | 0.208 |
+
+Criterion 1 (best in class on never-seen tasks) is **met by the large model**, by 3 points over the best clean rival (> 3 sd). Calibration is the
+best of all systems but not ≤ 0.05 on never-seen tasks. Ratings (clickbait) remain weak for both sizes.
+
 ## 5. The product shape: System 1 in front of System 2
 
 Kodiak doesn't have to win every decision; it has to know **which ones it has won**. The deployment pattern:
