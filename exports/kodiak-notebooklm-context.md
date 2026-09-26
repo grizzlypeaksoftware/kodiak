@@ -171,6 +171,16 @@ The model page lists its misses out loud. It still rates "I was charged twice an
 calls can flip on small wording changes. The plan to make money is just as scrappy: the weights stay free, which builds trust and adoption,
 and a hosted Kodiak API from Cortex Agent is for teams who just want an API key.
 
+### The rating riddle
+
+Next target: Kodiak's weakest skill, ratings. It still called "I was charged twice and nobody answers my emails!" barely urgent. The plan was
+the usual trick: have the AI factory write practice examples with the right rating. Five pilot runs, about ten cents each, revealed a riddle:
+**the AI teachers couldn't agree on the ratings themselves.** Two different models read the same tenant email; one said the tenant was furious
+(9 out of 10), the other said mildly annoyed (3). Worse, when the writer was told to make a situation "highly urgent," it graded its own work as
+highly urgent even when the text wasn't. On multiple-choice questions the teachers agree almost every time; on ratings they disagreed more than
+half the time. You can't teach a sharp answer from a wobbly answer key. So the batch was paused after 54 cents, the lesson went in the notebook,
+and the next idea (coarser labels: low, medium, high) is waiting on the bigger brain's results.
+
 ### Where it stands right now
 
 As this was written, the Spark was training **ModernBERT-large**, a reader about three times bigger, three times over, to answer the next
@@ -203,7 +213,7 @@ what changes for everyone building with AI if the answer is yes?**
 | Training compute | $0 (every training run, about an hour each, on the Spark) |
 | First synthetic batch (6,412 examples, cloud) | $8.46 |
 | Second-generation batch (9,428 examples, with two AI critics) | $25.38 |
-| Pilots, taxonomy, checker bake-off | under $1 |
+| Pilots (incl. five rating pilots), taxonomy, checker bake-off | about $1.40 |
 | **Total cloud spend** | **about $35** |
 | Time | about four days, one person plus an AI pair engineer |
 

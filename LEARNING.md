@@ -586,3 +586,20 @@ to run each setup several times and compare means with their spread; a differenc
 **What was real, because it held in every seed:** v2 cut wrong refusals by about 60%, made "can't tell" more trustworthy (abstain precision
 0.84 → 0.92) and improved calibration. That's exactly what v2 was designed to fix. It just didn't make the model better at *ranking* answers on
 tasks it has never seen. That's a different problem, probably about model size, and the next experiments target it.
+
+## Why "how urgent is this?" is hard to teach (2026-09-26)
+
+Five cheap pilots (54 cents in total) tried to generate training data for rating questions. The surprise: **the AI teachers don't agree on
+ratings.** Two different models read the same tenant email; one rated the tenant's frustration 9/10, the other 3/10. With choice questions
+("what does the customer want?") they agree almost every time; with ratings they disagreed on more than half, even with clear anchors
+("0 = can wait weeks; 5 = handle today; 10 = act immediately").
+
+**Concept: label noise.** A model can only learn a rule as sharp as its labels. If the "right answer" itself wobbles by several points between
+raters, the model learns the wobble. Human-rated datasets have the same problem, which is why they average several annotators (the clickbait
+eval set uses five). Two more lessons from the pilots:
+- **Don't let the author grade the test.** A writer told to make a situation "highly urgent" rated it highly urgent even when the text it wrote
+  wasn't. Grading has to be blind.
+- **Ask questions that fit the document.** Randomly assigned scales produced nonsense ("how polite is this article about routers?"), and nobody
+  can rate nonsense consistently.
+
+The next idea is coarser labels (low / medium / high), which raters agree on far more often, but only if the bigger model doesn't already fix it.

@@ -198,6 +198,11 @@ more honest story. On never-seen tasks, old and new data tied (72% each); the ea
 data *did* fix, in every single run, was the problem it was built for: far fewer wrong "can't tell" answers, more trustworthy abstention, and
 better calibration. The lesson went straight into the rules: no claim without three seeds.
 
+The same day brought a humbler lesson. The plan for the next batch of data was to teach Kodiak ratings, its weakest skill ("how urgent is
+this?"). Five pilots at about ten cents each showed why that skill is hard: the AI teachers themselves couldn't agree. Given the same tenant email,
+one rated the frustration 9 out of 10 and the other 3. You can't teach a sharp answer when the answer key wobbles. The batch was paused before
+it cost real money, to wait for a bigger model's results and then try coarser labels (low, medium, high) that raters can agree on.
+
 *(Continued as the project progresses.)*
 
 ---

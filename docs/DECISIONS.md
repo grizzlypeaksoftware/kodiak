@@ -246,3 +246,11 @@ re-verified upstream while building (data/LICENSES.md). PubMedQA was excluded (a
 **Rules.** Frozen (the builder refuses to overwrite); never trained or tuned on; every model is re-scored on it (`scripts/rescore_v02.sh`).
 **Build notes.** arXiv's legacy query API returned HTTP 406 and OAI-PMH throttled after one response, so the arXiv source uses the CC0 metadata
 snapshot mirror instead; two newer fields (economics, EESS) are distractors only.
+
+### D31: Stage 3 (synthetic judgment scores) paused after five pilots
+**Evidence.** GENERATOR_V2.md §12: two independent, blind LLM raters disagree on 58–82% of anchored ratings (vs. near-agreement on choice
+questions); a writer asked to aim at a target band also grades toward that target. Total cost $0.54 of the ~$30 approved.
+**Decision (Shane, 2026-09-26).** Spend nothing more on Stage 3 until the ModernBERT-large results on eval v0.2's score tasks are in. If ratings
+are still weak, pilot the "bands instead of numbers" variant (~$0.15) before any batch.
+**Why it matters.** It explains the weakness itself: rating data (human or LLM) is noisy, so a model can't learn a crisp scale from it. The fix
+has to reduce label noise (bands, more raters), not just add examples.

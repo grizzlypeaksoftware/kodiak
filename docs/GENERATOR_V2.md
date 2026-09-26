@@ -297,3 +297,23 @@ the jailbreak source alone swings 0.65–0.86 between v1 seeds with identical da
 (gap 0.059), so v1's "fact missing = unanswerable" style is the likely cause of over-abstention. Judgment scores (urgency, risk) remain broken.
 **Next:** the held-out eval is too noisy to steer by (grow it, and use ≥ 3 seeds for decisions); raw generalization now points at the backbone
 (ModernBERT-large) and at score-question data (v2.1/v2.2).
+
+## 12. Stage 3 pilots: judgment scores (2026-09-26), paused
+
+Goal: fix the weakest skill (ratings on new scales; "charged twice and nobody answers!" gets urgency 0.9/10). Five 50-job pilots, **$0.54 total**
+(`data/synthetic/pilot_gen2_scores*.jsonl`):
+
+| Pilot | Change | Yield | Score disagreement | What it taught |
+|---|---|---|---|---|
+| #1 | target bands (low/medium/high), anchored scales, contrast twins | 26% | 69% | the checker saw only the end labels, not the anchors |
+| #2 | anchors written into the question text | 34% | 82% | writers summarize evidence for judgments; the exact-quote rule is the wrong gate |
+| #3 | score evidence exempt; one-step tolerance on 1–5 scales | 34% | 64% | random scales make nonsense questions ("politeness" of a router article) |
+| #4 | writer picks fitting scales from the menu; synthetic states only | 30% | 64% | **the writer grades toward its own target** ("frustration 9" for a calm email); the checker was right |
+| #5 | two blind raters grade scores (checker + fresh writer call), mean kept | 36% | 58% | **two blind LLM raters still disagree on most ratings** |
+
+**Conclusion.** For choice questions, independent models agree ~95%+ of the time; for judgment ratings they disagree on most items even with
+anchors and fitting scales. The labels themselves are noisy, which is also why public score data teaches Kodiak so little. More prompt tweaks
+won't fix that. Paused (D31). Options when resumed: (A) average two raters with a wider tolerance, (B) three raters with majority/median,
+(C) ask raters for low/medium/high bands (should agree far more) and train on band centers with wide uncertainty, or (D) rely on a bigger
+backbone. Plan: read the ModernBERT-large results on eval v0.2's score tasks first; if scores are still weak, pilot (C) for about $0.15.
+Also seen: gpt-oss as a rater occasionally emits runaway JSON (9 of 50 jobs in pilot #5); guard with a tighter token budget before any batch.

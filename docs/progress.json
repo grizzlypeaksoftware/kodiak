@@ -83,7 +83,7 @@
      "status": "in_progress"
     },
     {
-     "name": "Stage 3 data: judgment scores (anchored urgency/risk scales, minimal pairs), ~$25–30 — needs Shane's OK",
+     "name": "Stage 3 data (judgment scores): PAUSED after 5 pilots ($0.54) — raters disagree; next try low/medium/high bands if the large model doesn't fix scores",
      "status": "pending"
     },
     {
@@ -210,6 +210,51 @@
     "target_jobs": 11800,
     "writer": "do:openai-gpt-oss-120b",
     "verifier": "do:deepseek-3.2"
+   },
+   {
+    "name": "Stage 3 pilot: judgment scores + contrast twins (50 jobs, seed 8)",
+    "file": "data/synthetic/pilot_gen2_scores.jsonl",
+    "log": "data/synthetic/pilot_gen2_scores.log",
+    "target_jobs": 50,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Stage 3 pilot #2: anchors in question text, fragment evidence (50 jobs)",
+    "file": "data/synthetic/pilot_gen2_scores_b.jsonl",
+    "log": "data/synthetic/pilot_gen2_scores_b.log",
+    "target_jobs": 50,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Stage 3 pilot #3: score evidence exempt, one-step tolerance (50 jobs)",
+    "file": "data/synthetic/pilot_gen2_scores_c.jsonl",
+    "log": "data/synthetic/pilot_gen2_scores_c.log",
+    "target_jobs": 50,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Stage 3 pilot #4: writer picks fitting scales, synthetic only (50 jobs)",
+    "file": "data/synthetic/pilot_gen2_scores_d.jsonl",
+    "log": "data/synthetic/pilot_gen2_scores_d.log",
+    "target_jobs": 50,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Stage 3 pilot #5: two blind raters grade scores (50 jobs)",
+    "file": "data/synthetic/pilot_gen2_scores_e.jsonl",
+    "log": "data/synthetic/pilot_gen2_scores_e.log",
+    "target_jobs": 50,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
    }
   ],
   "stages": [
@@ -233,7 +278,7 @@
    },
    {
     "name": "Stage 3 · Generator v2.0s: judgment scores",
-    "why": "Anchored urgency/risk/priority scales + minimal pairs where one detail flips the score (the weakest skill)",
+    "why": "Paused (D31): blind AI raters disagree on most ratings, so labels are too noisy; next: try low/medium/high bands",
     "goal": 10000,
     "files": [
      "data/synthetic/gen2_s3_scores.jsonl"
@@ -407,6 +452,10 @@
   {
    "date": "2026-09-26",
    "text": "Eval set v0.2 frozen: +8 never-seen sources (legal, moral, finance, science, clickbait score, poetry); held-out 4 → 12 tasks, 1,000 → 4,200 examples"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "Stage 3 paused after 5 pilots ($0.54): blind AI raters disagree on most judgment ratings (58–82%), so the labels are too noisy to teach; next: large-model results, then try low/medium/high bands"
   }
  ]
 }
