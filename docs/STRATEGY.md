@@ -84,7 +84,14 @@ Kodiak doesn't have to win every decision; it has to know **which ones it has wo
 2. Confident answers are used directly (typically most of the traffic).
 3. Uncertain answers and abstentions escalate to an LLM or a human.
 
-Calibration is what makes this safe: a threshold at "90% sure" actually means about 90% right. That turns LLM-level quality into
+Calibration is what makes this safe: a threshold at "90% sure" actually means about 90% right.
+
+**Outside evidence (2026-09-26).** Li, Miao, Krishnan and Padman (Carnegie Mellon), *JEV-as-a-Judge: Accept When Confident, Escalate When
+Unsure* (arXiv:2609.26550): a decision-only judge came within three points of a state-of-the-art LLM judge on preference and evidence-grounded
+factuality at 0.36% of its cost, and a frozen accept-confident / escalate-unsure cascade kept 99% of the big judge's accuracy at lower cost. Its
+weak spots were checking derivations and resisting elaborately written wrong answers, consistent with Kodiak's (recognition strong, multi-step
+reasoning weak). Separately, TypeSafe and OpenRouter launched `typesafe/jev-router` (a cache-aware model router, Sep 2026): routing is now a
+proven commercial use of decision models. That turns LLM-level quality into
 something affordable at volume. The second selling point is **adaptation**: fine-tuning on a few hundred of a customer's own labeled
 examples, which typically lifts a specific task well past any zero-shot model.
 
@@ -117,7 +124,21 @@ signs off), private/on-prem and cheap per check. Open issues: long documents (ch
 competition (Vanta, Drata, Secureframe). Validation plan when revived: one standard, ~100 human-labeled requirement checks, baseline vs. a
 compliance-weighted generator batch + fine-tune. Keep the open model general; verticals are the product layer.
 
-**Post-launch demo backlog (2026-09-25): Kodiak plays Zork.** Kodiak can't type, so it plays by *choosing*: a text-game harness
+**Post-launch demo backlog, ranked (2026-09-26):**
+
+1. **Kodiak-as-a-judge** (Shane's pick for the next demo). The state holds a prompt and one or two responses; questions: "Which response is
+   better?" (A / B / tie), "Is the answer supported by the evidence?", quality scores, with abstain = escalate to an LLM judge. Show the cascade
+   live: share of verdicts Kodiak accepts, accuracy of those, cost per 1,000 judgments vs. an LLM judge. Doubles as the **public benchmark** we
+   need for release criterion 1: reproduce the CMU paper's setup on whichever of its benchmarks are permissively licensed (check each at the
+   source), so the story is "the open model, tested the way CMU tested Jev." Needs: longer states (prompt + responses exceed 512 tokens) and
+   pairwise-preference training data with clean licenses (HelpSteer2 and UltraFeedback are already in training).
+2. **Kodiak Router** (most commercially relevant; a flagship for the hosted API). JSON state: conversation summary, current model, cached
+   tokens, candidate models with prices and speeds; questions: which model, which reasoning effort, task difficulty (score); abstain = use the
+   strong model. The open, self-hostable counterpart to `jev-router`. Hard part: outcome labels (which model would have succeeded), from running
+   candidate models on real prompts and grading, or from public router datasets with verified licenses.
+3. **Kodiak plays Zork** (see below): the fun, viral one.
+
+**Kodiak plays Zork (2026-09-25).** Kodiak can't type, so it plays by *choosing*: a text-game harness
 (e.g. Microsoft Research's Jericho) lists the valid actions each turn, Kodiak picks one ("What's the best next command?"), and when it
 abstains the turn goes to exploration or an LLM. That makes it a live System 1 / System 2 demo ("Kodiak made 85% of the moves; the LLM 15%;
 total cost 2 cents") and a real long-horizon decision benchmark (game score). Expect weak play at first (Zork is hard even for LLMs);

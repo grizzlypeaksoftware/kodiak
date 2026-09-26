@@ -456,6 +456,10 @@
   {
    "date": "2026-09-26",
    "text": "Stage 3 paused after 5 pilots ($0.54): blind AI raters disagree on most judgment ratings (58–82%), so the labels are too noisy to teach; next: large-model results, then try low/medium/high bands"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "Outside validation: CMU 'JEV-as-a-Judge' (arXiv:2609.26550) confirms the accept-confident/escalate-unsure cascade; OpenRouter launches jev-router. Backlog ranked: Kodiak-as-a-judge demo (+ public benchmark), Kodiak Router, Zork"
   }
  ]
 }
