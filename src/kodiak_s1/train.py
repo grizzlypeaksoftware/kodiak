@@ -109,8 +109,10 @@ class Mixture:
                     seen.add((path, r["job"]))
                     ex = r["example"]
                     # Hold out ~3% of synthetic states for validation (by content, so it's stable as files grow).
-                    split = hash_split(render_state(ex["state"]), val=0.03, test=0)
-                    (syn_val if split == "val" else syn).append(json.dumps(ex, ensure_ascii=False))
+                    # Contrast twins (Stage 3) split by their shared pair id, so both halves land on the same side.
+                    split = hash_split(r.get("pair_id") or render_state(ex["state"]), val=0.03, test=0)
+                    for e in [ex] + ([r["variant_example"]] if r.get("variant_example") else []):
+                        (syn_val if split == "val" else syn).append(json.dumps(e, ensure_ascii=False))
             if cfg.synthetic_max >= 0:
                 # A fixed random subset, so data-scaling runs differ only in *how much* synthetic data they see.
                 random.Random(12345).shuffle(syn)

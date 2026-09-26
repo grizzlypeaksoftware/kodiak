@@ -62,10 +62,10 @@ def cmd_show(a) -> None:
             print(f"- {s['name']} -> {d['name']}: " + "; ".join(f"{dt['name']} [{'/'.join(dt['formats'])}]" for dt in d["doc_types"]))
     print()
     for i in range(a.n):
-        s = sample_spec(i, a.seed, tax)
+        s = sample_spec(i, a.seed, tax, focus=a.focus or None)
         where = "real FineWeb passage" if s.source == "grounded" else f"{s.domain} / {s.doc_type} ({s.format})"
         print(f"job {i} [{s.mode}] {where} | focus {s.decision}, {s.difficulty} | {s.n_choice} choice + {s.n_score} score, "
-              f"{s.n_inference} inferred, {s.n_null} null {s.null_kinds} {s.scales}")
+              f"{s.n_inference} inferred, {s.n_null} null {s.null_kinds} {s.scales} {s.targets}{' +twin' if s.pair else ''}")
 
 
 def cmd_run(a) -> None:
@@ -110,7 +110,7 @@ def cmd_run(a) -> None:
             if state["spent"] >= a.max_usd:
                 state["stopped"] = True
                 return
-        rec = run_job(i, a.seed, tax, coverage, a.writer, a.verifier, critics)
+        rec = run_job(i, a.seed, tax, coverage, a.writer, a.verifier, critics, a.focus or None)
         with lock:
             if rec["status"] == "ok":
                 dup = index.check_add(f"{out}:{i}", example_text(rec["example"]))
@@ -203,6 +203,7 @@ def main(argv: list[str] | None = None) -> None:
     s.add_argument("--taxonomy", default=str(taxonomy.TAXONOMY_PATH))
     s.add_argument("--seed", type=int, default=8)
     s.add_argument("--n", type=int, default=10)
+    s.add_argument("--focus", default="")
     r = sub.add_parser("run", help="generate examples")
     r.add_argument("--n", type=int, default=50, help="number of jobs (job ids start..start+n-1)")
     r.add_argument("--start", type=int, default=0)
@@ -215,6 +216,7 @@ def main(argv: list[str] | None = None) -> None:
     r.add_argument("--max-usd", type=float, default=5.0, help="stop cleanly once this much has been spent (whole file)")
     r.add_argument("--against", default="", help="comma-separated files to dedupe against (default: v1 + gen2 training files)")
     r.add_argument("--dedupe-threshold", type=float, default=0.8)
+    r.add_argument("--focus", default="", help="'scores' = Stage 3: anchored judgment scores with target bands and contrast twins")
     r.add_argument("--critics", default="", help="comma-separated critic models (e.g. do:deepseek-3.2,do:openai-gpt-oss-120b); "
                    "a kept question any critic calls wrong/ambiguous is dropped")
     q = sub.add_parser("queue", help="build a human review queue from writer/checker disagreements")

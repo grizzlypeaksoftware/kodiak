@@ -37,7 +37,7 @@ def cost(rec: dict, prices: dict) -> float:
         if model in prices:
             p_in, p_out = prices[model]
             total += (rec.get(i) or 0) / 1e6 * p_in + (rec.get(o) or 0) / 1e6 * p_out
-    for u in rec.get("critic_usage", []):
+    for u in rec.get("critic_usage", []) + rec.get("extra_usage", []):
         if u["model"] in prices:
             p_in, p_out = prices[u["model"]]
             total += u["prompt_tokens"] / 1e6 * p_in + u["tokens"] / 1e6 * p_out
@@ -70,10 +70,10 @@ def _state(raw: dict, fmt: str):
 
 
 def run_job(i: int, seed: int, tax: dict, coverage: dict | None = None,
-            writer: str = WRITER, verifier: str = CHECKER, critics: list[str] | tuple = ()) -> dict:
+            writer: str = WRITER, verifier: str = CHECKER, critics: list[str] | tuple = (), focus: str | None = None) -> dict:
     """critics: models that audit the agreed answers; a question any critic calls wrong or ambiguous is dropped.
     Human review (2026-09-25) found writer+checker agreement still let through ~7% bad labels, mostly ambiguous questions."""
-    spec = sample_spec(i, seed, tax, coverage)
+    spec = sample_spec(i, seed, tax, coverage, focus)
     grounded = spec.source == "grounded"
     rec: dict = {"job": i, "seed": seed, "gen": "v2.0c", "spec": spec.to_dict(), "writer": writer, "verifier": verifier,
                  "status": "error"}
@@ -152,6 +152,8 @@ def run_job(i: int, seed: int, tax: dict, coverage: dict | None = None,
                        "split": "train", "teacher": f"{writer} (verified by {verifier})", "tags": tags, "notes": notes}}
         Example.model_validate(ex)
         rec.update(status="ok", example=ex)
+        if spec.pair and isinstance(raw.get("variant"), dict):
+            _variant(rec, raw["variant"], spec, state_text, kept_q, kept_a, verifier, critics, ex["meta"], f"gen2:{seed}:{i}")
     except (ValidationError, ValueError, KeyError, TypeError, json.JSONDecodeError) as e:
         rec["error"] = f"{type(e).__name__}: {str(e)[:300]}"
     except OSError as e:  # network / timeout: leave the job undone so a rerun retries it
@@ -160,6 +162,71 @@ def run_job(i: int, seed: int, tax: dict, coverage: dict | None = None,
     finally:
         rec["seconds"] = round(time.time() - t0, 1)
     return rec
+
+
+PAIR_MIN_DELTA = 0.3  # the twin must move at least one score by 30% of its range, per the checker's reading
+
+
+def _variant(rec: dict, var: dict, spec, state_text: str, kept_q: list[dict], kept_a: dict, verifier: str,
+             critics, meta: dict, pair_id: str) -> None:
+    """Stage 3 contrast twin: the same state with a minimal edit that should move the first score to the other end.
+
+    Kept only if the blind checker agrees with the writer on the twin *and* the agreed score moved by >= PAIR_MIN_DELTA of the
+    range (otherwise the "minimal pair" teaches nothing). Critics audit it like any example. Both twins share a pair id,
+    so training puts them in the same split.
+    """
+    rec["variant_status"] = "dropped"
+    try:
+        vstate = _state({"state": var.get("state")}, spec.format)
+        vtext = render_state(vstate)
+        if vtext.strip() == state_text.strip():
+            rec["variant_status"] = "identical"
+            return
+        sq = [q for q in kept_q if q["type"] == "score" and "value" in kept_a[q["id"]]]
+        by_id = {synth._slug(a.get("id", "")): a for a in var.get("score_answers") or []}
+        vqs, vans = [], {}
+        for q in sq:
+            a = by_id.get(q["id"])
+            if a is None or not synth.evidence_supported(a.get("evidence") or "", vtext):
+                continue
+            v = float(a["answer_value"])
+            if q["min"] <= v <= q["max"]:
+                vqs.append(q)
+                vans[q["id"]] = {"value": v}
+        if not vqs:
+            rec["variant_status"] = "no_supported_answers"
+            return
+        v = synth.teacher(verify_prompt(vtext, vqs), synth.verify_schema(vqs), 0.0, verifier, 400 + 250 * len(vqs))
+        rec.setdefault("extra_usage", []).append({"model": verifier, "tokens": v["tokens"], "prompt_tokens": v.get("prompt_tokens", 0)})
+        agreed_q, agreed_a = [], {}
+        for q in vqs:
+            ok, target = synth.agree(q, vans[q["id"]], synth.parse_verdict(q, v["content"].get(q["id"])))
+            if ok:
+                agreed_q.append(q)
+                agreed_a[q["id"]] = target
+        moved = [abs(agreed_a[q["id"]]["value"] - kept_a[q["id"]]["value"]) / (q["max"] - q["min"]) for q in agreed_q]
+        if not moved or max(moved) < PAIR_MIN_DELTA:
+            rec["variant_status"] = "not_contrasting" if agreed_q else "checker_disagreed"
+            return
+        if critics:
+            flagged = set()
+            for model in critics:
+                verdicts, usage = critique(vtext, agreed_q, agreed_a, model)
+                rec["extra_usage"].append({"model": model, "tokens": usage["tokens"], "prompt_tokens": usage["prompt_tokens"]})
+                flagged |= {qid for qid, verdict in verdicts.items() if verdict != "correct"}
+            agreed_q = [q for q in agreed_q if q["id"] not in flagged]
+            agreed_a = {k: x for k, x in agreed_a.items() if k not in flagged}
+            if not agreed_q:
+                rec["variant_status"] = "critic_flagged"
+                return
+        tags = sorted(set(meta["tags"]) | {"pair:score_flip"})
+        vex = {"state": vstate, "questions": agreed_q, "answers": agreed_a,
+               "meta": {**meta, "tags": tags, "notes": (meta.get("notes") or "") + " [contrast twin]"}}
+        Example.model_validate(vex)
+        rec["example"]["meta"]["tags"] = tags
+        rec.update(variant_example=vex, pair_id=pair_id, variant_status="ok", variant_delta=round(max(moved), 3))
+    except (ValidationError, ValueError, KeyError, TypeError) as e:
+        rec["variant_status"] = f"error: {type(e).__name__}"
 
 
 def review_queue(paths: list[str | Path], n: int = 50, seed: int = 0) -> list[dict]:

@@ -11,7 +11,7 @@ checker is told that sound inference counts as answering.
 
 from __future__ import annotations
 
-from kodiak_s1.data.gen2.specs import DECISIONS, NULL_KINDS, Spec
+from kodiak_s1.data.gen2.specs import DECISIONS, NULL_KINDS, SCORE_FOCUS_SCALES, TARGET_BANDS, Spec
 
 BASES = ["stated", "inferred", "unanswerable"]
 
@@ -41,7 +41,17 @@ def _question_rules(spec: Spec, grounded: bool) -> str:
     focus = min(2, n) if spec.decision != "judgment_score" else spec.n_score
     kinds = "\n".join(f"    - {k}: {NULL_KINDS[k]}" for k in dict.fromkeys(spec.null_kinds))
     scores = ""
-    if spec.n_score:
+    if spec.n_score and spec.targets:  # Stage 3: anchored scales with target bands
+        parts = []
+        for sc, (lo, hi), t in zip(spec.scales, spec.ranges, spec.targets):
+            a_lo, a_mid, a_hi = SCORE_FOCUS_SCALES[sc]
+            parts.append(f"{sc} from {lo:g} to {hi:g} (anchors: {lo:g} = {a_lo}; middle = {a_mid}; {hi:g} = {a_hi}); "
+                         f"design the state so the correct rating is {t.upper()}, in the {TARGET_BANDS[t]} of the range")
+        scores = (f"- {spec.n_score} \"score\" question(s), in this order:\n" + "\n".join(f"    - {x}" for x in parts) +
+                  "\n  Set min and max exactly and use the anchor phrases for min_label and max_label. The rating must follow from "
+                  "concrete details in the state (deadlines, amounts, consequences, tone), judged against the anchors. Use the whole "
+                  "range: a high rating means high, not a cautious middle.\n")
+    elif spec.n_score:
         parts = [f"{s} on a scale from {lo:g} to {hi:g}" for s, (lo, hi) in zip(spec.scales, spec.ranges)]
         scores = (f"- {spec.n_score} \"score\" question(s), in this order: {'; '.join(parts)}. Set min and max exactly, "
                   "and write min_label and max_label: short phrases for the two ends of that same dimension (for urgency: 'can wait' / "
@@ -85,6 +95,14 @@ Avoid: questions that need outside knowledge; questions where two options are de
 the answer; options that are obviously silly. Vary the phrasing; do not start every question the same way."""
 
 
+PAIR_RULES = """
+Finally, write a VARIANT of the state for the first score question: copy the state and change as little as possible (one or
+two phrases, same format and length, all other facts identical) so that the correct rating for that question moves to the
+OPPOSITE end of its scale (low to high, high to low; from medium, to whichever end is more natural). Put it in "variant":
+"state" is the full edited state, and "score_answers" gives, for every score question (same ids), the rating on the variant
+with an exact evidence quote copied from the variant."""
+
+
 def writer_prompt(spec: Spec, passage: str | None = None) -> str:
     head = ("You are creating training data for Kodiak, a small model that reads a \"state\" and answers typed questions "
             "with calibrated confidence, or abstains when the state does not contain the answer.\n\n")
@@ -104,7 +122,7 @@ Invent specific, plausible details (names, numbers, dates). It should read like 
 or a story about it. Do not mention that it is synthetic. Do not use double quote characters inside prose; use single quotes.
 {DIFFICULTY_STATE[spec.difficulty]}
 
-{_question_rules(spec, grounded=False)}
+{_question_rules(spec, grounded=False)}{PAIR_RULES if spec.pair else ""}
 Return JSON only."""
 
 
@@ -125,6 +143,16 @@ def writer_schema(spec: Spec, grounded: bool) -> dict:
     props = {
         "choice_questions": {"type": "array", "items": choice, "minItems": spec.n_choice, "maxItems": spec.n_choice},
         "score_questions": {"type": "array", "items": score, "minItems": spec.n_score, "maxItems": spec.n_score}}
+    if spec.pair and not grounded:
+        state_t = {"text": {"type": "string"}, "list": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 6},
+                   "json": {"type": "object"}}[spec.format]
+        props["variant"] = {"type": "object", "properties": {
+            "state": state_t,
+            "score_answers": {"type": "array", "minItems": spec.n_score, "maxItems": spec.n_score, "items": {
+                "type": "object", "properties": {"id": {"type": "string"}, "evidence": {"type": "string"},
+                                                 "answer_value": {"type": "number"}},
+                "required": ["id", "evidence", "answer_value"]}}},
+            "required": ["state", "score_answers"]}
     if not grounded:
         props = {"state": {"text": {"type": "string"},
                            "list": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 6},

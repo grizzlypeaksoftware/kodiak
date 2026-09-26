@@ -60,6 +60,27 @@ NULL_KINDS = {
     "temporal": "asks about an outcome that is not known yet at the time of the state (a pending decision, a future result)",
 }
 
+# Stage 3 (--focus scores): judgment scales with explicit anchors (low, middle, high). The v2.0 model rated "charged twice and
+# nobody answers my emails!" 0.9/10 for urgency: public score data is mostly moderation/quality ratings near zero, so it
+# learned "scores are low". Target bands (low / medium / high per question) and contrast twins attack that prior directly.
+SCORE_FOCUS_SCALES = {
+    "urgency": ("can wait weeks", "should be handled today", "act immediately: safety, money or a hard deadline at risk"),
+    "severity": ("trivial or cosmetic", "real impact but a workaround exists", "critical: outage, harm or major loss"),
+    "priority": ("backlog, nice to have", "this week", "top of the queue right now"),
+    "risk": ("negligible risk", "moderate risk worth watching", "high risk of serious harm or loss"),
+    "customer frustration": ("calm or pleased", "annoyed", "furious, threatening to leave or escalate"),
+    "financial impact": ("no money at stake", "a noticeable amount", "large or business-critical sums"),
+    "likelihood of escalation": ("very unlikely", "possible", "almost certain"),
+    "confidence that the claim is true": ("clearly false", "uncertain", "clearly true"),
+    "sentiment": ("very negative", "neutral", "very positive"),
+    "politeness": ("rude or hostile", "neutral", "very courteous"),
+    "completeness of the information provided": ("most required details missing", "some details missing", "everything needed is there"),
+    "quality of the response": ("unhelpful or wrong", "partly helpful", "excellent and complete"),
+    "hostility or toxicity": ("not hostile at all", "somewhat hostile", "extremely hostile or abusive"),
+    "credibility": ("not credible", "somewhat credible", "highly credible"),
+}
+TARGET_BANDS = {"low": "bottom third", "medium": "middle third", "high": "top third"}
+
 GROUNDED_SHARE = 0.45  # share of jobs that use a real FineWeb-Edu passage as the state
 COVERAGE_SHARE = 0.6
 
@@ -82,6 +103,9 @@ class Spec:
     null_kinds: list[str] = field(default_factory=list)
     scales: list[str] = field(default_factory=list)  # one per score question
     ranges: list[tuple[float, float]] = field(default_factory=list)
+    focus: str | None = None  # "scores" = Stage 3 judgment-score batch
+    targets: list[str] = field(default_factory=list)  # per score question: low | medium | high
+    pair: bool = False  # also write a minimal-edit contrast twin that moves the first score to the other end
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -105,7 +129,7 @@ def _balance(values: list[str], base: list[float], counts: dict[str, int] | None
     return [b / (0.1 + counts.get(v, 0) / avg) for v, b in zip(values, base)]
 
 
-def sample_spec(job: int, seed: int, tax: dict, coverage: dict | None = None) -> Spec:
+def sample_spec(job: int, seed: int, tax: dict, coverage: dict | None = None, focus: str | None = None) -> Spec:
     rng = rng_for("gen2-spec", seed, job)
     cov = coverage or {}
     mode = "coverage" if rng.random() < COVERAGE_SHARE else "explore"
@@ -143,9 +167,31 @@ def sample_spec(job: int, seed: int, tax: dict, coverage: dict | None = None) ->
                   for _ in range(n_null)]
     scales = [_weighted(rng, SCALES, bal("scale", SCALES, [1.0] * len(SCALES))) for _ in range(n_score)]
     ranges = [_weighted(rng, [r for r, _ in SCORE_RANGES], [w for _, w in SCORE_RANGES]) for _ in range(n_score)]
-    return Spec(job=job, mode=mode, source=source, sector=sector, domain=domain, doc_type=doc_type, format=fmt,
+    spec = Spec(job=job, mode=mode, source=source, sector=sector, domain=domain, doc_type=doc_type, format=fmt,
                 decision=decision, difficulty=difficulty, n_choice=n_choice, n_score=n_score, n_inference=n_inference,
                 n_null=n_null, null_kinds=null_kinds, scales=scales, ranges=ranges)
+    if focus == "scores":  # drawn from a separate RNG stream so the default specs above are unchanged
+        _score_focus(spec, rng_for("gen2-spec-scores", seed, job), tax)
+    return spec
+
+
+def _score_focus(spec: Spec, rng, tax: dict) -> None:
+    """Stage 3: 2-3 anchored score questions with target bands, few nulls, and a contrast twin on ~half the jobs."""
+    if spec.source == "grounded" and rng.random() < 0.6:  # mostly synthetic records: judgments about situations
+        spec.source = "synthetic"
+        spec.sector, spec.domain, spec.doc_type, fmts = rng.choice(cells(tax))
+        spec.format = rng.choice(list(fmts))
+    spec.focus, spec.decision = "scores", "judgment_score"
+    spec.n_score = rng.choice([2, 2, 3])
+    spec.n_choice = rng.choice([1, 1, 2])
+    n = spec.n_choice + spec.n_score
+    spec.n_null = _weighted(rng, [0, 1], [0.65, 0.35])
+    spec.null_kinds = [rng.choice(["missing_fact", "underspecified", "temporal"]) for _ in range(spec.n_null)]
+    spec.n_inference = max(1, min(spec.n_score, n - spec.n_null - 1))
+    spec.scales = rng.sample(list(SCORE_FOCUS_SCALES), spec.n_score)
+    spec.ranges = [_weighted(rng, [r for r, _ in SCORE_RANGES], [w for _, w in SCORE_RANGES]) for _ in range(spec.n_score)]
+    spec.targets = [rng.choice(list(TARGET_BANDS)) for _ in range(spec.n_score)]
+    spec.pair = spec.source == "synthetic" and rng.random() < 0.5
 
 
 # ---- coverage map ------------------------------------------------------------------------------------------------

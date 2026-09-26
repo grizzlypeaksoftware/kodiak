@@ -203,3 +203,74 @@ def test_critics_drop_flagged_questions_and_count_cost(monkeypatch):
             had_c1 = "c1" in {q["id"] for q in plain["example"]["questions"]}
             assert [f["model"] for f in r["critic_flags"]] == (["critic-b"] if had_c1 else [])
             assert pipeline.cost(r, prices) > pipeline.cost(plain, prices)
+
+
+def test_score_focus_specs_leave_default_unchanged():
+    for i in range(50):
+        assert sample_spec(i, 8, TAX).to_dict() == sample_spec(i, 8, TAX, focus=None).to_dict()
+    fs = [sample_spec(i, 8, TAX, focus="scores") for i in range(200)]
+    assert all(s.decision == "judgment_score" and 2 <= s.n_score <= 3 and len(s.targets) == s.n_score for s in fs)
+    assert 0.2 < sum(s.pair for s in fs) / len(fs) < 0.6 and not any(s.pair and s.source == "grounded" for s in fs)
+
+
+def _pair_teacher(variant_value):
+    """Writer adds a contrast twin; checker agrees with whatever the writer says (by reading the numbers back)."""
+    def teacher(prompt, schema, temperature, model, max_tokens):
+        props = schema["properties"]
+        if "choice_questions" in props:
+            n_c, n_s = props["choice_questions"]["minItems"], props["score_questions"]["minItems"]
+            state = "Ticket 55: The payroll server is down and 300 staff will not be paid Friday unless it is fixed today."
+            cq = [{"id": f"c{j}", "text": f"Which team owns this? ({j})", "basis": "inferred", "evidence": "payroll server is down",
+                   "labels": [{"id": "it", "text": "IT operations"}, {"id": "hr", "text": "human resources"}], "answer_label": "it"}
+                  for j in range(n_c)]
+            sq = [{"id": f"s{j}", "text": f"Rate aspect {j}", "min": 0, "max": 10, "min_label": "low", "max_label": "high",
+                   "basis": "inferred", "evidence": "will not be paid Friday", "answer_value": 9} for j in range(n_s)]
+            content = {"choice_questions": cq, "score_questions": sq}
+            vstate = "Ticket 55: The payroll test server is down; nobody is affected and it can be fixed next month."
+            if "state" in props:
+                t = props["state"].get("type")
+                content["state"] = {"object": {"note": state}, "array": [state, "Thanks."]}.get(t, state)
+            if "variant" in props:
+                t = props["variant"]["properties"]["state"].get("type")
+                content["variant"] = {"state": {"object": {"note": vstate}, "array": [vstate, "Thanks."]}.get(t, vstate),
+                                      "score_answers": [{"id": f"s{j}", "evidence": "can be fixed next month",
+                                                         "answer_value": variant_value} for j in range(n_s)]}
+            return {"content": content, "tokens": 1000, "prompt_tokens": 800}
+        # checker: agree with the writer (choice -> "it"; score -> the value implied by which state it sees)
+        ans = {}
+        for qid in props:
+            if qid.startswith("c"):
+                ans[qid] = {"quote": "", "answer": "it"}
+            else:
+                ans[qid] = {"quote": "", "answer": str(variant_value if "next month" in prompt else 9)}
+        return {"content": ans, "tokens": 100, "prompt_tokens": 500}
+    return teacher
+
+
+def test_contrast_twin_kept_only_when_score_moves(monkeypatch):
+    for value, expect in ((1, "ok"), (8, "not_contrasting")):
+        monkeypatch.setattr(synth, "teacher", _pair_teacher(value))
+        recs = [pipeline.run_job(i, 8, TAX, focus="scores") for i in range(40)]
+        paired = [r for r in recs if r["status"] == "ok" and r["spec"]["pair"]]
+        assert paired, [r.get("error") or r["status"] for r in recs][:5]
+        for r in paired:
+            assert r["variant_status"] == expect, r["variant_status"]
+            if expect == "ok":
+                v = r["variant_example"]
+                Example.model_validate(v)
+                assert "pair:score_flip" in v["meta"]["tags"] and r["pair_id"] and r["variant_delta"] >= 0.3
+                assert all(q["type"] == "score" for q in v["questions"])
+                assert pipeline.cost(r, pipeline.DEFAULT_PRICES) > 0 and r["extra_usage"]
+
+
+def test_training_loader_keeps_twins_in_the_same_split(monkeypatch, tmp_path):
+    from kodiak_s1.data.sources import hash_split
+    from kodiak_s1.schema import render_state
+
+    monkeypatch.setattr(synth, "teacher", _pair_teacher(1))
+    recs = [pipeline.run_job(i, 8, TAX, focus="scores") for i in range(40)]
+    for r in recs:
+        if r.get("variant_example"):
+            key = hash_split(r["pair_id"], val=0.03, test=0)
+            assert key in ("train", "val")  # both halves get this split in train.py (keyed by pair_id, not state)
+            assert render_state(r["variant_example"]["state"]) != render_state(r["example"]["state"])

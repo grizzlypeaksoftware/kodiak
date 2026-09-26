@@ -54,7 +54,8 @@ def _read_run(path: Path) -> dict:
             jobs[r["job"]] = r
     done = [r for r in jobs.values() if r.get("status") != "retry"]
     tok = lambda k: sum(r.get(k) or 0 for r in jobs.values())  # noqa: E731
-    c = {"key": key, "done": len(done), "ok": sum(r["status"] == "ok" for r in done),
+    c = {"key": key, "done": len(done),
+         "ok": sum(r["status"] == "ok" for r in done) + sum(bool(r.get("variant_example")) for r in done),  # + contrast twins
          "retry": sum(r.get("status") == "retry" for r in jobs.values()),
          "gen_in": tok("gen_prompt_tokens"), "gen_out": tok("gen_tokens"),
          "ver_in": tok("verify_prompt_tokens"), "ver_out": tok("verify_tokens"), "critic": {}}
