@@ -71,7 +71,19 @@
      "status": "done"
     },
     {
-     "name": "ModernBERT-large backbone test (3 seeds) + bigger held-out eval",
+     "name": "ModernBERT-large backbone test: 3 seeds on v2 data (~2 h each; results ~1:30 PM)",
+     "status": "in_progress"
+    },
+    {
+     "name": "Eval set v0.2: add 6–7 never-seen task types (ContractNLI, ETHICS, finance tweets, arXiv fields, CaseHOLD, clickbait score; poems optional) — awaiting Shane's OK",
+     "status": "pending"
+    },
+    {
+     "name": "Re-score every model on eval v0.2 (small v1/v2, large, open classifiers) and update the scoreboard",
+     "status": "pending"
+    },
+    {
+     "name": "Stage 3 data: judgment scores (anchored urgency/risk scales, minimal pairs), ~$25–30 — needs Shane's OK",
      "status": "pending"
     },
     {
