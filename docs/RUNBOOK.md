@@ -174,6 +174,10 @@ rerunning `snapshot_download('HuggingFaceFW/fineweb-edu', repo_type='dataset', a
 
 ## 7. Status dashboard
 
+**Synthetic-data stages** live in `docs/progress.json` → `synthetic.stages`: each has a `name`, a `why`, a `goal` (kept examples), the
+`files` that count toward it (pilots never count), and optionally `"done": true` to close a stage below its goal. The first unfinished stage is
+highlighted as current. Add a stage's output file there when its batch starts.
+
 ```bash
 uv run python -m kodiak_s1.status            # one-screen summary in the terminal
 nohup setsid uv run python -m kodiak_s1.status --serve > /dev/null 2>&1 < /dev/null &   # http://localhost:8787

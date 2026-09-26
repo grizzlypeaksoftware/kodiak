@@ -82,11 +82,18 @@ function phases(list) {
 }
 
 function synth(y) {
-  const goal = y.goal_examples || 1, frac = Math.min(1, y.total_examples / goal);
-  const bar = `<div class="d-flex justify-content-between mb-1"><span><b>${y.total_examples.toLocaleString()}</b> of
-      ${goal.toLocaleString()} examples toward the goal</span><span class="muted">${(100 * frac).toFixed(1)}%</span></div>
-    <div class="progress mb-3" role="progressbar" aria-valuenow="${(100 * frac).toFixed(1)}" aria-valuemin="0" aria-valuemax="100">
-      <div class="progress-bar bg-success" style="width:${(100 * frac).toFixed(1)}%"></div></div>`;
+  const pct = (n, g) => Math.min(100, 100 * n / (g || 1)).toFixed(1);
+  const stBadge = s => s.state === "running" ? `<span class="badge text-bg-primary">running</span>`
+    : s.state === "done" ? `<span class="badge text-bg-success">done</span>`
+    : s.state === "in progress" ? `<span class="badge text-bg-warning">in progress</span>` : `<span class="badge text-bg-secondary">planned</span>`;
+  const stages = (y.stages || []).map(s => `
+    <div class="mb-2 ${s.current ? "p-2 rounded border border-primary" : ""}" style="${s.state === "planned" ? "opacity:.6" : ""}">
+      <div class="d-flex justify-content-between align-items-center"><span>${s.current ? "▶ " : ""}<b>${esc(s.name)}</b> ${stBadge(s)}</span>
+        <span class="small">${s.examples.toLocaleString()} / ${s.goal.toLocaleString()} examples · ${pct(s.examples, s.goal)}%</span></div>
+      <div class="progress my-1" style="height:${s.current ? 10 : 6}px"><div class="progress-bar ${s.state === "done" ? "bg-success" : ""}" style="width:${pct(s.examples, s.goal)}%"></div></div>
+      <div class="small muted">${esc(s.why)}</div></div>`).join("");
+  const bar = (stages || "") + `<div class="small muted mb-3">${y.total_examples.toLocaleString()} synthetic training examples in total
+    (pilots excluded). Stages measure <i>better</i> data, not just more: each one ships only if it beats the last.</div>`;
   const state = r => r.state === "running" ? `<span class="badge text-bg-primary">running</span>`
     : r.state === "done" ? `<span class="badge text-bg-success">done</span>` : `<span class="badge text-bg-secondary">${esc(r.state)}</span>`;
   const rows = y.runs.map(r => {
@@ -105,7 +112,7 @@ function synth(y) {
   return bar + `<div class="table-responsive"><table class="table table-sm align-middle mb-0">
     <thead><tr><th>Run</th><th>State</th><th>Progress</th><th>Examples</th><th>Jobs/h</th><th>Cost</th></tr></thead>
     <tbody>${rows}</tbody></table></div>
-    <div class="small muted mt-1">Pilot examples aren't counted toward the goal.</div>`;
+    <div class="small muted mt-1">Pilot examples aren't counted toward any stage.</div>`;
 }
 
 function milestones(list) {

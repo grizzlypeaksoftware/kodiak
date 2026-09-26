@@ -195,6 +195,44 @@
     "writer": "do:openai-gpt-oss-120b",
     "verifier": "do:deepseek-3.2"
    }
+  ],
+  "stages": [
+   {
+    "name": "Stage 1 · Generator v1: the first 10k",
+    "why": "Prove the data factory works; run the data-scaling test (closed at 9,702, 97%)",
+    "goal": 10000,
+    "files": [
+     "data/synthetic/synth_v1.jsonl",
+     "data/synthetic/synth_v1_cloud.jsonl"
+    ],
+    "done": true
+   },
+   {
+    "name": "Stage 2 · Generator v2.0: better data, same size",
+    "why": "Head-to-head with v1 at equal size (~9.4k kept examples)",
+    "goal": 9400,
+    "files": [
+     "data/synthetic/gen2_v20.jsonl"
+    ]
+   },
+   {
+    "name": "Stage 3 · Generator v2.1: hard examples",
+    "why": "Kodiak screens candidates; keep what it gets wrong (+30% easy); ablation vs v2.0",
+    "goal": 10000,
+    "files": []
+   },
+   {
+    "name": "Stage 4 · Generator v2.2: minimal pairs + planner",
+    "why": "Twins that isolate the key fact; batches aimed at validation weak spots",
+    "goal": 10000,
+    "files": []
+   },
+   {
+    "name": "Stage 5 · Scale the winner to 30k",
+    "why": "The 10k → 30k scaling curve decides whether a 100k batch is worth buying",
+    "goal": 30000,
+    "files": []
+   }
   ]
  },
  "milestones": [

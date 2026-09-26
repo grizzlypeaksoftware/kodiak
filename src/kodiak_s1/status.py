@@ -69,7 +69,7 @@ def _read_run(path: Path) -> dict:
 
 def synth_status(procs: list[str], cfg: dict) -> dict:
     prices = cfg.get("prices_per_million", {})
-    runs, total_ok = [], 0
+    runs, total_ok, ok_by_file = [], 0, {}
     for run in cfg.get("runs", []):
         path = ROOT / run["file"]
         running = any(("kodiak_s1.data.synth" in c or "kodiak_s1.data.gen2" in c) and run["file"].rsplit("/", 1)[-1] in c for c in procs)
@@ -85,6 +85,8 @@ def synth_status(procs: list[str], cfg: dict) -> dict:
                     cost += i / 1e6 * prices[model][0] + o / 1e6 * prices[model][1]
             r.update(done_jobs=c["done"], ok_examples=c["ok"], retry=c["retry"], cost_usd=round(cost, 4) if cost else None)
             total_ok += c["ok"] if not run.get("pilot") else 0
+            if not run.get("pilot"):
+                ok_by_file[run["file"]] = c["ok"]
             log = ROOT / run["log"] if run.get("log") else None
             if log and log.exists():
                 rates = re.findall(r"~(\d+) jobs/h", log.read_text()[-4000:])
@@ -96,9 +98,20 @@ def synth_status(procs: list[str], cfg: dict) -> dict:
             if not running:
                 r["state"] = "done" if run.get("target_jobs") and c["done"] >= run["target_jobs"] else "stopped"
         r["state"] = "running" if running else r.get("state", "not started")
+        r["file"] = run["file"]
         runs.append(r)
+    # Staged goals: each generator version has its own target, counted from its own (non-pilot) output files.
+    stages, current_found = [], False
+    for st in cfg.get("stages", []):
+        n = sum(ok_by_file.get(f, 0) for f in st.get("files", []))
+        running = any(r["state"] == "running" and r["file"] in st.get("files", []) for r in runs)
+        state = "running" if running else "done" if (st.get("done") or n >= st["goal"]) else "in progress" if n else "planned"
+        current = not current_found and state != "done"
+        current_found = current_found or current
+        stages.append({"name": st["name"], "why": st.get("why", ""), "goal": st["goal"], "examples": n, "state": state,
+                       "current": current})
     # Pilots are experiments; their examples aren't counted toward the goal (they may still be used later).
-    return {"goal_examples": cfg.get("goal_examples"), "total_examples": total_ok, "runs": runs}
+    return {"goal_examples": cfg.get("goal_examples"), "total_examples": total_ok, "stages": stages, "runs": runs}
 
 
 def training_runs(procs: list[str]) -> list[dict]:
