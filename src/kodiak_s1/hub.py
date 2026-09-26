@@ -57,6 +57,7 @@ class Kodiak:
     def __init__(self, model: KodiakModel, calibration: dict | None = None, name: str = "kodiak"):
         self.model = model
         self.calibration = calibration or {}
+        apply_calibration(self.model, self.calibration)  # assigned, so applying twice is harmless
         self.name = name
         self.default_options = {"null_threshold": float(self.calibration.get("null_threshold", 0.5))}
 

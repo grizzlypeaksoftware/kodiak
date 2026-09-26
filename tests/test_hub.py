@@ -25,3 +25,9 @@ def test_save_load_roundtrip_applies_calibration_and_default_threshold(tmp_path)
     loose = k2.decide("I was charged twice!", QS, null_threshold=1.0)
     assert loose["intent"]["answer"] is not None
     assert json.loads((tmp_path / "calibration.json").read_text())["null_threshold"] == 0.99
+
+
+def test_constructor_applies_calibration():
+    torch.manual_seed(0)
+    k = Kodiak(KodiakModel(ModelConfig(MICRO, HeadConfig())).eval(), {"t_choice": 2.0, "t_null": 3.0, "kappa_scale": 0.5})
+    assert float(k.model.heads.t_choice) == 2.0 and float(k.model.heads.t_null) == 3.0
