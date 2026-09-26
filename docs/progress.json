@@ -67,7 +67,7 @@
      "status": "done"
     },
     {
-     "name": "Generator v2.0: ~11k-job batch (seed 6, ~$15) + A/B vs v1",
+     "name": "Generator v2.0: 11.8k-job batch (seed 6; $~25) + A/B vs v1 (running overnight)",
      "status": "in_progress"
     },
     {
@@ -179,19 +179,19 @@
     "pilot": true
    },
    {
-    "name": "Generator v2.0 eval candidates for human review (seed 7, never trained on)",
+    "name": "Generator v2.0c training batch (seed 6; new rules + 2 critics; cap $30; +800-job top-up)",
     "file": "data/synthetic/eval_gen2_v20.jsonl",
     "log": "data/synthetic/eval_gen2_v20.log",
-    "target_jobs": 70,
+    "target_jobs": 11800,
     "writer": "do:openai-gpt-oss-120b",
     "verifier": "do:deepseek-3.2",
     "pilot": true
    },
    {
-    "name": "Generator v2.0c training batch (seed 6; new rules + 2 critics; cap $30)",
+    "name": "Generator v2.0c training batch (seed 6; new rules + 2 critics; cap $30; +800-job top-up)",
     "file": "data/synthetic/gen2_v20.jsonl",
     "log": "data/synthetic/gen2_v20.log",
-    "target_jobs": 11000,
+    "target_jobs": 11800,
     "writer": "do:openai-gpt-oss-120b",
     "verifier": "do:deepseek-3.2"
    }
