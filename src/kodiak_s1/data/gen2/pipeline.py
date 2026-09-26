@@ -18,7 +18,7 @@ from kodiak_s1.data import synth
 from kodiak_s1.data.gen2 import passages
 from kodiak_s1.data.gen2.critic import critique
 from kodiak_s1.data.gen2.prompts import verify_prompt, writer_prompt, writer_schema
-from kodiak_s1.data.gen2.specs import sample_spec
+from kodiak_s1.data.gen2.specs import SCORE_FOCUS_SCALES, sample_spec
 from kodiak_s1.data.sources import rng_for
 from kodiak_s1.schema import Example, render_state
 
@@ -54,6 +54,28 @@ UNKNOWN_OPTION = re.compile(r"\b(unknown|not (?:yet )?(?:known|stated|mentioned|
 def has_unknown_option(q: dict) -> bool:
     return any(UNKNOWN_OPTION.search(str(lab.get(k, "")).replace("_", " ").strip())
                for lab in q.get("labels") or [] for k in ("id", "text"))
+
+
+def anchor_scores(raw_qs: list[dict], spec) -> None:
+    """Stage 3: write the scale's anchors into each score question's text, so the writer, the blind checker and Kodiak all
+    judge against the same scale (pilot 2026-09-26: without them the checker disagreed on 69% of scores)."""
+    sq = [q for q in raw_qs if q["type"] == "score"]
+    for q, scale in zip(sq, spec.scales):
+        if scale not in SCORE_FOCUS_SCALES or "min" not in q or "max" not in q:
+            continue
+        lo, hi = float(q["min"]), float(q["max"])
+        a_lo, a_mid, a_hi = SCORE_FOCUS_SCALES[scale]
+        q["text"] = f"{q['text'].rstrip()} ({lo:g} = {a_lo}; {(lo + hi) / 2:g} = {a_mid}; {hi:g} = {a_hi})"
+        q["min_label"], q["max_label"] = a_lo, a_hi
+
+
+def best_fragment(evidence: str, state_text: str) -> str:
+    """Judgment scores often cite several fragments joined by '...' or ';'. Keep the evidence if any fragment is a real quote."""
+    if synth.evidence_supported(evidence, state_text):
+        return evidence
+    frags = [f.strip(" \"'") for f in re.split(r"\.\.\.|…|;|\|", evidence) if len(f.strip()) >= 8]
+    ok = [f for f in frags if synth.evidence_supported(f, state_text)]
+    return max(ok, key=len) if ok else evidence
 
 
 def _state(raw: dict, fmt: str):
@@ -93,6 +115,11 @@ def run_job(i: int, seed: int, tax: dict, coverage: dict | None = None,
         state_text = render_state(state)
         raw_qs = [{**q, "type": "choice"} for q in raw["choice_questions"]] + \
             [{**q, "type": "score"} for q in raw["score_questions"]]
+        if spec.targets:
+            anchor_scores(raw_qs, spec)
+            for q in raw_qs:
+                if q["type"] == "score" and q.get("evidence"):
+                    q["evidence"] = best_fragment(q["evidence"], state_text)
         pre_drops = ["unknown_option"] * sum(q["type"] == "choice" and has_unknown_option(q) for q in raw_qs)
         raw_qs = [q for q in raw_qs if not (q["type"] == "choice" and has_unknown_option(q))]
         basis = {}
@@ -187,7 +214,7 @@ def _variant(rec: dict, var: dict, spec, state_text: str, kept_q: list[dict], ke
         vqs, vans = [], {}
         for q in sq:
             a = by_id.get(q["id"])
-            if a is None or not synth.evidence_supported(a.get("evidence") or "", vtext):
+            if a is None or not synth.evidence_supported(best_fragment(a.get("evidence") or "", vtext), vtext):
                 continue
             v = float(a["answer_value"])
             if q["min"] <= v <= q["max"]:

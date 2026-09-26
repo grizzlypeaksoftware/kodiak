@@ -274,3 +274,15 @@ def test_training_loader_keeps_twins_in_the_same_split(monkeypatch, tmp_path):
             key = hash_split(r["pair_id"], val=0.03, test=0)
             assert key in ("train", "val")  # both halves get this split in train.py (keyed by pair_id, not state)
             assert render_state(r["variant_example"]["state"]) != render_state(r["example"]["state"])
+
+
+def test_anchor_scores_and_fragment_evidence():
+    from kodiak_s1.data.gen2.pipeline import anchor_scores, best_fragment
+
+    spec = next(s for s in (sample_spec(i, 8, TAX, focus="scores") for i in range(50)))
+    qs = [{"type": "score", "id": f"s{j}", "text": "How urgent?", "min": 0, "max": 10} for j in range(spec.n_score)]
+    anchor_scores(qs, spec)
+    assert all("0 =" in q["text"] and "10 =" in q["text"] and q["min_label"] for q in qs)
+    state = "The payroll server is down. 300 staff will not be paid Friday. The vendor says a fix takes two weeks."
+    ev = "payroll server is down ... a fix takes nine months"
+    assert best_fragment(ev, state) == "payroll server is down"
