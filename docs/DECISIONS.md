@@ -233,3 +233,6 @@ with a noise caveat and corrected the same night.
    call it **roughly tied**, not met.
 5. **Next levers:** ModernBERT-large for raw generalization; score-question data (anchored scales, urgency/risk minimal pairs) for the
    judgment-score weakness.
+**Follow-up (2026-09-26).** Published as `cortex-agent-llc/kodiak-small-v2-preview`: run `b-small-s1-B-v2` (seed 0, lowest final validation
+loss 0.1576 vs 0.1579 / 0.1708). The demo Space now loads it. A spot check found the "crushed box → refund" fix is input-sensitive (right with an
+order id, wrong without), so the model card says so.

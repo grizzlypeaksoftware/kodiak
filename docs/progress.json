@@ -375,6 +375,10 @@
   {
    "date": "2026-09-26",
    "text": "A/B with 3 seeds each: v2.0 cuts wrong refusals ~60%, abstain precision 0.84→0.92, better calibration; never-seen forced accuracy unchanged (0.72 vs 0.72). The single-run '+5–7 pts' was noise"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "Research preview v2 public: cortex-agent-llc/kodiak-small-v2-preview (seed chosen on validation); demo switched to v2; r1 card points to v2. Honest note: the crushed-box fix is fragile"
   }
  ]
 }
