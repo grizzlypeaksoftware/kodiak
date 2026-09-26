@@ -75,12 +75,12 @@
      "status": "in_progress"
     },
     {
-     "name": "Eval set v0.2: add 6–7 never-seen task types (ContractNLI, ETHICS, finance tweets, arXiv fields, CaseHOLD, clickbait score; poems optional) — awaiting Shane's OK",
-     "status": "pending"
+     "name": "Eval set v0.2 built and frozen: 12 never-seen tasks / 4,200 examples (was 4 / 1,000)",
+     "status": "done"
     },
     {
-     "name": "Re-score every model on eval v0.2 (small v1/v2, large, open classifiers) and update the scoreboard",
-     "status": "pending"
+     "name": "Re-score every model on eval v0.2 (queued after the large runs; scripts/rescore_v02.sh)",
+     "status": "in_progress"
     },
     {
      "name": "Stage 3 data: judgment scores (anchored urgency/risk scales, minimal pairs), ~$25–30 — needs Shane's OK",
@@ -403,6 +403,10 @@
   {
    "date": "2026-09-26",
    "text": "Research preview v2 public: cortex-agent-llc/kodiak-small-v2-preview (seed chosen on validation); demo switched to v2; r1 card points to v2. Honest note: the crushed-box fix is fragile"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "Eval set v0.2 frozen: +8 never-seen sources (legal, moral, finance, science, clickbait score, poetry); held-out 4 → 12 tasks, 1,000 → 4,200 examples"
   }
  ]
 }

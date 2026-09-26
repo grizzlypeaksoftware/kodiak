@@ -71,6 +71,22 @@ License column = what we verified against the **upstream** source, not just the 
 | HellaSwag, PIQA | Probably permissive (MIT / AFL-3.0), but we couldn't verify the upstream license. Can be added once confirmed |
 | PAWS | Wiki portion is derived from Wikipedia (CC-BY-SA) |
 
+### Eval v0.2 held-out sources (added 2026-09-26, evaluation only, never trained on; D30)
+
+| ID | Name | Task | License (verified upstream) | URL | Notes |
+|---|---|---|---|---|---|
+| `contract_nli` | ContractNLI (Hitachi America, Ltd.) | Does an NDA excerpt state a hypothesis? yes / no / not mentioned (null) | CC-BY-4.0 (official site + TERMS file in the zip) | https://stanfordnlp.github.io/contract-nli/ | Upstream zip only (the HF mirror is mislabeled CC-BY-NC-SA); 320-word windows |
+| `ethics_commonsense` | ETHICS, commonsense morality | Is the narrator's action clearly wrong? | MIT (repo LICENSE) | https://github.com/hendrycks/ethics | Reddit-sourced; culturally biased (per the authors) |
+| `fin_tweets_topic` | Twitter Financial News (topic) | 20 finance topics | MIT (creator's dataset card) | https://huggingface.co/datasets/zeroshot/twitter-financial-news-topic | Underlying tweets are subject to X's terms |
+| `fin_tweets_sentiment` | Twitter Financial News (sentiment) | bearish / bullish / neutral | MIT (creator's dataset card) | https://huggingface.co/datasets/zeroshot/twitter-financial-news-sentiment | Underlying tweets are subject to X's terms |
+| `arxiv_field` | arXiv metadata snapshot | Abstract → primary field (13 of 15 fields present) | CC0-1.0 (arXiv API terms: metadata incl. abstracts) | https://info.arxiv.org/help/api/tou.html | Via the HF mirror `librarian-bots/arxiv-metadata-snapshot` (one shard); economics and EESS appear only as distractors |
+| `casehold` | CaseHOLD | Which of 5 holdings a citation stands for | Apache-2.0 (repo); opinions are public domain | https://github.com/reglab/casehold | Holdings truncated to 200 characters |
+| `clickbait17` | Webis Clickbait Corpus 2017 | Clickbait score 0–1 (mean of 5 annotators) | CC-BY-4.0 (Zenodo record) | https://zenodo.org/records/5530410 | train-170331 file; tweet text subject to X's terms |
+| `poem_sentiment` | Poem Sentiment (Google) | negative / positive / no impact / mixed | CC-BY-4.0 (repo) | https://github.com/google-research-datasets/poem-sentiment | All splits used (held out) |
+
+Considered and rejected for v0.2: PubMedQA (abstracts carry no license of their own), FNC-1 (no license), PubMed 200k RCT, SciCite (no data
+license), CFPB narratives, the only real urgency/priority ticket set (CC-BY-NC-4.0), HWU64/SNIPS (too close to MASSIVE/CLINC).
+
 ## Synthetic data
 
 | ID | Generator | Teacher | License | Notes |

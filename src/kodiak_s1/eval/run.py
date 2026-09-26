@@ -389,7 +389,8 @@ def cmd_report(a) -> None:
     for meta, recs in systems:
         name = meta.get("system", "?")
         results[name] = report([r for r in recs if r["ex"] in common])
-    slice_names = [s for s in ["overall", "eval:indomain", "eval:heldout", "eval:null_construct", "eval:synthetic"]
+    slice_names = [s for s in ["overall", "eval:indomain", "eval:heldout", "eval:heldout_v01", "eval:heldout_v02",
+                               "eval:null_construct", "eval:synthetic"]
                    if any(s in res for res in results.values())]
     for s in slice_names + sorted({k for res in results.values() for k in res if k.startswith("null:")}):
         lines.append(f"\n## {s}\n")

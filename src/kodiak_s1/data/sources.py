@@ -654,6 +654,230 @@ def load_clinc():
     return {s: _hf("clinc/clinc_oos", "plus", u) for s, u in [("train", "train"), ("val", "validation"), ("test", "test")]}
 
 
+
+# ---------------------------------------------------------------------------
+# Eval v0.2 held-out sources (never trained on; test only). Added 2026-09-26 (D30).
+# Licenses verified at the upstream source; see data/LICENSES.md.
+# ---------------------------------------------------------------------------
+
+RAW = "data/raw"
+
+
+def _download(url: str, path: str) -> str:
+    import os
+
+    if not os.path.exists(path):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        urllib.request.urlretrieve(url, path)
+    return path
+
+
+def _shuffled(rows: list[Row], tag: str) -> Iterator[Row]:
+    random.Random(SHUFFLE_SEED).shuffle(rows)
+    for i, r in enumerate(rows):
+        r.setdefault("__key", f"{tag}:{i}")
+        yield r
+
+
+CONTRACT_NLI_ZIP = "https://stanfordnlp.github.io/contract-nli/resources/contract-nli.zip"
+CONTRACT_WINDOW = 320  # words; the model reads states of ~512 tokens, contracts run to thousands
+
+
+def load_contract_nli():
+    """One row per (contract, hypothesis) from the official test split, with a word window of the contract.
+
+    Entailment / contradiction: a window that contains the first evidence span (at a random offset). NotMentioned: a random
+    window (if the contract never mentions it, no window does). Hypotheses become yes/no questions; NotMentioned is null.
+    """
+    import zipfile
+
+    z = zipfile.ZipFile(_download(CONTRACT_NLI_ZIP, f"{RAW}/contract_nli/contract-nli.zip"))
+    data = json.loads(z.read("contract-nli/test.json"))
+    hyps = {k: v["hypothesis"] for k, v in data["labels"].items()}
+    rows = []
+    for doc in data["documents"]:
+        text, spans = doc["text"], doc["spans"]
+        for hid, ann in doc["annotation_sets"][0]["annotations"].items():
+            ev = [spans[i] for i in ann["spans"]]
+            rows.append({"text": text, "hyp": hyps[hid], "choice": ann["choice"], "evidence": ev[0] if ev else None,
+                         "__key": f"{doc['id']}:{hid}"})
+    return {"test": _shuffled(rows, "contract_nli")}
+
+
+def _word_window(text: str, rng: random.Random, n: int, must: tuple[int, int] | None) -> str:
+    starts = [m.start() for m in re.finditer(r"\S+", text)]
+    if len(starts) <= n:
+        return text.strip()
+    if must is None:
+        i = rng.randrange(0, len(starts) - n)
+    else:
+        first = next(k for k, c in enumerate(starts) if c >= must[0]) if starts[-1] >= must[0] else len(starts) - 1
+        last = max(k for k, c in enumerate(starts) if c < must[1])
+        span_words = last - first + 1
+        lo = max(0, last - n + 1) if span_words <= n else first
+        hi = min(first, len(starts) - n)
+        i = rng.randint(min(lo, hi), max(lo, hi))
+    end = starts[i + n] if i + n < len(starts) else len(text)
+    return ("... " if i > 0 else "") + text[starts[i]:end].strip() + (" ..." if end < len(text) else "")
+
+
+def conv_contract_nli(row, split, rng):
+    state = _word_window(row["text"], rng, CONTRACT_WINDOW, tuple(row["evidence"]) if row["evidence"] else None)
+    hyp = row["hyp"].rstrip(".")
+    q = choice_q("clause", f"Does this contract excerpt state the following? {hyp}.", YES_NO)
+    gold = {"Entailment": {"label": "yes"}, "Contradiction": {"label": "no"}, "NotMentioned": {"null": True}}[row["choice"]]
+    tags = ["heldout", "eval:heldout_v02"] + (["null:not_mentioned"] if row["choice"] == "NotMentioned" else [])
+    return [_ex("contract_nli", "CC-BY-4.0", split, state, [q], {"clause": gold}, tags)]
+
+
+def conv_ethics(row, split, rng):
+    q = choice_q("wrong", rng.choice(["Is the narrator's action clearly morally wrong?",
+                                      "By ordinary moral standards, did the narrator do something clearly wrong?"]), YES_NO)
+    return [_ex("ethics_commonsense", "MIT", split, row["input"].strip(), [q],
+                {"wrong": {"label": "yes" if int(row["label"]) == 1 else "no"}}, ["heldout", "eval:heldout_v02"])]
+
+
+FIN_TOPICS = ["Analyst Update", "Fed | Central Banks", "Company | Product News", "Treasuries | Corporate Debt", "Dividend",
+              "Earnings", "Energy | Oil", "Financials", "Currencies", "General News | Opinion", "Gold | Metals | Materials", "IPO",
+              "Legal | Regulation", "M&A | Investments", "Macro", "Markets", "Politics", "Personnel Change", "Stock Commentary",
+              "Stock Movement"]
+
+
+def conv_fin_topic(row, split, rng):
+    gold = FIN_TOPICS[int(row["label"])]
+    cand = sample_labels(rng, FIN_TOPICS, gold, 6, 20)
+    q = choice_q("topic", rng.choice(["What is this financial news post about?", "Which topic best fits this post?"]),
+                 [(c, c.replace(" | ", " / ")) for c in cand])
+    return [_ex("fin_tweets_topic", "MIT", split, row["text"].strip(), [q], {"topic": {"label": gold}},
+                ["heldout", "eval:heldout_v02"])]
+
+
+def conv_fin_sentiment(row, split, rng):
+    gold = ["bearish", "bullish", "neutral"][int(row["label"])]
+    q = choice_q("sentiment", "What market sentiment does this post express?",
+                 [("bearish", "bearish"), ("bullish", "bullish"), ("neutral", "neutral")])
+    return [_ex("fin_tweets_sentiment", "MIT", split, row["text"].strip(), [q], {"sentiment": {"label": gold}},
+                ["heldout", "eval:heldout_v02"])]
+
+
+ARXIV_GROUPS = {  # label id -> (readable name, OAI-PMH set, primary-category prefixes)
+    "cs": ("computer science", "cs", ("cs.",)),
+    "math": ("mathematics", "math", ("math.",)),
+    "stat": ("statistics", "stat", ("stat.",)),
+    "q-bio": ("quantitative biology", "q-bio", ("q-bio.",)),
+    "q-fin": ("quantitative finance", "q-fin", ("q-fin.",)),
+    "econ": ("economics", "econ", ("econ.",)),
+    "eess": ("electrical engineering and systems science", "eess", ("eess.",)),
+    "astro-ph": ("astrophysics", "physics:astro-ph", ("astro-ph",)),
+    "cond-mat": ("condensed matter physics", "physics:cond-mat", ("cond-mat",)),
+    "hep": ("high energy physics", "physics:hep-ph", ("hep-",)),
+    "gr-qc": ("general relativity and quantum cosmology", "physics:gr-qc", ("gr-qc",)),
+    "nucl": ("nuclear physics", "physics:nucl-th", ("nucl-",)),
+    "quant-ph": ("quantum physics", "physics:quant-ph", ("quant-ph",)),
+    "physics": ("physics (applied, optics, fluids and other)", "physics:physics", ("physics.",)),
+    "nlin": ("nonlinear sciences", "physics:nlin", ("nlin.",)),
+}
+ARXIV_CACHE = f"{RAW}/arxiv/sample.jsonl"
+# arXiv's official metadata snapshot (CC0 per arXiv's terms), via the Hugging Face mirror. One shard is plenty.
+# (Sep 2026: the legacy query API returned HTTP 406, and OAI-PMH throttled after one large response.)
+ARXIV_SNAPSHOT = ("librarian-bots/arxiv-metadata-snapshot", "data/train-00009-of-00010.parquet")
+
+
+def fetch_arxiv(per_group: int = 70) -> None:
+    import os
+
+    import pandas as pd
+    from huggingface_hub import hf_hub_download
+
+    df = pd.read_parquet(hf_hub_download(ARXIV_SNAPSHOT[0], ARXIV_SNAPSHOT[1], repo_type="dataset"),
+                         columns=["id", "title", "abstract", "categories"])
+    df = df.sample(frac=1.0, random_state=SHUFFLE_SEED)
+    out, counts = [], {g: 0 for g in ARXIV_GROUPS}
+    for r in df.itertuples(index=False):
+        cats = str(r.categories).split()
+        if not cats:
+            continue
+        gid = next((g for g, (_, _, pre) in ARXIV_GROUPS.items() if cats[0].startswith(pre)), None)
+        if gid is None or counts[gid] >= per_group:
+            continue
+        counts[gid] += 1
+        out.append({"id": str(r.id), "group": gid, "primary": cats[0], "title": " ".join(str(r.title).split()),
+                    "abstract": " ".join(str(r.abstract).split())})
+        if all(c >= per_group for c in counts.values()):
+            break
+    os.makedirs(os.path.dirname(ARXIV_CACHE), exist_ok=True)
+    with open(ARXIV_CACHE, "w", encoding="utf-8") as f:
+        for r in out:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+
+
+def load_arxiv():
+    import os
+
+    if not os.path.exists(ARXIV_CACHE):
+        fetch_arxiv()
+    rows = [json.loads(line) for line in open(ARXIV_CACHE, encoding="utf-8")]
+    for r in rows:
+        r["__key"] = r["id"]
+    return {"test": _shuffled(rows, "arxiv")}
+
+
+def conv_arxiv(row, split, rng):
+    cand = sample_labels(rng, list(ARXIV_GROUPS), row["group"], 5, 15)
+    q = choice_q("field", rng.choice(["Which research field does this paper belong to?", "What is the primary subject area of this paper?"]),
+                 [(c, ARXIV_GROUPS[c][0]) for c in cand])
+    return [_ex("arxiv_field", "CC0-1.0", split, f"{row['title']}\n\n{row['abstract']}", [q], {"field": {"label": row["group"]}},
+                ["heldout", "eval:heldout_v02"])]
+
+
+def conv_casehold(row, split, rng):
+    labels = [(f"h{i}", str(row[f"holding_{i}"]).strip()[:200]) for i in range(5)]
+    if len({t.casefold() for _, t in labels}) < 5:
+        return []
+    q = choice_q("holding", "Which holding does the citation marked <HOLDING> most likely stand for?", labels)
+    return [_ex("casehold", "Apache-2.0", split, row["citing_prompt"].strip(), [q], {"holding": {"label": f"h{int(row['label'])}"}},
+                ["heldout", "eval:heldout_v02"])]
+
+
+CLICKBAIT_ZIP = "https://zenodo.org/records/5530410/files/clickbait17-train-170331.zip?download=1"
+
+
+def load_clickbait():
+    import zipfile
+
+    z = zipfile.ZipFile(_download(CLICKBAIT_ZIP, f"{RAW}/clickbait17/clickbait17-train-170331.zip"))
+    names = z.namelist()
+    inst = next(n for n in names if n.endswith("instances.jsonl"))
+    truth = next(n for n in names if n.endswith("truth.jsonl"))
+    # split("\n"), not splitlines(): tweets contain Unicode line separators inside JSON strings.
+    t = {j["id"]: j for j in map(json.loads, filter(None, z.read(truth).decode().split("\n")))}
+    rows = []
+    for j in map(json.loads, filter(None, z.read(inst).decode().split("\n"))):
+        post = " ".join(j.get("postText") or []).strip()
+        if post and j["id"] in t:
+            rows.append({"text": post, "score": float(t[j["id"]]["truthMean"]), "__key": j["id"]})
+    return {"test": _shuffled(rows, "clickbait")}
+
+
+def conv_clickbait(row, split, rng):
+    q = score_q("clickbait", "How clickbait-y is this social media post?", 0, 1, "not clickbait", "heavy clickbait")
+    return [_ex("clickbait17", "CC-BY-4.0", split, row["text"], [q], {"clickbait": {"value": row["score"]}},
+                ["heldout", "eval:heldout_v02", "score"])]
+
+
+POEM_LABELS = [("negative", "negative"), ("positive", "positive"), ("no_impact", "no emotional impact"), ("mixed", "mixed")]
+
+
+def load_poems():
+    rows = [r for sp in ("train", "validation", "test") for r in _hf("google-research-datasets/poem_sentiment", None, sp)]
+    return {"test": _shuffled(rows, "poems")}
+
+
+def conv_poems(row, split, rng):
+    q = choice_q("sentiment", "What sentiment does this line of poetry express?", POEM_LABELS)
+    return [_ex("poem_sentiment", "CC-BY-4.0", split, row["verse_text"].strip(), [q],
+                {"sentiment": {"label": POEM_LABELS[int(row["label"])][0]}}, ["heldout", "eval:heldout_v02"])]
+
 def _std(path, config=None, val="validation", test="test"):
     return lambda: {"train": _hf(path, config, "train"), "val": _hf(path, config, val), "test": _hf(path, config, test)}
 
@@ -705,4 +929,24 @@ SOURCES: dict[str, Source] = {s.id: s for s in [
            lambda: {"test": _hf("LabHC/bias_in_bios", None, "test")}, conv_bios, heldout=True),
     Source("qasper", "doc_qa", "CC-BY-4.0", "https://huggingface.co/datasets/allenai/qasper", load_qasper, conv_qasper,
            notes="unanimous yes/no and unanimous unanswerable questions; excerpts of ~700 words"),
+    Source("contract_nli", "legal_nli", "CC-BY-4.0", "https://stanfordnlp.github.io/contract-nli/", load_contract_nli, conv_contract_nli,
+           heldout=True, notes="eval v0.2; Hitachi America, Ltd.; 320-word windows; NotMentioned becomes null"),
+    Source("ethics_commonsense", "moral_judgment", "MIT", "https://github.com/hendrycks/ethics",
+           lambda: {"test": _hf_parquet("hendrycks/ethics", "commonsense/test/0000.parquet")}, conv_ethics, heldout=True,
+           notes="eval v0.2; Reddit-sourced, culturally biased (per the authors)"),
+    Source("fin_tweets_topic", "topic", "MIT", "https://huggingface.co/datasets/zeroshot/twitter-financial-news-topic",
+           lambda: {"test": _hf("zeroshot/twitter-financial-news-topic", None, "validation")}, conv_fin_topic, heldout=True,
+           notes="eval v0.2; underlying tweets are subject to X's terms"),
+    Source("fin_tweets_sentiment", "sentiment", "MIT", "https://huggingface.co/datasets/zeroshot/twitter-financial-news-sentiment",
+           lambda: {"test": _hf("zeroshot/twitter-financial-news-sentiment", None, "validation")}, conv_fin_sentiment, heldout=True,
+           notes="eval v0.2; underlying tweets are subject to X's terms"),
+    Source("arxiv_field", "topic", "CC0-1.0", "https://info.arxiv.org/help/api/tou.html", load_arxiv, conv_arxiv, heldout=True,
+           notes="eval v0.2; recent abstracts snapshot via the arXiv API (metadata is CC0); primary category only"),
+    Source("casehold", "legal_mc", "Apache-2.0", "https://github.com/reglab/casehold",
+           lambda: {"test": _hf_parquet("casehold/casehold", "all/test/0000.parquet")}, conv_casehold, heldout=True,
+           notes="eval v0.2; court opinions are public domain (Caselaw Access Project); holdings truncated to 200 chars"),
+    Source("clickbait17", "score", "CC-BY-4.0", "https://zenodo.org/records/5530410", load_clickbait, conv_clickbait, heldout=True,
+           notes="eval v0.2; Webis Clickbait Corpus 2017 (train-170331 file); mean of 5 annotators, 0..1"),
+    Source("poem_sentiment", "sentiment", "CC-BY-4.0", "https://github.com/google-research-datasets/poem-sentiment", load_poems,
+           conv_poems, heldout=True, notes="eval v0.2; all splits used (held out)"),
 ]}

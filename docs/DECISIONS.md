@@ -236,3 +236,13 @@ with a noise caveat and corrected the same night.
 **Follow-up (2026-09-26).** Published as `cortex-agent-llc/kodiak-small-v2-preview`: run `b-small-s1-B-v2` (seed 0, lowest final validation
 loss 0.1576 vs 0.1579 / 0.1708). The demo Space now loads it. A spot check found the "crushed box → refund" fix is input-sensitive (right with an
 order id, wrong without), so the model card says so.
+
+### D30: Eval set v0.2, a held-out section big enough to steer by
+**Context.** v0.1 held out 4 tasks (1,000 questions); jailbreak alone swings ±10 points between identical runs (D29).
+**Decision (Shane approved 2026-09-26).** `data/eval/kodiak-eval-v0.2.jsonl` = v0.1 unchanged + 400 examples from each of 8 new never-trained-on
+sources: ContractNLI, ETHICS commonsense, financial tweets (topic, sentiment), arXiv field, CaseHOLD, Webis clickbait (a score task), poem
+sentiment. Held-out grows to 12 tasks / 4,200 examples (tags `eval:heldout_v01` and `eval:heldout_v02` keep old numbers comparable). Licenses
+re-verified upstream while building (data/LICENSES.md). PubMedQA was excluded (abstract licensing unclear).
+**Rules.** Frozen (the builder refuses to overwrite); never trained or tuned on; every model is re-scored on it (`scripts/rescore_v02.sh`).
+**Build notes.** arXiv's legacy query API returned HTTP 406 and OAI-PMH throttled after one response, so the arXiv source uses the CC0 metadata
+snapshot mirror instead; two newer fields (economics, EESS) are distractors only.
