@@ -603,3 +603,21 @@ eval set uses five). Two more lessons from the pilots:
   can rate nonsense consistently.
 
 The next idea is coarser labels (low / medium / high), which raters agree on far more often, but only if the bigger model doesn't already fix it.
+
+## Zork: calibration only holds near home (2026-09-26)
+
+Shane's Zork benchmark put Kodiak, Jev and a no-model baseline through the same text adventures. Every model made zero invalid moves in ~20,000:
+the "can't answer off the menu" guarantee held perfectly. Everything else was humbling:
+- **Kodiak lost to random exploration on Zork.** Its confident picks were worse than trying something new.
+- **v2 was confident, not right.** It made half the moves itself and earned almost nothing, looping "put paper down / take paper" for 95 moves.
+- **Jev played better,** but walked into a grue three times while its own "in danger?" answer said yes at 0.95.
+
+**Concept: distribution shift.** Temperature scaling makes confidence honest *on data like the calibration set*. Game states look nothing like
+Kodiak's training documents, so its probabilities there are just numbers. A cascade needs System 1 to become *unsure* on unfamiliar inputs, and
+that has to be trained (unfamiliar inputs labeled "can't tell") and measured (an out-of-distribution eval slice), not assumed.
+
+**Concept: the question is a prompt.** Rewording "Which command best makes progress?" to spell out what progress means made Kodiak's own moves
+35× more productive. Label and question text carry meaning; more descriptive training questions should make Kodiak rely on that meaning.
+
+**Concept: multi-question guards.** Jev knew it was in danger and walked north anyway because the harness ignored that answer. With several
+questions in one pass, one answer can veto another. That's a usage pattern worth documenting.

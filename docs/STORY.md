@@ -203,6 +203,12 @@ this?"). Five pilots at about ten cents each showed why that skill is hard: the 
 one rated the frustration 9 out of 10 and the other 3. You can't teach a sharp answer when the answer key wobbles. The batch was paused before
 it cost real money, to wait for a bigger model's results and then try coarser labels (low, medium, high) that raters can agree on.
 
+That evening Shane published the Zork showdown: Kodiak and Jev playing text adventures by choosing from the valid commands. Neither made a
+single invalid move in twenty thousand. But Jev played clearly better, and Kodiak lost on Zork to a baseline that simply tried things at random.
+The sharpest lesson came from the new v2 model: it was confident, not right, looping the same two moves for ninety-five turns. Its calibration,
+the best ever measured on the eval set, meant nothing on game states it had never seen anything like. That became the next thing to fix: a
+System 1 that knows when it's lost.
+
 *(Continued as the project progresses.)*
 
 ---

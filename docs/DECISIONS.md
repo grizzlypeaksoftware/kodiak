@@ -254,3 +254,19 @@ questions); a writer asked to aim at a target band also grades toward that targe
 are still weak, pilot the "bands instead of numbers" variant (~$0.15) before any batch.
 **Why it matters.** It explains the weakness itself: rating data (human or LLM) is noisy, so a model can't learn a crisp scale from it. The fix
 has to reduce label noise (bands, more raters), not just add examples.
+
+### D32: Zork showed that calibration doesn't survive distribution shift
+**Evidence.** Shane's Zork benchmark (github.com/grizzlypeaksoftware/kodiak-plays-zork; article "Jev vs. Kodiak", 2026-09-26): same harness and seeds,
+Zork I, 5 × 100 moves. Zero invalid moves for every model (~20,000 moves). Jev's own moves earned 45 points vs. ~0–2 for Kodiak r1/v2; v2 made more
+moves itself (31–53%) but earned almost nothing, looped confidently on Detective (178 → 10 points vs. r1), and answered "in danger" 60% of the time
+(Jev 4%). A no-model exploration baseline beat Kodiak on Zork. Question wording changed Kodiak's points per move 35×.
+**Reading.** v2's calibration is the best we've measured *on the eval set* (ECE 0.029), yet on game states (far from any training data) its
+confidence doesn't track correctness. Calibration is only guaranteed near the calibration distribution. For a System 1 / System 2 cascade, an
+over-confident System 1 is the dangerous failure: the fallback never gets the turn.
+**Decisions.**
+1. Add a sequential / out-of-distribution slice to evaluation (confidence vs. correctness on Zork-style states from **practice games**); Zork I
+   itself stays a held-out benchmark, never training data.
+2. Training data gets (a) out-of-distribution inputs labeled "can't tell", so Kodiak learns to be unsure when lost, (b) sequential next-action
+   decisions in context (agent logs, practice games with verified licenses), and (c) more descriptive question phrasings.
+3. Re-run the frozen Zork harness on every candidate model (including ModernBERT-large) as a standing long-horizon benchmark.
+4. Product: "the second question guards the first" (e.g., act only if "in danger?" is no) becomes a documented usage pattern for cascades.

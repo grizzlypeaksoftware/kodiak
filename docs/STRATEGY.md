@@ -76,6 +76,10 @@ from 0.812 to 0.692 forced accuracy on banking77.
 - **Where Kodiak wins big:** jailbreak detection, held-out for everyone (0.68 vs. ≤ 0.52); the NLI models abstain on almost everything with
   a naive threshold, which is why their plain accuracy is low.
 
+**Long-horizon check (Zork, 2026-09-26, D32).** On Shane's Zork benchmark (5 × 100 moves, same harness), Jev's own moves earned 45 points vs.
+~0–2 for Kodiak; Kodiak lost to a no-model exploration baseline on Zork I, and v2 was confidently wrong on game states. Zero invalid moves for all.
+Kodiak's calibration does not yet hold on out-of-distribution sequential decisions; closing that is now a release-relevant gap for the cascade story.
+
 ## 5. The product shape: System 1 in front of System 2
 
 Kodiak doesn't have to win every decision; it has to know **which ones it has won**. The deployment pattern:
@@ -136,7 +140,8 @@ compliance-weighted generator batch + fine-tune. Keep the open model general; ve
    tokens, candidate models with prices and speeds; questions: which model, which reasoning effort, task difficulty (score); abstain = use the
    strong model. The open, self-hostable counterpart to `jev-router`. Hard part: outcome labels (which model would have succeeded), from running
    candidate models on real prompts and grading, or from public router datasets with verified licenses.
-3. **Kodiak plays Zork** (see below): the fun, viral one. **In progress (2026-09-26):** being built by a separate agent from the brief in this
+3. **Kodiak plays Zork** (see below): the fun, viral one. **Shipped 2026-09-26** (github.com/grizzlypeaksoftware/kodiak-plays-zork; article
+   "Jev vs. Kodiak"): Jev won; see D32. Previously in progress: being built by a separate agent from the brief in this
    conversation, running evals with the public v2 preview; likely the first demo to ship.
 
 **Kodiak plays Zork (2026-09-25).** Kodiak can't type, so it plays by *choosing*: a text-game harness

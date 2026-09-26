@@ -460,6 +460,10 @@
   {
    "date": "2026-09-26",
    "text": "Outside validation: CMU 'JEV-as-a-Judge' (arXiv:2609.26550) confirms the accept-confident/escalate-unsure cascade; OpenRouter launches jev-router. Backlog ranked: Kodiak-as-a-judge demo (+ public benchmark), Kodiak Router, Zork"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "Zork showdown published (Shane): 0 invalid moves in ~20k, but Jev beat Kodiak, and v2 was confidently wrong on game states. Calibration doesn't survive distribution shift (D32)"
   }
  ]
 }

@@ -153,6 +153,18 @@ highly urgent even when the text wasn't. On multiple-choice questions the teache
 half the time. You can't teach a sharp answer from a wobbly answer key. So a bootstrapper does the thrifty thing: stop after **54 cents**, write
 down the lesson, and try a coarser idea (low, medium, high) only if the next experiment says it's still needed.
 
+### Losing at Zork, on purpose, in public
+
+Then Shane did something most model builders wouldn't: he put Kodiak head to head with Jev in a text adventure, Zork, and published the loss.
+Both models played by choosing from the game's valid commands, so across about twenty thousand moves **neither made a single invalid one.** That
+part held perfectly. The rest was humbling. On Zork, Kodiak lost to a baseline with no model at all, one that just tried untried things at random.
+Jev played clearly better: its own moves earned 45 points to Kodiak's almost none. The new v2 Kodiak was the cautionary tale: confident, not
+right, it spent ninety-five turns picking up and putting down the same piece of paper while the exit sat on the list every turn. Its calibration
+had looked like the best ever on the test set; on game states it had never seen anything like, it meant nothing. Even Jev wasn't spared: three
+times it walked into a grue in the dark while its own answer to "is the player in danger?" said yes at 95%. The harness hadn't listened. Two
+bootstrapper lessons came out of it: one sentence of question wording made Kodiak's moves 35 times more productive, and a model that's
+confidently wrong is more dangerous than one that's unsure, because nobody takes the wheel.
+
 ### The honest scoreboard
 
 The goal was never "beat ChatGPT." It was **frontier in its class**: the best open model for *decisions*, deployed as the fast "System 1"
@@ -237,6 +249,8 @@ changes for every small team building with AI if the answer is yes?**
 - The new data "won by 7 points" at 9 p.m. and **tied** by 3 a.m.
 - Two AI teachers rated the same email's frustration **9 and 3**.
 - A rival "zero-shot" model had **trained on the test**.
+- Twenty thousand Zork moves, **zero invalid**; Kodiak still lost to random exploration on Zork.
+- One sentence of question wording made Kodiak's moves **35× more productive**.
 
 ## Fact sheet (for accuracy)
 
