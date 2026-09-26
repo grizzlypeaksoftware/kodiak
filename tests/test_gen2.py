@@ -286,3 +286,11 @@ def test_anchor_scores_and_fragment_evidence():
     state = "The payroll server is down. 300 staff will not be paid Friday. The vendor says a fix takes two weeks."
     ev = "payroll server is down ... a fix takes nine months"
     assert best_fragment(ev, state) == "payroll server is down"
+
+
+def test_step_tolerance_only_when_asked():
+    q = {"type": "score", "min": 1, "max": 5}
+    assert not synth.agree(q, {"value": 2}, {"value": 1})[0]
+    ok, t = synth.agree(q, {"value": 2}, {"value": 1}, step_tolerance=True)
+    assert ok and t == {"value": 1.5}
+    assert not synth.agree({"type": "score", "min": 0, "max": 100}, {"value": 50}, {"value": 70}, step_tolerance=True)[0]

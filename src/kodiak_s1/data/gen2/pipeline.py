@@ -126,7 +126,8 @@ def run_job(i: int, seed: int, tax: dict, coverage: dict | None = None,
         for q in raw_qs:
             q["unanswerable"] = q.get("basis") == "unanswerable"
             basis.setdefault(synth._slug(q.get("id", "")), q.get("basis"))
-        qs, answers, drops = synth.build_questions(raw_qs, state_text)
+        qs, answers, drops = synth.build_questions(raw_qs, state_text,
+                                                   quote_free=frozenset({"score"}) if spec.targets else frozenset())
         drops = pre_drops + drops
         rec.update(gen_tokens=g["tokens"], gen_prompt_tokens=g.get("prompt_tokens"), drops=drops,
                    writer_basis=[q.get("basis") for q in raw_qs], q_basis={q["id"]: basis.get(q["id"]) for q in qs},
@@ -140,7 +141,7 @@ def run_job(i: int, seed: int, tax: dict, coverage: dict | None = None,
         rec["debug"]["verify"] = v["content"]
         kept_q, kept_a, disagreements = [], {}, []
         for q in qs:
-            ok, target = synth.agree(q, answers[q["id"]], by_id.get(q["id"]))
+            ok, target = synth.agree(q, answers[q["id"]], by_id.get(q["id"]), step_tolerance=bool(spec.targets))
             if ok:
                 kept_q.append(q)
                 kept_a[q["id"]] = target
@@ -214,7 +215,7 @@ def _variant(rec: dict, var: dict, spec, state_text: str, kept_q: list[dict], ke
         vqs, vans = [], {}
         for q in sq:
             a = by_id.get(q["id"])
-            if a is None or not synth.evidence_supported(best_fragment(a.get("evidence") or "", vtext), vtext):
+            if a is None:
                 continue
             v = float(a["answer_value"])
             if q["min"] <= v <= q["max"]:
@@ -227,7 +228,7 @@ def _variant(rec: dict, var: dict, spec, state_text: str, kept_q: list[dict], ke
         rec.setdefault("extra_usage", []).append({"model": verifier, "tokens": v["tokens"], "prompt_tokens": v.get("prompt_tokens", 0)})
         agreed_q, agreed_a = [], {}
         for q in vqs:
-            ok, target = synth.agree(q, vans[q["id"]], synth.parse_verdict(q, v["content"].get(q["id"])))
+            ok, target = synth.agree(q, vans[q["id"]], synth.parse_verdict(q, v["content"].get(q["id"])), step_tolerance=True)
             if ok:
                 agreed_q.append(q)
                 agreed_a[q["id"]] = target

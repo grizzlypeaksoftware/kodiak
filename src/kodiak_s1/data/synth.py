@@ -265,7 +265,9 @@ def _slug(s: str) -> str:
     return re.sub(r"[^A-Za-z0-9_.:\-]+", "_", s).strip("_")[:64] or "q"
 
 
-def build_questions(raw: list[dict], state_text: str) -> tuple[list[dict], dict, list[str]]:
+def build_questions(raw: list[dict], state_text: str, quote_free: frozenset[str] = frozenset()) -> tuple[list[dict], dict, list[str]]:
+    """quote_free: question types exempt from the exact-quote evidence check (Stage 3 judgment scores rest on the whole
+    document, so the writer summarizes rather than quotes; the blind checker and critics are the safeguard there)."""
     """Turn generator output into schema questions + answers; drop malformed or unsupported ones."""
     qs, answers, drops, seen = [], {}, [], set()
     for r in raw:
@@ -302,7 +304,7 @@ def build_questions(raw: list[dict], state_text: str) -> tuple[list[dict], dict,
                 drops.append("score_no_value")
                 continue
             ans = {"null": True} if null else {"value": float(r["answer_value"])}
-        if not null and not evidence_supported(r.get("evidence") or "", state_text):
+        if not null and r["type"] not in quote_free and not evidence_supported(r.get("evidence") or "", state_text):
             drops.append("evidence_not_in_state")
             continue
         qs.append(q)
@@ -310,8 +312,11 @@ def build_questions(raw: list[dict], state_text: str) -> tuple[list[dict], dict,
     return qs, answers, drops
 
 
-def agree(q: dict, gold: dict, v: dict | None) -> tuple[bool, dict]:
-    """Does the verifier agree with the generator? Returns (agree, final target)."""
+def agree(q: dict, gold: dict, v: dict | None, step_tolerance: bool = False) -> tuple[bool, dict]:
+    """Does the verifier agree with the generator? Returns (agree, final target).
+
+    step_tolerance (Stage 3): on short integer scales (range <= 10) allow one full step, since 15% of a 1-5 scale is less than
+    one step and any one-point difference would otherwise count as disagreement. The target is the mean either way."""
     if v is None:
         return False, gold
     if "null" in gold or v.get("unanswerable"):
@@ -321,6 +326,8 @@ def agree(q: dict, gold: dict, v: dict | None) -> tuple[bool, dict]:
     if "value" not in v:
         return False, gold
     tol = 0.15 * (q["max"] - q["min"])
+    if step_tolerance and (q["max"] - q["min"]) <= 10:
+        tol = max(tol, 1.0)
     ok = abs(float(v["value"]) - gold["value"]) <= tol
     mean = min(max((float(v["value"]) + gold["value"]) / 2, q["min"]), q["max"])
     return ok, {"value": mean}
