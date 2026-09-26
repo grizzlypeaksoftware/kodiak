@@ -59,9 +59,9 @@ def has_unknown_option(q: dict) -> bool:
 def anchor_scores(raw_qs: list[dict], spec) -> None:
     """Stage 3: write the scale's anchors into each score question's text, so the writer, the blind checker and Kodiak all
     judge against the same scale (pilot 2026-09-26: without them the checker disagreed on 69% of scores)."""
-    sq = [q for q in raw_qs if q["type"] == "score"]
-    for q, scale in zip(sq, spec.scales):
-        if scale not in SCORE_FOCUS_SCALES or "min" not in q or "max" not in q:
+    for q in raw_qs:
+        scale = q.get("scale")
+        if q["type"] != "score" or scale not in SCORE_FOCUS_SCALES or "min" not in q or "max" not in q:
             continue
         lo, hi = float(q["min"]), float(q["max"])
         a_lo, a_mid, a_hi = SCORE_FOCUS_SCALES[scale]
@@ -173,7 +173,8 @@ def run_job(i: int, seed: int, tax: dict, coverage: dict | None = None,
         if any("null" in a for a in kept_a.values()):
             tags += ["null:synthetic"] + [f"nullkind:{k}" for k in dict.fromkeys(spec.null_kinds)]
         if any(q["type"] == "score" for q in kept_q):
-            tags += [f"scale:{s}" for s in dict.fromkeys(spec.scales)]
+            chosen = [q.get("scale") for q in raw_qs if q["type"] == "score" and q.get("scale")]
+            tags += [f"scale:{s}" for s in dict.fromkeys(spec.scales or chosen)]
         notes = f"fineweb-edu {rec['passage']['id']}" if grounded else f"{spec.sector} / {spec.domain} / {spec.doc_type}"
         ex = {"state": state, "questions": kept_q, "answers": kept_a,
               "meta": {"source": SOURCE_ID, "license": "ODC-By-1.0 AND Apache-2.0" if grounded else "Apache-2.0",

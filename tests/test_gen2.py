@@ -280,9 +280,11 @@ def test_anchor_scores_and_fragment_evidence():
     from kodiak_s1.data.gen2.pipeline import anchor_scores, best_fragment
 
     spec = next(s for s in (sample_spec(i, 8, TAX, focus="scores") for i in range(50)))
-    qs = [{"type": "score", "id": f"s{j}", "text": "How urgent?", "min": 0, "max": 10} for j in range(spec.n_score)]
+    qs = [{"type": "score", "id": f"s{j}", "text": "How urgent?", "min": 0, "max": 10, "scale": "urgency"} for j in range(spec.n_score)]
+    qs.append({"type": "score", "id": "x", "text": "Unlabeled?", "min": 0, "max": 1})  # no chosen scale: left alone
     anchor_scores(qs, spec)
-    assert all("0 =" in q["text"] and "10 =" in q["text"] and q["min_label"] for q in qs)
+    assert all("0 =" in q["text"] and "10 =" in q["text"] and q["min_label"] == "can wait weeks" for q in qs[:-1])
+    assert qs[-1]["text"] == "Unlabeled?"
     state = "The payroll server is down. 300 staff will not be paid Friday. The vendor says a fix takes two weeks."
     ev = "payroll server is down ... a fix takes nine months"
     assert best_fragment(ev, state) == "payroll server is down"

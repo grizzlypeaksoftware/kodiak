@@ -177,7 +177,7 @@ def sample_spec(job: int, seed: int, tax: dict, coverage: dict | None = None, fo
 
 def _score_focus(spec: Spec, rng, tax: dict) -> None:
     """Stage 3: 2-3 anchored score questions with target bands, few nulls, and a contrast twin on ~half the jobs."""
-    if spec.source == "grounded" and rng.random() < 0.6:  # mostly synthetic records: judgments about situations
+    if spec.source == "grounded":  # ratings like urgency or frustration need a situation, not an encyclopedia passage
         spec.source = "synthetic"
         spec.sector, spec.domain, spec.doc_type, fmts = rng.choice(cells(tax))
         spec.format = rng.choice(list(fmts))
@@ -188,7 +188,7 @@ def _score_focus(spec: Spec, rng, tax: dict) -> None:
     spec.n_null = _weighted(rng, [0, 1], [0.65, 0.35])
     spec.null_kinds = [rng.choice(["missing_fact", "underspecified", "temporal"]) for _ in range(spec.n_null)]
     spec.n_inference = max(1, min(spec.n_score, n - spec.n_null - 1))
-    spec.scales = rng.sample(list(SCORE_FOCUS_SCALES), spec.n_score)
+    spec.scales = []  # the writer picks dimensions that fit the document (pilot #3: random scales made nonsense questions)
     spec.ranges = [_weighted(rng, [r for r, _ in SCORE_RANGES], [w for _, w in SCORE_RANGES]) for _ in range(spec.n_score)]
     spec.targets = [rng.choice(list(TARGET_BANDS)) for _ in range(spec.n_score)]
     spec.pair = spec.source == "synthetic" and rng.random() < 0.5

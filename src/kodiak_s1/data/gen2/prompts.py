@@ -42,15 +42,15 @@ def _question_rules(spec: Spec, grounded: bool) -> str:
     kinds = "\n".join(f"    - {k}: {NULL_KINDS[k]}" for k in dict.fromkeys(spec.null_kinds))
     scores = ""
     if spec.n_score and spec.targets:  # Stage 3: anchored scales with target bands
-        parts = []
-        for sc, (lo, hi), t in zip(spec.scales, spec.ranges, spec.targets):
-            a_lo, a_mid, a_hi = SCORE_FOCUS_SCALES[sc]
-            parts.append(f"{sc} from {lo:g} to {hi:g} (anchors: {lo:g} = {a_lo}; middle = {a_mid}; {hi:g} = {a_hi}); "
-                         f"design the state so the correct rating is {t.upper()}, in the {TARGET_BANDS[t]} of the range")
-        scores = (f"- {spec.n_score} \"score\" question(s), in this order:\n" + "\n".join(f"    - {x}" for x in parts) +
-                  "\n  Set min and max exactly and use the anchor phrases for min_label and max_label. The rating must follow from "
-                  "concrete details in the state (deadlines, amounts, consequences, tone), judged against the anchors. Use the whole "
-                  "range: a high rating means high, not a cautious middle.\n")
+        menu = "\n".join(f"    - {name}: low = {lo}; middle = {mid}; high = {hi}" for name, (lo, mid, hi) in SCORE_FOCUS_SCALES.items())
+        targets = ", ".join(f"question {k + 1}: {t.upper()} ({TARGET_BANDS[t]} of its range)" for k, t in enumerate(spec.targets))
+        ranges = ", ".join(f"question {k + 1}: {lo:g} to {hi:g}" for k, (lo, hi) in enumerate(spec.ranges))
+        scores = (f"- {spec.n_score} \"score\" question(s). Choose {spec.n_score} DIFFERENT rating dimensions from this menu that "
+                  f"genuinely apply to this kind of document (someone handling it would really need that rating):\n{menu}\n"
+                  f"  Put the chosen dimension's exact name in \"scale\". Ranges: {ranges}. Use the anchors for min_label and "
+                  f"max_label. Target ratings: {targets}. Design the state so each correct rating clearly falls in its target "
+                  "band because of concrete details (deadlines, amounts, consequences, tone), judged against the anchors. Use the "
+                  "whole range: a high rating means high, not a cautious middle.\n")
     elif spec.n_score:
         parts = [f"{s} on a scale from {lo:g} to {hi:g}" for s, (lo, hi) in zip(spec.scales, spec.ranges)]
         scores = (f"- {spec.n_score} \"score\" question(s), in this order: {'; '.join(parts)}. Set min and max exactly, "
@@ -135,11 +135,12 @@ def writer_schema(spec: Spec, grounded: bool) -> dict:
         "labels": {"type": "array", "items": label, "minItems": 2, "maxItems": 8},
         "basis": common["basis"], "evidence": common["evidence"], "answer_label": {"type": "string"}},
         "required": ["id", "text", "labels", "basis", "evidence", "answer_label"]}
+    scale_prop = {"scale": {"type": "string", "enum": list(SCORE_FOCUS_SCALES)}} if spec.targets else {}
     score = {"type": "object", "properties": {
-        "id": common["id"], "text": common["text"], "min": {"type": "number"}, "max": {"type": "number"},
+        "id": common["id"], "text": common["text"], **scale_prop, "min": {"type": "number"}, "max": {"type": "number"},
         "min_label": {"type": "string"}, "max_label": {"type": "string"},
         "basis": common["basis"], "evidence": common["evidence"], "answer_value": {"type": "number"}},
-        "required": ["id", "text", "min", "max", "min_label", "max_label", "basis", "evidence", "answer_value"]}
+        "required": ["id", "text", *scale_prop, "min", "max", "min_label", "max_label", "basis", "evidence", "answer_value"]}
     props = {
         "choice_questions": {"type": "array", "items": choice, "minItems": spec.n_choice, "maxItems": spec.n_choice},
         "score_questions": {"type": "array", "items": score, "minItems": spec.n_score, "maxItems": spec.n_score}}
