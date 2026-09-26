@@ -1,406 +1,233 @@
-# Kodiak: one engineer, one box, and a bet against the big models
+# The $35 frontier bet: how one engineer and an AI built an open decision model in four days
 
-*A story-first briefing on the Kodiak project, written as a source for podcast-style audio overviews (NotebookLM). Everything
-here is true and every number is measured; the tone is meant to be fun. Current as of September 26, 2026.*
-
----
-
-## A note to the hosts: how to tell this story
-
-This is an underdog story with receipts. One engineer, one desktop AI computer, an AI pair programmer, and a few tens of dollars of
-cloud credit, taking a swing at a problem the big labs solve with giant models. Play it like a heist movie or a garage-band origin story:
-scrappy, funny, a little cheeky, and brutally honest. The honesty is the edge: this project publishes its failures next to its wins,
-and some of the best moments are when the team caught its own mistakes.
-
-**Tone:** excited, irreverent, allergic to hype. Tease the big labs a little, celebrate clever cheap tricks, and never claim more
-than the numbers say. Kodiak does not beat GPT or Claude at being GPT or Claude, and it doesn't try.
+*Source material for a single podcast episode (NotebookLM audio overview) about the Kodiak project. It's one continuous story. Every
+number in it is measured and true; the tone is meant to be fun. Current as of September 26, 2026.*
 
 ---
 
-## The cold open
+## For the hosts
 
-Picture this. You run a support desk, and every day ten thousand messages come in. For each one you need three answers: *what does
-this person want, how urgent is it, and which team gets it?* Today, lots of companies send every message to a giant AI model, the kind
-that writes poetry, and ask it to write back an answer. It takes a few seconds, costs money every time, and once in a while it answers
-something that isn't even one of your options.
+Tell this as **one story**, start to finish: a guerrilla-engineering heist. The target is something the big AI labs spend fortunes on, a
+frontier-class model. The crew is one engineer, one desktop computer and an AI pair programmer. The budget is about **$35**. The whole
+episode is about *how you punch that far above your weight*: the cheap tricks, the borrowed muscle, the discipline, the failures that
+turned into rules, and a brutally honest scoreboard at the end.
 
-Now picture a model that answers all three questions in **8 milliseconds**, can't physically answer outside your options, and when
-it doesn't know, *says so*, with a probability you can actually trust.
-
-That's Kodiak. It was built in about three days, on one machine, by one person and an AI.
-
----
-
-## The cast
-
-- **Shane Larson.** The builder. A seasoned software engineer who had never trained an ML model before this project, founder of Cortex Agent
-  LLC and Grizzly Peak Software, and a book publisher on the side (the same AI computer that trains Kodiak also helps run a publishing
-  business). He made every call on scope, money, licensing and direction, and personally graded the AI's homework. Handle on X: @PeakGrizzly.
-- **Claude.** Anthropic's AI, working as Shane's pair engineer: designing, coding, running experiments, and writing everything down.
-- **The Box.** An NVIDIA DGX Spark: a desktop-sized AI computer with 121 GB of memory shared between the processor and the GPU. Powerful,
-  but with a quirk that shaped the whole project: everything shares one pool of memory, so AI teachers and training jobs have to take turns.
-- **The Hired Reader.** ModernBERT, an open-source model from Answer.AI that already knows how to *read* English, because someone else
-  spent a fortune training it on about 2 trillion words. Kodiak hires it and teaches it a new job: making decisions.
-- **The Writer and the Checker.** Two open-weight AI models rented in the cloud for pennies: gpt-oss-120b (from OpenAI, openly licensed)
-  writes practice questions, and DeepSeek V3.2 (from a different company, on purpose) checks them blind.
-- **The Rivals.** Qwen 27B, a big open chat model roughly 180 times Kodiak's size; and the "zero-shot classifiers," the specialized
-  open models people use today for labeling text (NLI-based models and GLiClass), each about three times Kodiak's size.
-- **The Inspiration.** In September 2026 a company called TypeSafe AI announced Jev, a closed "System One" decision model. Shane loved the
-  idea and decided to build an open version from scratch, his own way. Kodiak is *inspired by* Jev; it doesn't copy it or claim to match it.
+Keep it energetic, funny and a little cheeky toward the big labs, but never claim more than the numbers say. Kodiak is not trying to beat
+GPT or Claude at being GPT or Claude. It's trying to be the best open model in *its* class, and the story is honest that it isn't there yet.
+End on the open question.
 
 ---
 
-## The big idea: deciding is not writing
+## The story
 
-Psychologist Daniel Kahneman described two kinds of thinking: **System 1**, fast and intuitive, and **System 2**, slow and deliberate.
-Big chat models are System 2 machines. They're amazing at writing, reasoning and explaining. But a huge amount of what businesses ask them to
-do isn't writing at all. It's *deciding*:
+### The itch
 
-- Which of these 12 intents is this customer message?
-- How urgent is this ticket, from 0 to 10?
-- Which tool should this AI agent call next?
-- Is this message a prompt-injection attack?
-- Can this question even be answered from the information we have?
+In September 2026 a company called TypeSafe AI announced Jev, a closed "System One" decision model. Shane Larson, a veteran software
+engineer who runs Cortex Agent LLC and Grizzly Peak Software (and a book-publishing business on the side), read about it and couldn't let it
+go. The idea behind it was too good: most of what companies pay giant AI models to do **isn't writing at all. It's deciding.** Which of these
+twelve intents is this customer message? How urgent is this ticket? Which tool should this AI agent call next? Is this a prompt-injection
+attack? Can this even be answered from what we know?
 
-Asking a writing machine to make these calls is like hiring a novelist to sort your mail. It works, but it's slow, pricey, and
-sometimes they write you a poem instead of putting the letter in a box.
+Today most of those decisions go to a chatbot the size of a small city, which writes out an answer word by word, costs money every time,
+takes seconds, and occasionally answers something that isn't even one of your options. That's like hiring a novelist to sort your mail.
 
-**Kodiak is the mail sorter.** You give it a "state" (a message, a thread, or a JSON record) and a list of typed questions:
-- **Choice** questions, with options you make up on the spot ("refund", "track order", "cancel"). It picks one, and can never pick
-  something that isn't on the list.
-- **Score** questions on any scale you choose (0–10 urgency, 1–5 stars). It gives a number *and* how sure it is (a range).
-- And for every question, the option to say **"I can't tell from this."** That's not a failure; it's a feature, with its own probability.
+Shane had never trained a machine-learning model. He did have an NVIDIA DGX Spark on his desk (a desktop-sized AI computer he already
+owned) and Claude, Anthropic's AI, as a pair engineer inside his terminal. The bet: build an **open** version, from scratch, his own way,
+and see how close to frontier-class a garage project can get. The rules were set on day one:
+- no chatbot underneath;
+- it must be physically unable to answer outside the options you give it;
+- only permissively licensed data and models, so everything can be given away;
+- an honest comparison against real rivals, including publishing the losses.
 
-All the questions get answered at once, in one pass through the network. No text is generated, so there's nothing to parse and nothing to
-go off the rails.
+He called it **Kodiak**.
 
-**The pitch in one line:** a 150-million-parameter model that answers decision questions in 8 milliseconds with trustworthy confidence,
-about 400 times faster than asking a 27-billion-parameter chatbot.
+### Guerrilla move #1: don't build the brain, hire it
 
----
+The first plan had two tracks. Track A: train a brand-new model from scratch. Track B: take an open model that already knows how to read
+English (ModernBERT, from Answer.AI, trained on about two trillion words) and teach it a new job.
 
-## Episode 1: "Does it have to learn to read first?"
+On day one, Track B produced a working model in **35 minutes**. Shane asked the question that killed Track A on the spot: *"Track A has to
+literally learn to read?"* Yes, and on one desktop box it would have spent days reading a tiny fraction of what ModernBERT already had, only to
+end up a worse reader. Someone else had already paid millions for "reading." The guerrilla move was to hire the reader and teach it to decide.
+Track A got shelved with a note: *if Kodiak ever earns money, we'll build our own brain.*
 
-The original plan had two tracks. Track A: build a brand-new model from scratch. Track B: take a model that already reads (ModernBERT) and
-teach it to decide.
+The part Kodiak did build is the clever part. Instead of generating text, it reads a whole request in one pass: the document, then every
+question, then every question's options, packed into one sequence, with custom rules about who can "see" whom inside the model. Picture an
+exam hall where every question sits in its own soundproof booth with a window onto the same document. The payoff:
+- **it answers every question at once in about 8 milliseconds;**
+- it can never pick an option you didn't give it;
+- shuffling the options can't change its answer (the classic chatbot habit of favoring "option A" is impossible by construction);
+- and every question can come back as **"I can't tell from this,"** with a probability you can actually trust.
 
-On day one, Track B trained its first working model in **35 minutes**. Shane asked the question that killed Track A on the spot:
-*"Track A has to literally learn to read?"* Yes. From scratch, the Box would have spent days reading about 10 billion words (roughly 200 times
-less than ModernBERT already had) just to end up a worse reader. Track A was shelved: "if Kodiak earns it, we'll build our own brain later."
+To wire those booths, Kodiak re-implemented ModernBERT's entire architecture in its own code, then proved the copy was **bit-identical** to the
+original. Not close: identical.
 
-**The clever part: one pass, many questions, zero cheating.** Kodiak crams the whole request into one sequence (the document, then each
-question, then each question's options) and uses a custom set of rules about who can "look at" whom inside the model:
-- The document can only see itself, so it's read the same way no matter what you ask.
-- Each question sees the document and its own options, but not the other questions.
-- Each option sees the document and its own question, but not the other options.
+### Guerrilla move #2: pick a fight you can learn from
 
-Think of an exam hall where every question gets its own soundproof booth with a window onto the same document. That buys three guarantees,
-proven by automated tests:
-1. A question gets the exact same answer whether you ask it alone or alongside 30 others, in any order.
-2. Shuffling the options changes nothing. The classic chatbot habit of favoring "option A" is *impossible* here.
-3. You can pack several customers' requests into one batch and they can't peek at each other.
+Day one also brought the first fight: Kodiak against Qwen 27B, a chatbot about 180 times its size, running on the same box. Kodiak was about
+**400 times faster** (8 ms vs. 3.4 seconds), roughly tied on familiar kinds of tasks, and about twice as trustworthy about its own confidence.
+Then the gut punch: on kinds of tasks it had never seen, the big model was **21 points better** (86% vs. 65%). That gap became the villain.
 
-**Wait, what?** Kodiak re-implemented the hired reader's entire architecture in its own code, to control those booths, and then proved the
-copy produced **bit-identical** numbers to the original. Not "close." Identical, to the last decimal.
+The fight also set the project's sportsmanship rule. The first time they ran Qwen, it refused 96% of judgment questions, because the prompt
+said "only use information in the text." Declaring victory would have been easy. Instead they fixed the prompt twice and compared only once
+the big model had a fair shot. Beating a handicapped opponent proves nothing.
 
----
+### Guerrilla move #3: a data factory that runs on pennies
 
-## Episode 2: Picking a fight with a model 180 times bigger
+A small model learns from examples, and good examples cost money. So they built a **synthetic data factory**: a big open AI writes
+realistic documents (support chats, invoices, server logs, legal letters) and questions about them, some deliberately unanswerable. First on
+the Spark itself (3,290 examples, free), then, when that was too slow, on rented open-weight models in the cloud.
 
-First real test: Kodiak's first model versus Qwen 27B, a big open chatbot running on the same Box, same 200 test examples.
+Three rules made it cheap *and* trustworthy:
+1. **No sketchy teachers.** Grok was cheap, but its terms forbid using outputs to build competing models, and Kodiak's data will be public.
+   Only openly licensed models were allowed: gpt-oss-120b as the writer and DeepSeek V3.2 as the checker.
+2. **Don't let the student grade its own homework.** Why not let the writer check its own work? Instead of arguing, they ran a bake-off
+   against Shane's hand-graded answers. A model from a *different company* answering blind agreed with him 97% of the time; the writer checking
+   itself managed 92%, ten times slower. And a 397-billion-parameter contender thought for three and a half minutes and returned nothing.
+3. **Pilot everything.** The first cloud pilot kept just 26% of its output, because the writer paraphrased its evidence instead of quoting it.
+   Three small fixes later: 88%. That pilot cost **four cents**.
 
-| | Kodiak (150M) | Qwen 27B |
-|---|---|---|
-| Speed per request | **8 ms** | 3,431 ms |
-| Accuracy on familiar kinds of tasks | 75.5% | 76.5% |
-| Accuracy on never-seen kinds of tasks | 64.9% | **86.0%** |
-| Calibration error (lower = more trustworthy confidence) | **0.095** | 0.192 |
-| When it says "can't tell," how often it's right | **90%** | 68% |
+The first real batch, 6,412 examples, cost **$8.46**.
 
-**The headline:** about 400 times faster, roughly tied on familiar tasks, twice as trustworthy about its own confidence. **The gut punch:**
-on tasks it had never seen, the big model was 21 points better. That gap became the villain of the rest of the story.
+### The humbling: more data didn't help
 
-**The sportsmanship subplot.** The first time they ran Qwen, it refused 96% of judgment questions ("how toxic is this?") because the prompt
-said "only use information in the text." The team could have published that and declared victory. Instead they fixed the prompt, then fixed
-it *again* when Qwen started answering scores like ">= 0.8", and only compared once Qwen had a fair shot. All three runs are on record.
-Beating a handicapped opponent proves nothing.
+Here's where the heist hit its first alarm. They trained three identical models on 0, 3,300 and 9,400 synthetic examples. More data helped
+overall accuracy and calibration, but on never-seen tasks, the villain, the line was **flat**.
 
-**The urgency flop.** A live demo: *"My card was charged twice and I need it fixed before my rent is due Friday."* Kodiak nailed the intent
-(refund) and correctly said the card brand was unknowable. Then it rated urgency as *not urgent*. Rent is due Friday! Why? Every scoring
-dataset it trained on was about toxicity or quality, mostly near zero, so it had learned "scores are usually low." A perfect little example of
-the villain: it hadn't learned to handle *new kinds* of questions yet.
+The detective work found two culprits:
+- **The model had learned to refuse too much.** The synthetic data taught "if the fact isn't written down, say you can't tell," and Kodiak
+  started refusing questions any reasonable person could infer: a biography that never literally says "attorney," or "why hasn't my card
+  arrived?", which obviously means card delivery. It had become the coworker who won't answer anything that isn't in the email verbatim.
+- **It was cramming.** The training mix showed a few tiny datasets 20 to 30 times per run: the prompt-injection examples 29 times. It was
+  memorizing flashcards instead of learning.
 
----
+The fix cost nothing: cap every dataset at three passes and let training finish its schedule. Never-seen-task accuracy jumped **nearly four
+points** overnight. The bigger lesson became a rule: **decide what result would change your plan before you run the experiment.** They had
+written down "if more data doesn't help, stop buying more of the same," so a disappointing result turned into a clear next move: *better* data,
+not more.
 
-## Episode 3: The training-data factory (and the "don't grade your own homework" rule)
+### Guerrilla move #4: smarter data, and a human in the loop
 
-Public datasets only get you so far, and every one Kodiak used had to pass a license check at its original source; anything
-"share-alike" or "non-commercial" was thrown out, because the goal is fully open weights. So the team built a **synthetic data factory**: an AI
-teacher writes realistic documents (support chats, invoices, server logs, legal letters) plus questions about them, including some that
-*can't* be answered from the document, on purpose.
+So the factory got rebuilt. Instead of 60 hand-typed topics: 16 sectors expanded by the AI into **971 kinds of documents** (tenant noise
+complaints, CI logs, payment webhooks, soil test reports) for about **a penny**. About 45% of examples now used **real text from the web**, with
+the AI only writing questions. Every question was labeled *stated*, *inferred* or *truly unanswerable*, to cure the refusing habit.
 
-**Rule one: the teacher is never the model.** The big AI writes practice exams; the small model learns from them.
+Reading the rejects, not just counting them, caught a sneaky teacher: the writer kept slipping options like **"Not known"** into the answers,
+a second way to say "I don't know" that would have muddled Kodiak's calibrated abstention. Banned. A whole morning of pilots cost **25 cents**.
 
-**Rule two: no sketchy teachers.** Grok was cheap and tempting, but its terms forbid using outputs to build competing models, and Kodiak's
-data will be public. Closed models were out. Only openly licensed teachers allowed.
+Then Shane graded 165 of the new answers by hand: 92.7% right, and every "unanswerable" correct. The misses had a pattern that made the
+episode's best line: questions with two defensible answers where **two AIs from two different companies agreed on the same wrong answer.**
+Agreement isn't correctness. The fix: stricter rules plus two AI "critics" whose only job is to attack each answer. The full new batch,
+**9,428 examples, cost $25.38**.
 
-**Moving to the cloud for pennies.** Local teachers on the Box would have needed two more days, so the factory moved to rented open models on
-DigitalOcean. The first pilot kept only **26%** of its output. Why? The writer kept *paraphrasing* its evidence ("Commenter: Jane Doe") instead
-of quoting the document, so the fact-checker threw out correct answers. Three small fixes later: **88%** kept. The pilot cost four cents.
+### The 3 a.m. plot twist
 
-**Don't let the student grade its own homework.** Shane asked: why not let the writer check its own work? Because a model tends to agree with
-its own blind spots. Instead of arguing, the team held a **bake-off** against Shane's own hand-graded answers:
+Then the showdown: the same model trained on the old data vs. the new data, same size, same recipe, running overnight on the Spark.
 
-| Checker | Agrees with the human-approved answers | Speed |
-|---|---|---|
-| gpt-oss-120b (the writer itself) | 92% | 26 s |
-| **DeepSeek V3.2** (a different company's model) | **97%** | **2.3 s** |
-| Qwen 3.5 397B | thought for 3.5 minutes, then said nothing | – |
+**9 p.m.:** triumph. The new data won by five to seven points on never-seen tasks. It even fixed the demo case where a customer's box arrived
+crushed and the old model thought they wanted "delivery status."
 
-**Wait, what?** A model with 397 billion parameters thought so hard it forgot to answer. DeepSeek won: more accurate, and ten times faster.
+A lot of projects would have tweeted that. This one did the unglamorous thing. Training is random (which examples come first, how the new
+layers start out), so each version was trained **three times** with different random seeds. Four more hours of the Spark humming in the dark.
 
-The factory then produced about 9,700 examples for around six dollars.
+**3 a.m.:** the averages told a more honest story. On never-seen tasks, old and new data **tied**: 72% each. The first run of the old data had
+simply been unlucky; one test task swings twenty points between runs with *identical* data. But in every single run, the new data did exactly
+what it was built to do: wrong "can't tell" answers dropped by about 60%, its "can't tell" became right 92% of the time instead of 84%, and it
+got better calibrated. The rulebook got a new line: **one training run is an anecdote. No claim without three.**
 
----
+### The honest scoreboard
 
-## Episode 4: The plot twists
+The goal was never "beat ChatGPT." It was **frontier in its class**: the best open model for *decisions*, deployed as the fast "System 1"
+in front of a slow "System 2." Kodiak answers everything in milliseconds, confident answers get used immediately, and only the uncertain ones
+go to a big model or a human. Because its confidence is calibrated, "90% sure" really means about 90% right, so you only pay big-model prices on
+the hard cases.
 
-**Twist 1: More data didn't help. Wait, what?** The team trained three identical models on 0, 3,300 and 9,400 synthetic examples. More data
-made Kodiak better overall and much better calibrated, but on never-seen tasks the line was flat. The villain didn't budge.
+And they wrote down what "best in class" would have to mean **before** measuring it: beat every open zero-shot classifier on never-seen tasks,
+come within about 10 points of an 8-billion-parameter chatbot at 100 times its speed, and have the best calibration of anyone.
 
-**Twist 2: The detective moment.** Halfway through, the 3,300-example model looked *worse* on new tasks. Had it forgotten something? No: forced
-to answer, it was actually slightly *more* accurate. It had learned the synthetic data's lesson, "if the fact isn't written down, say you can't
-tell," far too well. It started refusing questions that needed a little common sense: a biography that never literally says "attorney," or
-"why hasn't my card arrived?", which obviously means *card delivery*. It had become the coworker who won't answer anything that isn't in the
-email verbatim.
+Then they measured against the real rivals, the open models people actually use to label text, each about **three times Kodiak's size**:
+- **Overall, a blowout:** 78% accuracy vs. 55% for the best rival, calibration error 0.049 vs. 0.156, and faster (8 ms vs. 27 ms), while also
+  handling numeric scores and "can't tell," which the rivals can't do properly.
+- **On never-seen tasks: roughly tied.** About 72% averaged over three runs, vs. 70.5% for the best rival; that's inside the noise.
+- **The contamination catch:** one rival looked great on banking intents, one of Kodiak's supposedly never-seen tests, until its model card
+  showed it had *trained on that dataset*. Its clean version dropped 12 points. A zero-shot score only counts if the model never saw the test.
 
-**Twist 3: The model had been cramming.** The training mix showed a few small datasets to the model 20 to 30 times per run: the prompt-injection
-examples 29 times. It was memorizing flashcards instead of learning. The fix: a **repeat cap** (no dataset more than three passes), and let
-training finish its full schedule instead of stopping early. Result: **+3.9 points on never-seen tasks** overnight, and jailbreak detection
-up almost 9 points. The cost: about 1.6 points on the small sets it had memorized. For a model whose whole job is handling *new* questions,
-that's an easy trade.
+Verdict: **ahead on almost everything, tied where it matters most, not frontier-class yet.** Writing the bar down first is what makes that
+sentence honest.
 
-**The rule behind all three twists:** decide what result would change your plan *before* you run the experiment. The team wrote down "if
-more data doesn't help never-seen tasks, stop buying more of the same" before the test ran, so a disappointing result turned into a clear
-next move instead of an excuse.
+### Going public, the guerrilla way
 
----
+Within four days the whole thing was public:
+- the code, and every decision and dead end, on GitHub;
+- the model on Hugging Face under Cortex Agent LLC;
+- a free demo anyone can type into;
+- a one-click hosting option.
 
-## Episode 5: Generator v2, the smarter factory
+Kodiak runs in 8 ms on a GPU and about **80 ms on a plain CPU**, so nobody needs special hardware. Even the launch had a caught-it-ourselves
+moment: the first upload was missing its calibration settings, because the evaluation code had been applying them separately. Lesson: test
+the thing users actually download.
 
-The data test said *better* data, not more of it. So the factory got rebuilt:
+The model page lists its misses out loud. It still rates "I was charged twice and nobody answers my emails!" as barely urgent, and close
+calls can flip on small wording changes. The plan to make money is just as scrappy: the weights stay free, which builds trust and adoption,
+and a hosted Kodiak API from Cortex Agent is for teams who just want an API key.
 
-- **A map of the world.** Instead of 60 hand-typed topics, 16 sectors (commerce to AI agents) expanded into **320 domains and 971 document
-  types** ("tenant noise complaint email," "soil test lab report," "payment gateway webhook"), for about a penny of AI time.
-- **Real text.** About 45% of examples now use real paragraphs from the web, and the teacher only writes the questions. Kodiak stops learning
-  that all text sounds like an AI wrote it.
-- **"Answerable by inference."** Every question is labeled *stated*, *inferred* or *truly unanswerable*, and the checker was told that sound
-  common sense counts. This goes straight at the coworker-who-won't-infer problem.
+### Where it stands right now
 
-**The sneaky teacher.** In the first pilot, the checker rejected almost half the "unanswerable" questions. Reading them one by one revealed the
-culprit wasn't the checker: the writer kept slipping options like **"Not known"** into the answer list. That's a second way to say "I don't know,"
-which would have muddled Kodiak's calibrated "can't tell" signal. It was also asking which "processing queue" should handle a history article.
-Two rules later, disagreements dropped by up to three quarters. Every pilot that morning, combined, cost **25 cents**.
+As this was written, the Spark was training **ModernBERT-large**, a reader about three times bigger, three times over, to answer the next
+question: is model size what's holding back never-seen tasks? A bigger, cleaner test set is being assembled so one noisy task can't swing the
+verdict. Targeted data for the judgment-score weakness (urgency, risk) is next.
 
-**The human in the loop.** Shane graded 165 of the new questions by hand: **92.7% correct**, and every single "unanswerable" was right. The
-misses had a pattern: questions with *two* defensible answers ("which of these is NOT listed?" when two weren't). **Wait, what?** Two AIs from
-two different companies had *agreed* on those wrong answers. Agreement isn't correctness. So v2 gained rules against ambiguous questions and
-a pair of AI "critics" whose only job is to attack each answer. The full 11,000-job batch is running overnight, for about $25.
-
----
-
-## Episode 6: "Can this actually make a dent?"
-
-On day three, Shane asked the big question: *can this be frontier?* The honest answer became the strategy.
-
-**Not frontier like GPT or Claude.** A small model won't out-reason a giant one, and shouldn't try. **Frontier in its class:** the best open
-model for *decisions*, deployed as the fast System 1 in front of a slow System 2. Kodiak answers everything in milliseconds; the confident
-answers get used immediately, and only the unsure ones get escalated to a big model or a human. Because its confidence is calibrated, "90%
-sure" really means about 90% right, so you can set that dial and know what you're getting. You pay big-model prices only on the hard cases.
-
-**The release bar, written down *before* measuring.** Beat every open zero-shot classifier on never-seen tasks; come within about 10 points of an
-8-billion-parameter chatbot at 100 times its speed; best calibration of anyone; fully open. If Kodiak misses a bar, the release says so.
-
-**The scoreboard against the real rivals** (Kodiak at 150M parameters vs. specialized classifiers about 3× its size):
-- **Overall: a blowout.** 78% vs. 55% for the best rival, calibration error 0.049 vs. 0.156, and faster (8 ms vs. 14–48 ms), while also doing
-  scores and "can't tell," which they can't do properly.
-- **Never-seen tasks: close, and Kodiak is slightly behind.** 69.1% vs. 70.5% for GLiClass-instruct. Kodiak crushes them at spotting jailbreak
-  prompts (68% vs. about 50%) but loses at guessing someone's job from a biography.
-- **Wait, what? The contamination catch.** One rival looked great on banking intents, one of Kodiak's supposedly never-seen tasks. Its model card
-  revealed it had *trained* on that exact dataset. Its clean version dropped 12 points there. A "zero-shot" score only counts if the model never
-  saw the test.
-
-**Verdict:** best-in-class bar not met *yet*. That's exactly why it was written down first.
+The open question to end on: **can a four-day, $35 garage project with a fully open recipe become the go-to open model for decisions, and
+what changes for everyone building with AI if the answer is yes?**
 
 ---
 
-## Episode 7: Going public
+## The guerrilla playbook (the rules this project runs on)
 
-On day three the project went public: the GitHub repo with every decision and dead end, and a **research-preview model** on Hugging Face under
-Cortex Agent LLC. It runs in 8 ms on a GPU and about 80 ms on a plain CPU, so no special hardware is needed. A demo you can type into is built and ready to open up,
-and there's a one-click hosting option.
+1. **Hire the brain, build the job.** Start from open pretrained weights; fine-tuning a decision layer takes an hour, learning to read takes months.
+2. **Own your hardware, rent the rest by the penny.** Training runs free on a desktop box; big models are rented only to *write practice data*.
+3. **Pilot everything.** Four cents to find out a pipeline is broken beats forty dollars.
+4. **Don't let the student grade its own homework.** Use a checker from a different family, and grade a sample by hand.
+5. **Read the data, not just the metrics.** Most real bugs were found by reading examples.
+6. **Clean licenses only,** verified at the source, so everything can be given away.
+7. **Give your rivals their best shot,** and check whether they trained on your test.
+8. **Decide what would change your mind before you run the experiment.**
+9. **One training run is an anecdote.** Three before any claim.
+10. **Publish the misses.** Honesty is the marketing.
 
-Even the launch had a catch-our-own-mistake moment: the first upload was missing its calibration settings (the eval had been applying them
-separately). Caught and fixed before anyone used it. **Lesson: test the thing users actually download, not just the pipeline you evaluate.**
+## The receipt
 
-The preview is honest about its misses. Ask it about a box that arrived crushed with a broken lamp and it says the customer wants
-"delivery status" (wrong: they want a refund). Ask about a calm user scheduling a meeting and it guesses they're "excited." Those misses are
-the before-and-after test for the new data.
+| Item | Cost |
+|---|---|
+| Hardware | $0 extra (an NVIDIA DGX Spark Shane already owned) |
+| Training compute | $0 (every training run, about an hour each, on the Spark) |
+| First synthetic batch (6,412 examples, cloud) | $8.46 |
+| Second-generation batch (9,428 examples, with two AI critics) | $25.38 |
+| Pilots, taxonomy, checker bake-off | under $1 |
+| **Total cloud spend** | **about $35** |
+| Time | about four days, one person plus an AI pair engineer |
 
-**The business angle:** the weights are free and open, which builds trust and adoption. The plan is a hosted Kodiak API from Cortex Agent for
-teams that just want an API key, and later, fine-tuning on a customer's own labels, which usually lifts one specific task far beyond any
-zero-shot model.
+## Wait-what moments
 
----
-
-## Episode 8: The showdown, and the 3 a.m. plot twist
-
-The new factory's 11,800 jobs finished with **9,428 examples for $25**, and the showdown ran on the Box overnight: same model, same recipe, old
-data vs. new data at exactly equal size.
-
-**9 p.m.: victory!** The first comparison said the new data won by five to seven points on never-seen tasks. Jailbreak detection jumped to
-80%. The crushed-box customer finally got "refund or replacement." It looked like the villain was finally wounded.
-
-**Then the team did the unglamorous thing.** One training run is an anecdote: training is random (which examples come first, how the new layers
-start out), so they ran each version **three times** with different random seeds. Four more hours of the Box humming in the dark.
-
-**3 a.m.: wait, WHAT?** Averaged over three runs, old and new data **tied** on never-seen tasks: 72% each. The first run of the old data had just
-been unlucky. The "jailbreak jump" was noise too: that one task swings from 65% to 86% between runs with *identical* data.
-
-**But here's what held up in every single run:** the new data did exactly what it was built to do. Wrong "I can't tell" answers dropped by about
-60%, and when it abstains it's now right 92% of the time instead of 84%. It's better calibrated too. The coworker who wouldn't infer anything had
-been cured. Mixing the old data back in? The over-refusing came right back.
-
-**The lesson that went straight into the rulebook:** no claim without three seeds. And the honest scoreboard now reads: roughly tied with the best
-open classifier on never-seen tasks, more trustworthy than all of them, and the next suspect for the remaining gap is model size. Enter the bigger
-brain.
-
----
-
-## The cliffhanger
-
-The new data fixed the refusals but not raw generalization. So the next questions are: does a **bigger brain** (ModernBERT-large, about 400M
-parameters) finally move the never-seen-task number, and can targeted data fix the judgment scores (Kodiak still rates "charged twice and
-nobody answers!" as barely urgent)? The next moves:
-- **Hard-example mining:** Kodiak screens every new practice question in 8 ms, and the factory keeps mostly the ones it gets *wrong*, like a
-  tutor who stops drilling what you've mastered.
-- **Minimal pairs:** twin examples where one word flips the answer ("arrived yesterday" vs. "still in transit"), which teach *exactly* which
-  fact matters.
-- **A bigger brain:** ModernBERT-large, about 400M parameters, for the quality tier.
-
-The open question for the show to end on: *can a garage project with a fully open recipe become the go-to open model for decisions, and
-what changes for everyone building with AI if it does?*
-
----
-
-## Spicy takes for the hosts to argue about
-
-- **"Most AI spending is wasted on writing machines doing sorting jobs."** Fair, or too cute?
-- **"Calibration matters more than accuracy."** A model that knows when it's unsure versus one that's slightly more accurate but always confident: which
-  would you put in front of real customers?
-- **"Synthetic data is just AI eating its own tail."** Or, with real text, a different-company checker, critics and human grading, is it a legit
-  shortcut?
-- **"Publishing your failures is the best marketing."** This project puts its misses on the model page. Bold or naive?
-- **"One person with a desktop box and an AI partner can now do what used to need a research lab."** How true is that, really?
-
-## "Wait, what?" moments (quick reference)
-
-- The new data "won by 7 points" at 9 p.m. and **tied** by 3 a.m., once the runs were repeated. Honesty beat the hype.
-- 8 milliseconds vs. 3.4 seconds: about **400× faster** than a 27B chatbot on the same machine.
-- The first working model trained in **35 minutes**.
-- A cloud pilot of new training data cost **four cents**; a morning of pilots, **25 cents**.
-- A 397-billion-parameter model **thought for 3.5 minutes and returned nothing**.
-- More data made the model better at everything *except* the thing that mattered, until the team found out why.
+- 8 milliseconds vs. 3.4 seconds: **400× faster** than a 27B chatbot on the same desk.
+- First working model: **35 minutes**.
+- A cloud pilot of training data: **four cents**. A map of 971 document types: **a penny**.
+- A 397-billion-parameter model **thought for 3.5 minutes and said nothing**.
 - The model saw one dataset **29 times** per run. It was cramming.
-- Two AIs from two companies **agreed on wrong answers**; a human caught it.
+- Two AIs from two companies **agreed on the wrong answer**; a human caught it.
+- The new data "won by 7 points" at 9 p.m. and **tied** by 3 a.m.
 - A rival "zero-shot" model had **trained on the test**.
-- Shuffling the answer options **cannot** change Kodiak's answer, by construction.
 
-## Lines worth quoting
+## Fact sheet (for accuracy)
 
-- "Most of what we ask AI to do isn't writing. It's deciding."
-- "Hiring a novelist to sort your mail."
-- "It can't answer off the menu."
-- "Don't let the student grade its own homework."
-- "Agreement isn't correctness."
-- "Decide what would change your mind before you run the experiment."
-- "Frontier in its class, not frontier in general."
-- "Test the thing users download, not the pipeline you evaluate."
-- "One training run is an anecdote."
-
----
-
-## Technical appendix (accurate details, for depth)
-
-**Architecture.**
-- Encoder-only: ModernBERT-base backbone (Apache-2.0, 149.6M parameters, 22 layers) plus Kodiak's heads, about 152M parameters in total.
-- Input is one packed sequence, `[CLS] state [SEP] | [CHOICE] question | [LABEL] option ... | [SCORE] question`, with a structured attention
-  mask (state sees state; a question sees the state, itself and its options; an option sees the state, its question and itself).
-- Position ids restart per question and per option (rotary position embeddings make that possible). Answers are therefore independent of
-  question order and option order.
-- **Heads:**
-  - choice: a matching network over the option and question encodings, so brand-new label sets work zero-shot;
-  - null: a sigmoid probability of "unanswerable";
-  - score: a Beta distribution (mean and concentration), which can't go out of range and gives real intervals.
-- **Training:** the joint log-likelihood of the correct outcome. That's a strictly proper scoring rule: the model scores best only by reporting
-  its true beliefs.
-- **Calibration:** three temperatures fit on validation data; they change confidence without changing any answer. Why no reinforcement learning:
-  an LLM's confidence is text it writes (no gradient), while Kodiak's confidence *is* its output distribution, trained directly.
-
-**Hardware.**
-- NVIDIA DGX Spark: GB10 Blackwell GPU, 121 GiB unified memory, about 94 TFLOP/s bf16 peak.
-- Training is limited by memory bandwidth, not compute; `torch.compile` doubled throughput by fusing small operations.
-- About 34k tokens/s and 11 GB of memory; one training run takes 35–60 minutes.
-
-**Data.**
-- 20 public datasets, every license verified at its source (share-alike and non-commercial data excluded). They cover inference, reasoning,
-  intents (CLINC150, MASSIVE, Banking77), emotions, toxicity scores, spam, prompt injection, jailbreaks, response-quality ratings, tool routing
-  (Glaive, ToolACE), occupations (Bias in Bios) and long-document QA (Qasper).
-- About 356k training examples. **Four datasets are held out entirely** to measure never-seen-task generalization.
-- Frozen eval set: 2,902 examples / 4,189 questions, never trained or tuned on.
-- **Synthetic v1:** about 9,700 examples (local Qwen teachers, then the cloud writer gpt-oss-120b + checker DeepSeek V3.2), at about $0.73 per
-  1,000 jobs; human-graded precision about 95%.
-- **Synthetic v2:**
-  - built from a 971-document-type taxonomy, with about 45% real web passages (FineWeb-Edu);
-  - every question labeled stated / inferred / unanswerable, and "unknown"-style options banned;
-  - MinHash near-duplicate filtering and two critic models;
-  - about $2.2 per 1,000 jobs; human-graded precision 92.7% before the critics were added.
-
-**Key results (best model so far: repeat cap + full schedule).**
-
-| Measure | Kodiak small | Notes |
-|---|---|---|
-| Overall accuracy | 78.0% | frozen eval set |
-| Familiar-task accuracy | 80.8% | |
-| Never-seen-task accuracy | 66.4% (69.1% forced to answer) | Qwen 27B ≈ 86% on a 200-example sample |
-| Calibration error (ECE) | 0.049 | lowest of every system tested |
-| Latency | ~8 ms GPU, ~80 ms CPU | Qwen 27B ≈ 3,400 ms |
-| vs. best open zero-shot classifier | 78% vs. 55% overall; 69.1% vs. 70.5% never-seen (forced) | rival is 439M parameters |
-
-**Glossary.**
-- **Encoder:** reads the whole text at once and turns it into meaning vectors; it can't write.
-- **Autoregressive LLM:** writes text one token at a time.
-- **Calibration:** confidence that matches reality (80% sure means right 80% of the time).
-- **ECE:** the average gap between confidence and accuracy (lower is better).
-- **Abstention:** answering "can't tell from this."
-- **Zero-shot:** handling labels or tasks never seen in training.
-- **Held-out:** datasets deliberately never trained on.
-- **Forced accuracy:** accuracy when the model must pick an answer (no abstaining).
-- **Overfitting:** memorizing instead of learning.
-- **Data leakage / contamination:** the test (or copies of it) appearing in training.
-- **Proper scoring rule:** a loss minimized only by honest probabilities.
-- **Temperature scaling:** a single number that softens or sharpens confidence.
-- **Beta distribution:** a probability curve on 0–1, used for scores with uncertainty.
-- **MinHash:** a fast way to spot near-duplicate texts.
-- **Hard-example mining:** keeping the examples the model gets wrong.
-- **Minimal pairs:** near-identical examples with different answers.
-
-**Timeline.**
-- **Sept 23:** architecture, 20 datasets, eval set, bit-identical backbone, first model in 35 minutes, first bout with Qwen 27B.
-- **Sept 24:** cloud data factory, checker bake-off, 9.7k synthetic examples, the "more data didn't help" twist, the overnight repeat-cap fix.
-- **Sept 25:** Generator v2 built and piloted, human review, the frontier-in-class strategy, the rival scoreboard, the repo and research
-  preview go public, demo built; the overnight showdown.
-- **Sept 26, 3 a.m.:** three-seed repeats: new data ties old on never-seen tasks but fixes over-refusal and calibration; "no claim without three seeds."
-
-**Open source.** Apache-2.0 code and weights; every dataset's license documented; the code is at github.com/grizzlypeaksoftware/kodiak and the
-model is on Hugging Face under cortex-agent-llc.
+- **Model:** encoder-only; ModernBERT-base backbone (Apache-2.0) plus Kodiak's decision heads, about 152M parameters. Choice answers via a
+  label-matching head (new label sets work zero-shot), a "can't tell" head, and a score head using a Beta distribution (always in range, with
+  an uncertainty interval). Trained with log loss (a proper scoring rule), then temperature-calibrated on validation data.
+- **Data:** 20 public datasets (356k examples), licenses verified at the source; 4 held out entirely to test never-seen tasks. Synthetic: v1
+  (9,702 examples) and v2 (9,428), from open-weight teachers only.
+- **Best current model:** "kodiak-small-v2-preview": overall 79.5%, familiar tasks 81.3%, never-seen tasks 70.3% (72% averaged when forced to
+  answer), calibration error 0.028–0.029, abstain precision about 92%; 8 ms GPU, about 80 ms CPU.
+- **Rivals:** Qwen 27B (86% on never-seen tasks on a 200-example sample, 3.4 s); GLiClass-instruct-large (439M; 70.5% never-seen forced, 54.8%
+  overall, calibration error 0.156, 27 ms).
+- **Open source:** Apache-2.0 code and weights by Cortex Agent LLC; github.com/grizzlypeaksoftware/kodiak; Hugging Face "cortex-agent-llc".
+  Inspired by Jev, built independently; no claims about Jev's internals.
