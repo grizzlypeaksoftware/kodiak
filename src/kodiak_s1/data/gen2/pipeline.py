@@ -139,9 +139,26 @@ def run_job(i: int, seed: int, tax: dict, coverage: dict | None = None,
         by_id = {q["id"]: synth.parse_verdict(q, v["content"].get(q["id"])) for q in qs}
         rec.update(verify_tokens=v["tokens"], verify_prompt_tokens=v.get("prompt_tokens"))
         rec["debug"]["verify"] = v["content"]
+        second = {}
+        if spec.targets:
+            # Stage 3: the writer aimed each rating at a target band, so its own rating is biased toward the target (pilot #4:
+            # "frustration 9" for a calm email because the target was high). Scores are graded by two BLIND raters instead:
+            # the checker plus a fresh writer-model call that never saw the target; the kept value is their mean.
+            v2 = synth.teacher(verify_prompt(state_text, qs), synth.verify_schema(qs), 0.0, writer, 400 + 250 * len(qs))
+            rec.setdefault("extra_usage", []).append({"model": writer, "tokens": v2["tokens"], "prompt_tokens": v2.get("prompt_tokens", 0)})
+            second = {q["id"]: synth.parse_verdict(q, v2["content"].get(q["id"])) for q in qs}
+            rec["debug"]["verify2"] = v2["content"]
         kept_q, kept_a, disagreements = [], {}, []
         for q in qs:
-            ok, target = synth.agree(q, answers[q["id"]], by_id.get(q["id"]), step_tolerance=bool(spec.targets))
+            gold = answers[q["id"]]
+            if spec.targets and q["type"] == "score":
+                b = second.get(q["id"])
+                gold = None if b is None else ({"null": True} if b.get("unanswerable") else {"value": b["value"]} if "value" in b else None)
+                if gold is None:
+                    disagreements.append({"id": q["id"], "basis": basis.get(q["id"]), "gen": answers[q["id"]], "ver": by_id.get(q["id"]),
+                                          "blind2": b})
+                    continue
+            ok, target = synth.agree(q, gold, by_id.get(q["id"]), step_tolerance=bool(spec.targets))
             if ok:
                 kept_q.append(q)
                 kept_a[q["id"]] = target
@@ -182,7 +199,7 @@ def run_job(i: int, seed: int, tax: dict, coverage: dict | None = None,
         Example.model_validate(ex)
         rec.update(status="ok", example=ex)
         if spec.pair and isinstance(raw.get("variant"), dict):
-            _variant(rec, raw["variant"], spec, state_text, kept_q, kept_a, verifier, critics, ex["meta"], f"gen2:{seed}:{i}")
+            _variant(rec, raw["variant"], spec, state_text, kept_q, kept_a, verifier, critics, ex["meta"], f"gen2:{seed}:{i}", writer)
     except (ValidationError, ValueError, KeyError, TypeError, json.JSONDecodeError) as e:
         rec["error"] = f"{type(e).__name__}: {str(e)[:300]}"
     except OSError as e:  # network / timeout: leave the job undone so a rerun retries it
@@ -197,7 +214,7 @@ PAIR_MIN_DELTA = 0.3  # the twin must move at least one score by 30% of its rang
 
 
 def _variant(rec: dict, var: dict, spec, state_text: str, kept_q: list[dict], kept_a: dict, verifier: str,
-             critics, meta: dict, pair_id: str) -> None:
+             critics, meta: dict, pair_id: str, writer: str = WRITER) -> None:
     """Stage 3 contrast twin: the same state with a minimal edit that should move the first score to the other end.
 
     Kept only if the blind checker agrees with the writer on the twin *and* the agreed score moved by >= PAIR_MIN_DELTA of the
@@ -225,11 +242,18 @@ def _variant(rec: dict, var: dict, spec, state_text: str, kept_q: list[dict], ke
         if not vqs:
             rec["variant_status"] = "no_supported_answers"
             return
-        v = synth.teacher(verify_prompt(vtext, vqs), synth.verify_schema(vqs), 0.0, verifier, 400 + 250 * len(vqs))
-        rec.setdefault("extra_usage", []).append({"model": verifier, "tokens": v["tokens"], "prompt_tokens": v.get("prompt_tokens", 0)})
+        # Two blind raters for the twin too (see run_job); the writer's own twin ratings are not used as labels.
+        ratings = []
+        for model in (verifier, writer):
+            v = synth.teacher(verify_prompt(vtext, vqs), synth.verify_schema(vqs), 0.0, model, 400 + 250 * len(vqs))
+            rec.setdefault("extra_usage", []).append({"model": model, "tokens": v["tokens"], "prompt_tokens": v.get("prompt_tokens", 0)})
+            ratings.append({q["id"]: synth.parse_verdict(q, v["content"].get(q["id"])) for q in vqs})
         agreed_q, agreed_a = [], {}
         for q in vqs:
-            ok, target = synth.agree(q, vans[q["id"]], synth.parse_verdict(q, v["content"].get(q["id"])), step_tolerance=True)
+            b = ratings[1].get(q["id"])
+            if not b or "value" not in b:
+                continue
+            ok, target = synth.agree(q, {"value": b["value"]}, ratings[0].get(q["id"]), step_tolerance=True)
             if ok:
                 agreed_q.append(q)
                 agreed_a[q["id"]] = target
