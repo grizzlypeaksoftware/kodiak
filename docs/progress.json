@@ -659,6 +659,12 @@
       "cost": "pilot < $1, then a capped batch (ask first)"
     },
     {
+      "name": "Stage 3 retry: ratings as low / medium / high bands",
+      "why": "Ratings are the weakest answer type and a bigger model didn't fix them (D33). Raters disagreed on exact numbers (D31); test whether they agree on bands. If \u226580%: ~$10 batch + 3 seeds; if not, ratings ship as 'experimental' in v0.1.",
+      "after": "v2.2 (or alongside it)",
+      "cost": "pilot ~$0.15; batch ~$10 only if the pilot passes (ask first)"
+    },
+    {
       "name": "Final run with the full synthetic data",
       "why": "Train the release candidates (small + large) on everything that passed its test.",
       "after": "v2.2 result"
