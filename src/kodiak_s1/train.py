@@ -29,7 +29,7 @@ import torch
 
 from kodiak_s1.data.augment import gold_removed, mismatch
 from kodiak_s1.data.sources import SOURCES, hash_split
-from kodiak_s1.model import PRESETS, HeadConfig, KodiakModel, ModelConfig, decision_loss
+from kodiak_s1.model import PRESETS, HeadConfig, KodiakModel, ModelConfig, decision_loss, distill_loss
 from kodiak_s1.schema import render_state
 from kodiak_s1.model.encoder import load_modernbert
 from kodiak_s1.packing import Limits, Packed, collate, pack_example
@@ -72,6 +72,10 @@ class TrainConfig:
     keep_ckpts: int = 3
     grad_checkpointing: bool = False
     compile: bool = True  # ~2x faster on the Spark: fuses the many memory-bound elementwise ops
+    # Knowledge distillation (D34): comma-separated "checkpoint.pt|calibration.json" teachers, frozen; their calibrated, averaged
+    # predictions become soft targets. loss = distill_alpha * hard + (1 - distill_alpha) * soft.
+    distill_from: str = ""
+    distill_alpha: float = 0.5
     max_temp_c: int = 85  # pause when the GPU is hotter than this...
     resume_temp_c: int = 75  # ...until it cools to this
     mem_fraction: float = 0.6  # cap on unified memory for this process (the desktop needs the rest)
@@ -399,6 +403,19 @@ def train(cfg: TrainConfig) -> dict:
     signal.signal(signal.SIGINT, on_signal)
 
     fwd = torch.compile(model) if cfg.compile else model
+    teachers = []
+    if cfg.distill_from:
+        from kodiak_s1.hub import apply_calibration
+        from kodiak_s1.infer import load
+
+        for spec in cfg.distill_from.split(","):
+            ckpt, cal = spec.split("|")
+            tm = load(ckpt.strip(), device=str(device))
+            apply_calibration(tm, json.loads(Path(cal.strip()).read_text()))
+            for prm in tm.parameters():
+                prm.requires_grad_(False)
+            teachers.append(torch.compile(tm) if cfg.compile else tm)
+        log({"event": "distill", "teachers": cfg.distill_from.split(","), "alpha": cfg.distill_alpha})
     limits = Limits(max_state=cfg.max_state)
     val = build_val(mix, cfg, limits) if not cfg.overfit else {}
     best_path = run / "best.json"
@@ -412,6 +429,12 @@ def train(cfg: TrainConfig) -> dict:
         with torch.autocast("cuda", dtype=torch.bfloat16):
             out = fwd(batch)
         loss, stats = decision_loss(out, batch)
+        if teachers:
+            with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
+                t_outs = [t(batch) for t in teachers]
+            soft, st2 = distill_loss(out, t_outs, batch)
+            loss = cfg.distill_alpha * loss + (1 - cfg.distill_alpha) * soft
+            stats.update(st2, loss=loss.item())
         opt.zero_grad(set_to_none=True)
         loss.backward()
         gnorm = torch.nn.utils.clip_grad_norm_(model.parameters(), cfg.grad_clip).item()

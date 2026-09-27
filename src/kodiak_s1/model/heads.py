@@ -116,3 +116,25 @@ def decision_loss(out: dict[str, torch.Tensor], b: Batch) -> tuple[torch.Tensor,
             "n_q": Q,
         }
     return loss, stats
+
+
+def distill_loss(out: dict[str, torch.Tensor], teachers: list[dict[str, torch.Tensor]], b: Batch
+                 ) -> tuple[torch.Tensor, dict[str, float]]:
+    """Cross-entropy against the *averaged* distribution of calibrated teacher models (knowledge distillation, D34).
+
+    Null: soft BCE toward the teachers' mean p(null). Choice: soft CE toward the teachers' mean label distribution (on every choice
+    question, including the "dark knowledge" of how plausible each wrong option is). Score: mean Beta NLL of each teacher's mean, so the
+    student's concentration reflects how much the teachers disagree. Teachers are expected to carry their calibration temperatures.
+    """
+    Q = b.q_type.shape[0]
+    allow = b.q_allow_null.float()
+    p_null_t = torch.stack([torch.sigmoid(t["z_null"].float()) for t in teachers]).mean(0)
+    null_soft = -allow * (p_null_t * F.logsigmoid(out["z_null"]) + (1 - p_null_t) * F.logsigmoid(-out["z_null"]))
+    q_t = torch.stack([group_log_softmax(t["z_choice"].float(), b.l_q, Q).exp() for t in teachers]).mean(0)
+    logq = group_log_softmax(out["z_choice"], b.l_q, Q)
+    choice_soft = -torch.zeros(Q, device=logq.device).index_add(0, b.l_q, q_t * logq)
+    score_mask = b.q_type == SCORE
+    score_soft = torch.stack([-beta_log_prob(t["mu"].float().clamp(0.005, 0.995), out["mu"], out["kappa"]) for t in teachers]).mean(0)
+    per_q = null_soft + torch.where(b.q_type == CHOICE, choice_soft, 0.0) + torch.where(score_mask, score_soft, 0.0)
+    loss = per_q.mean()
+    return loss, {"distill": loss.item()}

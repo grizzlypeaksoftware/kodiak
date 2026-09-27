@@ -185,3 +185,20 @@ def test_answer_accepts_shorthand_labels_and_returns_valid_response(model):
     assert set(res["answers"]) == {"intent", "urgency", "card_brand"}
     intent = res["answers"]["intent"]
     assert intent["answer"] is None or intent["answer"] in {"refund or billing fix", "order status", "cancel order", "technical support"}
+
+
+def test_distill_loss_prefers_matching_the_teacher(model):
+    from kodiak_s1.model import distill_loss
+    from kodiak_s1.packing import Limits, collate, pack_example
+
+    ex = {"state": "I was charged twice for my order.", "questions": [
+        {"type": "choice", "id": "intent", "text": "What does the customer want?", "labels": [{"id": x, "text": x} for x in ["refund", "tracking", "cancel"]]},
+        {"type": "score", "id": "urgency", "text": "How urgent?", "min": 0, "max": 10}],
+        "answers": {"intent": {"label": "refund"}, "urgency": {"value": 7}}, "meta": {"source": "t", "license": "MIT", "split": "train"}}
+    b = collate([pack_example(ex, Limits(), with_targets=True)], 256)
+    with torch.no_grad():
+        teacher = model(b, impl="sdpa")
+    same, _ = distill_loss(teacher, [teacher], b)
+    other = {k: (v + torch.randn_like(v)) if k in ("z_choice", "z_null") else v for k, v in teacher.items()}
+    diff, _ = distill_loss(other, [teacher], b)
+    assert torch.isfinite(same) and diff > same  # soft cross-entropy is minimized by the teacher's own distribution
