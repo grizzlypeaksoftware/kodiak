@@ -315,10 +315,10 @@
         "pilot": true
       },
       {
-        "name": "Calibration batch: unfamiliar inputs with tempting 'can't tell' questions (D32), $9.50 cap",
+        "name": "Side batch: calibration, unfamiliar inputs with tempting 'can't tell' questions (D32; ended at its $9.50 cap)",
         "file": "data/synthetic/gen2_cal_unfamiliar.jsonl",
         "log": "data/synthetic/gen2_cal_unfamiliar.log",
-        "target_jobs": 6000,
+        "target_jobs": 4290,
         "writer": "do:openai-gpt-oss-120b",
         "verifier": "do:deepseek-3.2"
       },
@@ -371,11 +371,12 @@
       },
       {
         "name": "Side batch \u00b7 Calibration: unfamiliar inputs",
-        "why": "Unusual documents with tempting 'can't tell' questions (D32); 3-seed test after v2.1",
-        "goal": 4000,
+        "why": "Unusual documents with tempting 'can't tell' questions (D32); 3,520 kept for $9.54; 3-seed test after v2.1",
+        "goal": 3520,
         "files": [
           "data/synthetic/gen2_cal_unfamiliar.jsonl"
-        ]
+        ],
+        "done": true
       },
       {
         "name": "Stage 4 \u00b7 Generator v2.1: hard examples",

@@ -230,3 +230,7 @@ After changing `status.py`, restart the server (`pkill -f "kodiak_s1[.]status --
   reload. Kodiak's scripts always use 8192.
 - **Measure throughput on an idle GPU.** The bf16 matmul benchmark read 26 TFLOP/s with Ollama busy and 94 idle.
 - **`torch.compile` takes about a minute** on the first steps (and autotunes FlexAttention). That's expected.
+
+- **Sizing a capped batch:** set `--n` to what the budget buys, not a round ceiling: `n ≈ cap / (pilot $ per job × 1.15)`. Pilots
+  under-estimate per-job cost when the batch keeps more than the pilot did (every kept example pays for critic calls). The cap is checked before
+  each job starts, so a run can finish up to ~16 jobs (a few cents) past it.
