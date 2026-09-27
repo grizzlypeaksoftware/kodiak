@@ -237,10 +237,10 @@
         "pilot": true
       },
       {
-        "name": "Generator v2.0c training batch (seed 6; new rules + 2 critics; cap $30; +800-job top-up)",
+        "name": "Generator v2.0 eval candidates (seed 7; Shane's human review, never trained on)",
         "file": "data/synthetic/eval_gen2_v20.jsonl",
         "log": "data/synthetic/eval_gen2_v20.log",
-        "target_jobs": 11800,
+        "target_jobs": 70,
         "writer": "do:openai-gpt-oss-120b",
         "verifier": "do:deepseek-3.2",
         "pilot": true
@@ -301,10 +301,10 @@
       {
         "writer": "do:openai-gpt-oss-120b",
         "verifier": "do:deepseek-3.2",
-        "name": "Gen2 v2.1 polarity: mixed / neutral / positive / negative tone (GENERATOR_V2 \u00a713), $9.75 cap",
+        "name": "Side batch: mixed / neutral tone (ended at its $9.75 cap)",
         "file": "data/synthetic/gen2_v21_polarity.jsonl",
         "log": "data/synthetic/gen2_v21_polarity.log",
-        "target_jobs": 7000
+        "target_jobs": 5740
       },
       {
         "name": "Pilot: polarity focus (4 rounds, prompt fixes)",

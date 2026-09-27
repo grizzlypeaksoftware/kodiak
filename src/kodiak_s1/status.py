@@ -73,7 +73,9 @@ def synth_status(procs: list[str], cfg: dict) -> dict:
     runs, total_ok, ok_by_file = [], 0, {}
     for run in cfg.get("runs", []):
         path = ROOT / run["file"]
-        running = any(("kodiak_s1.data.synth" in c or "kodiak_s1.data.gen2" in c) and run["file"].rsplit("/", 1)[-1] in c for c in procs)
+        # Only a generator process writing this file counts (a shell whose command text merely mentions the file doesn't).
+        running = any(("kodiak_s1.data.synth" in c or "kodiak_s1.data.gen2" in c) and f"--out {run['file']}" in c
+                      and not c.lstrip().startswith(("/bin/bash", "bash")) for c in procs)
         r = {"name": run["name"], "pilot": run.get("pilot", False), "writer": run.get("writer"),
              "verifier": run.get("verifier"), "target_jobs": run.get("target_jobs"), "running": running}
         if path.exists():
