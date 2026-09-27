@@ -350,6 +350,7 @@ Built `gen2 screen` and `gen2 select` (`src/kodiak_s1/data/gen2/screen.py`); the
 3 minutes: 4,838 hard (51%), 4,590 easy. Mined selection = all hard + 30% of easy per cell (source × decision × difficulty) = 6,215 examples (78%
 hard); control = 6,215 drawn at random (51% hard). Small, 3 seeds per arm, eval v0.2: `scripts/v21_mining_ab.sh` → `reports/v02-v21-mining.md`.
 If mining wins, new batches are screened by the current best model before training; v2.2 (minimal pairs + planner) follows.
+**Result (D41): a tie.** Mined 0.546 vs random 0.545 never-seen forced (3 seeds each); nothing beyond noise. Screening is not added to the pipeline; on to v2.2.
 
 ## 15. Calibration batch: unfamiliar inputs (2026-09-27, Shane approved, $10 cap)
 

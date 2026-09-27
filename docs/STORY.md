@@ -227,6 +227,10 @@ five-minute script, using nothing but answers already on disk, asked the questio
 when it's sure and passes the rest to the LLM? The pair beat both. With Kodiak keeping four out of five questions, the team outscored the LLM
 working alone, and sending a few more across put it three points ahead. The System 1 idea from day three had its first number.
 
+The next afternoon Generator v2.1's big idea, training on the examples Kodiak gets wrong, got its test: six free runs, a dead heat with random
+examples. Meanwhile a stranger on X did something more useful. Rewording one sentence in the demo ("give me my money back" instead of
+"cancel and refund me") dropped Kodiak's confidence from 97% to 48%, exposing a word-matching shortcut. That became v2.2's first target.
+
 *(Continued as the project progresses.)*
 
 ---

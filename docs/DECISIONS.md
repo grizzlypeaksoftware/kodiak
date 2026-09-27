@@ -364,3 +364,15 @@ Kodiak uses "mixed" as a fallback for "neither", so the problem is mapping "no e
 ### D40: Zork work parked
 **Decision (Shane, 2026-09-27).** No Zork re-run on large and no Zork-derived eval slice for now; it was a demo, not a product benchmark. Calibration
 on unfamiliar inputs (criterion 3) stays the next roadmap item, measured on eval v0.2's never-seen tasks instead.
+
+### D41: Hard-example mining (Generator v2.1) didn't beat random selection
+**Evidence (3 seeds per arm, eval v0.2; reports/v02-v21-mining.md).** From the 9,428-example v2.0 pool, screened by the v1-trained small model
+(51% hard): mined = all hard + 30% of easy (6,215, 78% hard) vs. 6,215 random (51% hard). Never-seen forced 0.546 ± 0.017 vs 0.545 ± 0.011; familiar
+0.820 vs 0.818; never-seen ECE 0.152 vs 0.153; abstain precision 0.87 vs 0.84 (noisy); Banking +3.3 and Bias in Bios +1.6 (~1 sd); poem sentiment −3.6.
+No difference beyond training noise. (Both arms at 6,215 examples trail the full 9,137-example small v2 by ~0.8 on never-seen forced.)
+**Reading.** At this scale, *which* v2.0 examples the model sees matters less than we hoped; "hard for an older model" didn't identify more useful
+examples, perhaps because hard examples also concentrate label noise (GENERATOR_V2 §3.6). Caveat: the student was the v1-trained model; screening
+with the current best model could differ, but that isn't worth another day.
+**Decisions.** (1) Don't build screening into the generator; keep `gen2 screen/select` as tools. (2) Move to v2.2, which now has a concrete, user-found
+target (label-word overlap, GENERATOR_V2 §16). (3) The mining pitch ("pay only for examples the model gets wrong") is shelved, not claimed.
+

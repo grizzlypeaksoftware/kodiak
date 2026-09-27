@@ -291,6 +291,8 @@ changes for every small team building with AI if the answer is yes?**
 - The bigger model beat every open rival on never-seen tasks, with three runs agreeing **within less than a point**.
 - Averaging three models made Kodiak more honest; teaching one model to copy the average made it **slightly less** honest.
 - Kodiak answering 4 of 5 questions and passing the rest to an 8B LLM **beat the LLM answering all of them**.
+- "Study only what you got wrong" **tied** with random studying, three runs each.
+- A stranger on X reworded one sentence and Kodiak's confidence fell from **97% to 48%**: it had been matching words, not meaning.
 
 ## Fact sheet (for accuracy)
 

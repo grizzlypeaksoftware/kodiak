@@ -99,8 +99,8 @@
           "status": "done"
         },
         {
-          "name": "Generator v2.1 (student screen + hard-example selection): mined vs random test running, 3 seeds",
-          "status": "in_progress"
+          "name": "Generator v2.1 (student screen + hard-example selection): tied random selection, 3 seeds (D41)",
+          "status": "done"
         },
         {
           "name": "Generator v2.2 (minimal pairs, planner)",
@@ -380,10 +380,10 @@
       },
       {
         "name": "Stage 4 \u00b7 Generator v2.1: hard examples",
-        "why": "Test running: 6,215 mined (all hard + 30% easy) vs 6,215 random from the v2.0 pool, 3 seeds each; no new generation needed",
+        "why": "Tested: mined (all hard + 30% easy) tied random at the same size, 3 seeds each (D41); not added to the pipeline",
         "goal": 6215,
         "files": [],
-        "state": "in progress"
+        "done": true
       },
       {
         "name": "Stage 5 \u00b7 Generator v2.2: minimal pairs + planner",
@@ -587,6 +587,10 @@
     {
       "date": "2026-09-27",
       "text": "Release criterion 2 met narrowly: Qwen3-8B leads by 7.9 on never-seen tasks (world knowledge); Kodiak\u2192LLM cascade beats both (0.740 vs 0.709 with 43% escalated) (D37)"
+    },
+    {
+      "date": "2026-09-27",
+      "text": "Generator v2.1 hard-example mining tied random selection (3 seeds each): not adopted (D41). A demo user found a label-word overlap shortcut (0.97 \u2192 0.48 on a reworded ticket): v2.2's first target"
     }
   ],
   "published": [
@@ -632,23 +636,13 @@
   ],
   "queue": [
     {
-      "name": "Generator v2.1 test: mined vs random",
-      "script": "scripts/v21_mining_ab.sh",
-      "log": "runs/v21-mining-ab.log",
-      "done_marker": "v2.1 mining test complete",
-      "why": "Does training on the examples an older Kodiak got wrong beat random examples of the same size? Decides whether v2.1 screening is used for new data.",
-      "report": "v02-v21-mining",
-      "eta": "~15:25 today",
-      "cost": "free (local GPU)"
-    },
-    {
       "name": "Calibration test: unfamiliar inputs",
       "script": "scripts/unfamiliar_ab.sh",
       "log": "runs/unfamiliar-ab.log",
       "done_marker": "unfamiliar test complete",
       "why": "Does the 'can't tell' batch make confidence more honest on never-seen tasks (criterion 3) without more wrong refusals?",
       "report": "v02-unfamiliar",
-      "after": "v2.1 test + calibration batch",
+      "after": "started 15:30",
       "eta": "~18:40 today",
       "cost": "free (batch ~$9.50, running)"
     },
@@ -677,7 +671,7 @@
       "name": "Generator v2.1: mined vs random (3 seeds)",
       "why": "Hard-example mining ablation",
       "report": "v02-v21-mining",
-      "decision": "(pending)"
+      "decision": "D41: tie, not adopted"
     },
     {
       "match": "unfam-",

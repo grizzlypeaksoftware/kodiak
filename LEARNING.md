@@ -685,3 +685,12 @@ when Kodiak says it's sure, it's right, so the LLM only gets the questions Kodia
 **Concept: a cascade is only as good as its confidence signal.** An overconfident first stage keeps its wrong answers and the LLM never sees them.
 That's why the project treats calibration as a feature, not a footnote.
 
+## Studying only the hard problems didn't help (2026-09-27)
+
+We let an older Kodiak take a quiz on 9,428 practice examples, then trained one set of models mostly on the ones it got wrong ("mined") and
+another on a random pick of the same size. Three runs each: no difference. The intuition (study what you get wrong) is sound for people, but for
+a model the "hard" pile also holds more examples whose answer key is wrong, and the easy ones still teach something.
+
+**Concept: an idea from a design doc is a hypothesis.** Hard-example mining was a pillar of the v2.1 plan. One afternoon of free training showed
+it doesn't pay here, before any money went into building it into the generator.
+
