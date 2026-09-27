@@ -230,7 +230,7 @@ own demo calling a two-sided review "positive."
 The last test on the list was the one everybody asks about: how does Kodiak stack up against a real chatbot-style LLM? Shane's desk ran an open
 8-billion-parameter model through the entire exam overnight. It won on never-seen tasks by about eight points, and every bit of that lead came
 from questions that need outside knowledge: which science field a paper belongs to, legal case law, the mood of a poem. Where the answer is in
-the text, Kodiak won or tied, while running more than a hundred times faster, and it was far more honest: the LLM said "can't tell" correctly
+the text, Kodiak won or tied, while running on the order of a hundred times faster, and it was far more honest: the LLM said "can't tell" correctly
 less than half the time, Kodiak 92%.
 
 Then the fun part. Using only answers already saved on disk, a tiny script played out the real product idea: Kodiak answers when it's sure,
