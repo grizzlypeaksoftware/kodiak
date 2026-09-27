@@ -153,7 +153,8 @@ nohup setsid uv run python -m kodiak_s1.hub push --folder dist/kodiak-small-r1 \
   --repo cortex-agent-llc/kodiak-small-r1-preview --private > dist/push.log 2>&1 < /dev/null &
 ```
 
-- Uploads of ~600 MB take 10–20 minutes over this machine's WiFi; run them detached and verify with the Hub API (file list + SHA-256).
+- `push` uploads the model card and small files first (own commit), then the weights, so a public repo never shows up empty.
+- Uploads of ~600 MB take 10–20 minutes (large: 1.6 GB, 30+ minutes) over this machine's WiFi; run them detached and verify with the Hub API (file list + SHA-256).
 - `Kodiak.from_pretrained(repo_or_folder)` *assigns* the calibration temperatures and uses the tuned abstain threshold as the default.
   (Before 2026-09-25, raw checkpoints carried temperatures of 1.0; only the eval harness applied calibration.)
 - The public model card draft is `docs/MODEL_CARD.md`. Model repos use `library_name: kodiak` and `inference: false` (no generic widget).

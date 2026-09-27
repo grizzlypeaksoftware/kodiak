@@ -134,9 +134,18 @@ def main(argv: list[str] | None = None) -> None:
     else:
         from huggingface_hub import HfApi
 
+        from huggingface_hub import CommitOperationAdd
+
         api = HfApi()
         api.create_repo(a.repo, private=a.private, exist_ok=True)
-        api.upload_folder(repo_id=a.repo, folder_path=a.folder, commit_message=a.message)
+        folder = Path(a.folder)
+        # Small files (model card, config, calibration, handler) first, in their own commit, so a public repo never sits
+        # empty while a large weights file uploads (upload_folder commits everything at the very end).
+        small = [f for f in sorted(folder.iterdir()) if f.is_file() and f.suffix != ".safetensors"]
+        api.create_commit(a.repo, operations=[CommitOperationAdd(path_in_repo=f.name, path_or_fileobj=str(f)) for f in small],
+                          commit_message=f"{a.message}: model card and config")
+        for f in sorted(folder.glob("*.safetensors")):
+            api.upload_file(path_or_fileobj=str(f), path_in_repo=f.name, repo_id=a.repo, commit_message=f"{a.message}: weights")
         print(f"pushed {a.folder} -> https://huggingface.co/{a.repo}")
 
 
