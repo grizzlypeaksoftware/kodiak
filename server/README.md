@@ -12,7 +12,13 @@ Measured on an ARM64 DGX Spark with a training job running alongside; a two-ques
 
 ## 1. Get a model folder
 
-A model folder holds `model.onnx`, `tokenizer.json` and `calibration.json`. Build one from a published model (needs the Python package once):
+A model folder holds `model.onnx`, `tokenizer.json` and `calibration.json`. The preview repos on Hugging Face include all three:
+
+```bash
+hf download cortex-agent-llc/kodiak-small-v2-preview --local-dir models/kodiak-small-v2      # or kodiak-large-v2-preview
+```
+
+Or build one from a model folder of your own (needs the Python package once):
 
 ```bash
 uv run python -m kodiak_s1.onnx_export export --folder dist/kodiak-small-v2      # writes dist/kodiak-small-v2/model.onnx
@@ -24,14 +30,14 @@ The export checks that the ONNX graph matches PyTorch on fixture requests and re
 
 ```bash
 cd server && npm ci
-KODIAK_MODEL=../dist/kodiak-small-v2 npm start           # listens on :8080
+KODIAK_MODEL=../models/kodiak-small-v2 npm start           # listens on :8080
 ```
 
 or with Docker (build from the repository root):
 
 ```bash
 docker build -f server/Dockerfile -t kodiak-server .
-docker run -p 8080:8080 -v $PWD/dist/kodiak-small-v2:/model:ro -e KODIAK_MODEL_NAME=kodiak-small-v2 kodiak-server
+docker run -p 8080:8080 -v $PWD/models/kodiak-small-v2:/model:ro -e KODIAK_MODEL_NAME=kodiak-small-v2 kodiak-server
 ```
 
 Settings: `KODIAK_MODEL` (folder), `PORT` (8080), `KODIAK_MODEL_NAME` (reported in responses), `KODIAK_THREADS` (CPU threads,

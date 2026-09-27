@@ -27,3 +27,6 @@ data/synthetic/
 data/pretrain/
 reports/preds/
 dist/
+
+# Downloaded model folders for the Node server
+models/

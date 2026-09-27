@@ -307,5 +307,5 @@ p50 in Node, 8 threads: small ~30 ms, large ~80 ms; Docker image 554 MB, ~1 GB R
 so any client only tokenizes and packs.
 **Rejected: int8.** Dynamic int8 (per-tensor and per-channel) cut size in half and latency ~2×, but flipped 11 of 41 fixture choice answers and
 moved p(null) by up to 0.58. A calibrated model can't ship with that; revisit only with quantization-aware checks on the eval set.
-**Open.** ONNX files aren't on the Hub yet (publishing needs Shane's OK); the hosted Cortex Agent API (STRATEGY §5b) can run on this server.
+**Published.** `model.onnx` added to both preview repos (Shane approved 2026-09-26); `from_pretrained` skips it, so Python users don't download it. The hosted Cortex Agent API (STRATEGY §5b) can run on this server.
 
