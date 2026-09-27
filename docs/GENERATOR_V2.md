@@ -350,3 +350,11 @@ Built `gen2 screen` and `gen2 select` (`src/kodiak_s1/data/gen2/screen.py`); the
 3 minutes: 4,838 hard (51%), 4,590 easy. Mined selection = all hard + 30% of easy per cell (source × decision × difficulty) = 6,215 examples (78%
 hard); control = 6,215 drawn at random (51% hard). Small, 3 seeds per arm, eval v0.2: `scripts/v21_mining_ab.sh` → `reports/v02-v21-mining.md`.
 If mining wins, new batches are screened by the current best model before training; v2.2 (minimal pairs + planner) follows.
+
+## 15. Calibration batch: unfamiliar inputs (2026-09-27, Shane approved, $10 cap)
+
+`--focus unfamiliar` (D32 2a): 30 unusual document types (config files, stack traces, game transcripts from *original* games, telemetry, timetables,
+agent tool traces, chess notation…), 3–5 choice questions per state, 1–2 of them unanswerable but tempting ("the next step after the tool call"
+when the trace doesn't settle it), at least one answerable by inference. Pilot: 22/30 kept, 35% of kept questions are "can't tell", $0.06.
+Batch `data/synthetic/gen2_cal_unfamiliar.jsonl` (cap $9.50). Test `scripts/unfamiliar_ab.sh` (after the v2.1 test): small, public + v2.0 + this
+batch, 3 seeds, vs. small v2; the rows that matter are never-seen ECE, abstain precision and never-seen accuracy (must not drop: over-refusal risk).

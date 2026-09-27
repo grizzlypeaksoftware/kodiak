@@ -10,7 +10,7 @@ from kodiak_s1.eval.run import load_preds
 GROUPS = {"v1 (equal size)": ["ab-A-eq", "ab-A-eq-s1", "ab-A-eq-s2"], "v2.0": ["ab-B-v2", "ab-B-v2-s1", "ab-B-v2-s2"]}
 ROWS = [("eval:heldout", "accuracy", "Never-seen tasks, accuracy"), ("eval:heldout", "forced_accuracy", "Never-seen tasks, forced"),
         ("eval:heldout_v02", "forced_accuracy", "New never-seen tasks (v0.2), forced"), ("eval:heldout", "score_mae", "Never-seen score error (MAE)"),
-        ("overall", "accuracy", "Overall accuracy"), ("eval:indomain", "accuracy", "Familiar tasks"), ("overall", "ece", "Calibration error (ECE)"),
+        ("overall", "accuracy", "Overall accuracy"), ("eval:indomain", "accuracy", "Familiar tasks"), ("overall", "ece", "Calibration error (ECE)"), ("eval:heldout", "ece", "Never-seen calibration error (ECE)"),
         ("overall", "abstain_precision", "Abstain precision"), ("eval:null_construct", "accuracy", "Constructed unanswerables"),
         ("source:banking77", "forced_accuracy", "Banking77 (forced)"), ("source:bias_in_bios", "forced_accuracy", "Bias in Bios (forced)"),
         ("source:jailbreak_classification", "forced_accuracy", "Jailbreak (forced)"),

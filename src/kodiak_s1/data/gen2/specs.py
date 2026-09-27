@@ -118,6 +118,28 @@ POLARITY_LABEL_SETS = [
 POLARITY_FRAMES = ["overall sentiment", "overall tone toward the product, service or proposal", "the writer's overall satisfaction",
                    "the writer's stance"]
 
+# Unfamiliar-input focus (--focus unfamiliar, D32 2a): formats and domains far from the public datasets and the v2.0 taxonomy, with questions
+# that look answerable but aren't mixed with ones that are. Teaches "unsure when lost" without teaching "refuse whatever is unusual".
+UNFAMILIAR_DOCS = [
+    ("games", "text adventure game transcript with the current room and inventory (an original game, not a published one)", ("text", "list")),
+    ("games", "board game position described move by move", ("text", "list")), ("games", "tabletop RPG character sheet", ("json",)),
+    ("games", "video game save file", ("json",)), ("software", "YAML-like configuration file rendered as JSON", ("json",)),
+    ("software", "unified diff of a code change with its commit message", ("text",)), ("software", "stack trace with surrounding log lines", ("list",)),
+    ("software", "cron schedule and job definitions", ("json",)), ("software", "shell session transcript", ("list",)),
+    ("data", "CSV excerpt with a header row, written as text", ("text",)), ("data", "SQL query with its result rows", ("text",)),
+    ("IoT", "sensor telemetry readings over an hour", ("json", "list")), ("IoT", "smart home automation event log", ("list",)),
+    ("science", "lab notebook entry with measurements", ("text",)), ("science", "astronomy observation log", ("list",)),
+    ("music", "setlist with song keys and tempos", ("json", "text")), ("music", "guitar tab with annotations", ("text",)),
+    ("transport", "train timetable excerpt with platform changes", ("json", "text")), ("transport", "ship's log entries", ("list",)),
+    ("aviation", "decoded weather report (METAR) with remarks", ("text",)), ("sports", "play-by-play commentary excerpt", ("list",)),
+    ("cooking", "recipe with scaled quantities and substitutions", ("text",)), ("gardening", "planting calendar and bed layout", ("json",)),
+    ("hobbies", "knitting pattern with row instructions", ("text",)), ("hobbies", "model railway layout inventory", ("json",)),
+    ("agents", "AI agent tool-call trace with tool results", ("list", "json")), ("agents", "multi-agent chat where agents hand off a task", ("list",)),
+    ("manufacturing", "CNC machine job sheet", ("json",)), ("genealogy", "family tree record with uncertain dates", ("json", "text")),
+    ("chess", "chess game in algebraic notation with comments", ("text",)),
+]
+UNFAMILIAR_NULL_KINDS = ["missing_fact", "underspecified", "temporal", "out_of_scope", "no_option_fits"]
+
 GROUNDED_SHARE = 0.45  # share of jobs that use a real FineWeb-Edu passage as the state
 COVERAGE_SHARE = 0.6
 
@@ -212,9 +234,25 @@ def sample_spec(job: int, seed: int, tax: dict, coverage: dict | None = None, fo
                 n_null=n_null, null_kinds=null_kinds, scales=scales, ranges=ranges)
     if focus == "scores":  # drawn from a separate RNG stream so the default specs above are unchanged
         _score_focus(spec, rng_for("gen2-spec-scores", seed, job), tax)
+    elif focus == "unfamiliar":
+        _unfamiliar_focus(spec, rng_for("gen2-spec-unfamiliar", seed, job))
     elif focus == "polarity":
         _polarity_focus(spec, rng_for("gen2-spec-polarity", seed, job))
     return spec
+
+
+def _unfamiliar_focus(spec: Spec, rng) -> None:
+    """D32 (2a): unusual states; 3-5 choice questions, 1-2 of them unanswerable (looking answerable), at least one answerable by inference."""
+    spec.source, spec.mode, spec.focus = "synthetic", "unfamiliar", "unfamiliar"
+    spec.sector, spec.doc_type, fmts = rng.choice(UNFAMILIAR_DOCS)
+    spec.domain = spec.doc_type
+    spec.format = rng.choice(list(fmts))
+    spec.decision = rng.choice(["classification", "extraction_choice", "comparison", "next_action", "compliance"])
+    spec.n_score, spec.scales, spec.ranges, spec.targets, spec.pair = 0, [], [], [], False
+    spec.n_choice = rng.choice([3, 4, 4, 5])
+    spec.n_null = _weighted(rng, [1, 2], [0.5, 0.5])
+    spec.null_kinds = [rng.choice(UNFAMILIAR_NULL_KINDS) for _ in range(spec.n_null)]
+    spec.n_inference = 1
 
 
 def _polarity_focus(spec: Spec, rng) -> None:

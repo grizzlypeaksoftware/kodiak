@@ -127,6 +127,14 @@ feelings', 'overall neutral', 'I am satisfied' or similar labels in the state). 
 {extra}"""
 
 
+UNFAMILIAR_RULES = """
+This document type is unusual on purpose. Make the unanswerable questions tempting: they should sound like something this document would
+settle, and have plausible options, but the document must genuinely not decide them (for example the next move in a game when the rules
+shown don't determine it, the cause of an error the log doesn't show, a value that is referenced but never given). The answerable questions
+must be clearly settled by the document, so a careful reader answers them confidently even though the format is unfamiliar.
+"""
+
+
 PAIR_RULES = """
 Finally, write a VARIANT of the state for the first score question: copy the state and change as little as possible (one or
 two phrases, same format and length, all other facts identical) so that the correct rating for that question moves to the
@@ -154,7 +162,7 @@ Invent specific, plausible details (names, numbers, dates). It should read like 
 or a story about it. Do not mention that it is synthetic. Do not use double quote characters inside prose; use single quotes.
 {DIFFICULTY_STATE[spec.difficulty]}
 
-{_question_rules(spec, grounded=False)}{PAIR_RULES if spec.pair else ""}{_polarity_rules(spec) if spec.polarity else ""}
+{_question_rules(spec, grounded=False)}{PAIR_RULES if spec.pair else ""}{_polarity_rules(spec) if spec.polarity else ""}{UNFAMILIAR_RULES if spec.focus == "unfamiliar" else ""}
 Return JSON only."""
 
 

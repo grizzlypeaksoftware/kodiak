@@ -198,6 +198,8 @@ def run_job(i: int, seed: int, tax: dict, coverage: dict | None = None,
             tags += [f"scale:{s}" for s in dict.fromkeys(spec.scales or chosen)]
         if spec.polarity:
             tags += ["focus:polarity", f"polarity:{spec.polarity}"]
+        if spec.focus == "unfamiliar":
+            tags += ["focus:unfamiliar"]
         notes = f"fineweb-edu {rec['passage']['id']}" if grounded else f"{spec.sector} / {spec.domain} / {spec.doc_type}"
         ex = {"state": state, "questions": kept_q, "answers": kept_a,
               "meta": {"source": SOURCE_ID, "license": "ODC-By-1.0 AND Apache-2.0" if grounded else "Apache-2.0",

@@ -230,7 +230,8 @@ def main(argv: list[str] | None = None) -> None:
     r.add_argument("--against", default="", help="comma-separated files to dedupe against (default: v1 + gen2 training files)")
     r.add_argument("--dedupe-threshold", type=float, default=0.8)
     r.add_argument("--focus", default="", help="'scores' = Stage 3: anchored judgment scores with target bands and contrast twins; "
-                                                 "'polarity' = mixed/neutral/positive/negative tone batch (GENERATOR_V2 §13)")
+                                                 "'polarity' = mixed/neutral/positive/negative tone batch (GENERATOR_V2 §13); "
+                                                 "'unfamiliar' = unusual inputs with tempting unanswerable questions (D32)")
     r.add_argument("--critics", default="", help="comma-separated critic models (e.g. do:deepseek-3.2,do:openai-gpt-oss-120b); "
                    "a kept question any critic calls wrong/ambiguous is dropped")
     q = sub.add_parser("queue", help="build a human review queue from writer/checker disagreements")

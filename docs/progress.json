@@ -309,6 +309,22 @@
         "writer": "do:openai-gpt-oss-120b",
         "verifier": "do:deepseek-3.2",
         "pilot": true
+      },
+      {
+        "name": "Calibration batch: unfamiliar inputs with tempting 'can't tell' questions (D32), $9.50 cap",
+        "file": "data/synthetic/gen2_cal_unfamiliar.jsonl",
+        "log": "data/synthetic/gen2_cal_unfamiliar.log",
+        "target_jobs": 6000,
+        "writer": "do:openai-gpt-oss-120b",
+        "verifier": "do:deepseek-3.2"
+      },
+      {
+        "name": "Pilot: unfamiliar focus",
+        "file": "data/synthetic/pilot_gen2_unfamiliar.jsonl",
+        "target_jobs": 30,
+        "writer": "do:openai-gpt-oss-120b",
+        "verifier": "do:deepseek-3.2",
+        "pilot": true
       }
     ],
     "stages": [
