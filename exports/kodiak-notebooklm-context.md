@@ -1,4 +1,4 @@
-# Bootstrapped: one engineer, one desk, and about $35 toward a frontier-class open model
+# Bootstrapped: one engineer, one desk, and about $45 toward a frontier-class open model
 
 *Source material for a single podcast episode (NotebookLM audio overview) about the Kodiak project. It's one continuous story. Every
 number in it is measured and true; the tone is meant to be fun. Current as of September 26, 2026.*
@@ -8,7 +8,7 @@ number in it is measured and true; the tone is meant to be fun. Current as of Se
 ## For the hosts
 
 Tell this as **one story**, start to finish: a bootstrapper's story. No investors, no research lab, no cluster of rented GPUs. One engineer
-who already runs two small companies, one desktop computer he already owned, an AI pair programmer, and about **$35** of cloud
+who already runs two small companies, one desktop computer he already owned, an AI pair programmer, and about **$45** of cloud
 credit, grinding toward something the big labs spend fortunes on: a frontier-class model in its category.
 
 The heart of the episode is **gritty resourcefulness**: doing more with less, spending pennies before dollars, owning the hardware, borrowing
@@ -213,6 +213,18 @@ strongest exactly where Kodiak had been weakest: guessing someone's job from a b
 scored 84% while the rivals managed 20 to 63%. The first line of the bar written down days earlier, "beat every open classifier on never-seen
 tasks," was finally met. Two things size didn't fix: ratings, and knowing when it's out of its depth.
 
+### The trick that didn't work (and cost nothing to learn)
+
+Averaging three trained copies of the large model made Kodiak much more honest about uncertainty, but three models means three times the
+compute. So one evening the desk machine tried to have it both ways: train one small model to imitate the trio. Three overnight runs later, the
+verdict: no better, and slightly *worse* at knowing when it's unsure. The trio had been quizzed on homework they'd already memorized, so they
+were confidently right about everything and had no wisdom to pass on. Price of the lesson: zero dollars, a night of electricity. It went straight
+into the public decision log, dead end and all.
+
+The same night, two cheaper wins: Kodiak learned to run without Python (a plain Node.js server in a Docker container, about 30 milliseconds per
+request on an ordinary processor), and a ten-dollar batch of practice data went out to teach it "mixed" and "neutral", after Shane noticed his
+own demo calling a two-sided review "positive."
+
 ### Where it stands right now
 
 The next fights are the two honest weak spots: calibration on unfamiliar tasks (the Zork lesson: a System 1 that knows when it's lost) and
@@ -245,8 +257,9 @@ changes for every small team building with AI if the answer is yes?**
 | Training compute | $0 (every training run, about an hour each, on the desk) |
 | First synthetic batch (6,412 examples, cloud) | $8.46 |
 | Second-generation batch (9,428 examples, with two AI critics) | $25.38 |
-| Pilots (including five rating pilots), taxonomy, checker bake-off | about $1.40 |
-| **Total cloud spend** | **about $35** |
+| Pilots (including five rating pilots), taxonomy, checker bake-off | about $1.60 |
+| "Mixed and neutral" batch (3,894 examples) | $9.78 |
+| **Total cloud spend** | **about $45** |
 | Time | about four days, one person plus an AI pair engineer |
 
 ## Wait-what moments
@@ -263,6 +276,7 @@ changes for every small team building with AI if the answer is yes?**
 - Twenty thousand Zork moves, **zero invalid**; Kodiak still lost to random exploration on Zork.
 - One sentence of question wording made Kodiak's moves **35× more productive**.
 - The bigger model beat every open rival on never-seen tasks, with three runs agreeing **within less than a point**.
+- Averaging three models made Kodiak more honest; teaching one model to copy the average made it **slightly less** honest.
 
 ## Fact sheet (for accuracy)
 

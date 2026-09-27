@@ -214,6 +214,13 @@ version of Kodiak beat every open zero-shot classifier, by three points and far 
 down two days earlier, before any of these measurements, had its first criterion met. Ratings and calibration on unfamiliar tasks were still
 weak, which gave the next week its shape.
 
+That night the desk machine tried a free trick. Averaging three separately trained large models had fixed much of the confidence problem,
+but costs three times the compute. Could a single small model learn to copy the trio? Three overnight runs said no: same accuracy, slightly worse
+calibration. The teachers had been quizzed on material they already knew by heart, so there was little wisdom to pass on. It went in the decision
+log as a clean negative result, along with the version worth trying later. The same evening Kodiak learned to run without Python at all (an ONNX
+export and a small Node.js server, about 30 ms per request on a CPU), and a ten-dollar batch went out to teach it the words "mixed" and "neutral",
+a gap Shane had spotted in his own demo.
+
 *(Continued as the project progresses.)*
 
 ---

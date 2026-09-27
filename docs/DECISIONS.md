@@ -309,3 +309,15 @@ so any client only tokenizes and packs.
 moved p(null) by up to 0.58. A calibrated model can't ship with that; revisit only with quantization-aware checks on the eval set.
 **Published.** `model.onnx` added to both preview repos (Shane approved 2026-09-26); `from_pretrained` skips it, so Python users don't download it. The hosted Cortex Agent API (STRATEGY §5b) can run on this server.
 
+### D36: Distilling the ensemble into small didn't help (negative result)
+**Evidence (3 student seeds vs. the 3 small v2 runs; eval v0.2; reports/v02-distill.md).** Student = small, public + v2.0 data, loss = 0.5 × hard
+labels + 0.5 × the averaged calibrated distribution of the three large v2 runs (D34). Accuracy unchanged within noise (never-seen forced 0.553 →
+0.558 ± 0.013; familiar 0.817 → 0.816). **Calibration worse:** never-seen ECE 0.136 → 0.148, familiar 0.018 → 0.030, overall 0.093 → 0.105;
+abstain precision 0.91 → 0.88. Bias in Bios +4 and Banking +2 (within 1–2 sd).
+**Likely reason.** The soft targets were computed on the teachers' own *training* data, where the teachers are near-certain, so they carried little
+"dark knowledge" beyond the hard labels; the benefit of an ensemble shows up on unfamiliar inputs, which the student never saw through the teachers'
+eyes. The student's own temperature calibration then had less to work with.
+**Decisions.** (1) Don't publish a distilled small. (2) The ensemble (D34) stays the calibration lever ("accuracy mode"). (3) If distillation is
+retried, distill on inputs the teachers did *not* train on (e.g. unlabeled real text or held-back synthetic states), with the teachers' uncertainty
+as the target; cost ≈ one overnight run. Not scheduled.
+

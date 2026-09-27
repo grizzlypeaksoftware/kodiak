@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-24",
+  "updated": "2026-09-27",
   "phases": [
     {
       "id": "0",
@@ -504,6 +504,18 @@
     {
       "date": "2026-09-26",
       "text": "Kodiak large v2 research preview public (cortex-agent-llc/kodiak-large-v2-preview, weights verified); demo gets a small/large picker and a 'Categorize a list' tab"
+    },
+    {
+      "date": "2026-09-26",
+      "text": "Phase 6: ONNX export + Node.js/Docker server (D35); model.onnx published in both preview repos"
+    },
+    {
+      "date": "2026-09-27",
+      "text": "Distillation of the large ensemble into small: no gain, calibration slightly worse (D36, negative result)"
+    },
+    {
+      "date": "2026-09-27",
+      "text": "Polarity batch (mixed/neutral tone): 3,894 examples for $9.78; 3-seed test queued"
     }
   ]
 }

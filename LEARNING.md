@@ -658,3 +658,15 @@ ONNX and PyTorch outputs on fixed requests and refuses to finish if they disagre
 **Concept: quantization can break calibration.** "int8 quantization" stores weights as 8-bit integers instead of 32-bit floats: half the size,
 twice the speed, and usually "almost the same accuracy." For Kodiak it changed 11 of 41 answers and moved the "can't tell" probability by up
 to 0.58. For a model whose selling point is honest confidence, "almost the same" isn't good enough, so we ship full precision.
+
+## Copying the ensemble didn't work: distillation (2026-09-27)
+
+**Distillation** trains a small "student" model to copy the probabilities of bigger "teacher" models instead of only the right answers. The hope
+was a small, fast Kodiak with the three-model ensemble's better sense of when it's unsure. Three student runs later: accuracy the same,
+calibration slightly *worse*. The likely reason is simple. We asked the teachers about examples they had trained on, where they're almost always
+sure, so their "soft" answers were nearly the same as the hard labels. An ensemble's value shows on unfamiliar inputs, and the student never saw
+any of those through the teachers' eyes.
+
+**Concept: a negative result is still a result.** It cost nothing but an evening of GPU time, it's recorded (D36) so nobody repeats it the same
+way, and it points at the version that might work: distill on inputs the teachers never trained on.
+
