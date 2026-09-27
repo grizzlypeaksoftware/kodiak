@@ -141,6 +141,11 @@ signs off), private/on-prem and cheap per check. Open issues: long documents (ch
 competition (Vanta, Drata, Secureframe). Validation plan when revived: one standard, ~100 human-labeled requirement checks, baseline vs. a
 compliance-weighted generator batch + fine-tune. Keep the open model general; verticals are the product layer.
 
+**Categorizer demo (built 2026-09-26, Shane's idea):** a "Categorize a list" tab in the demo Space: paste rows or upload a CSV, type your own
+categories, get a table with each row's category, confidence and a "needs a human" flag, plus a summary ("38 of 50 categorized automatically")
+and a CSV download. It shows speed, zero-shot labels and the System 1 / System 2 hand-off in one screen. Idea for a post: a preset built from
+Shane's own job listings or article titles (only with content he chooses).
+
 **Post-launch demo backlog, ranked (2026-09-26):**
 
 1. **Kodiak-as-a-judge** (Shane's pick for the next demo). The state holds a prompt and one or two responses; questions: "Which response is

@@ -65,6 +65,93 @@ def load_example(name: str):
     return (state if isinstance(state, str) else json.dumps(state, indent=2)), json.dumps(qs, indent=2)
 
 
+# ---- Categorize a list ------------------------------------------------------------------------------------------------
+CAT_PRESETS = {
+    "Support tickets": ("billing, shipping or delivery, bug report, feature request, account access, cancellation",
+                        "Which category does this support ticket belong to?",
+                        ["I was charged twice for my subscription this month.",
+                         "The app crashes every time I open the settings page on Android.",
+                         "My package says delivered but it's not on my porch.",
+                         "Can you add a dark mode? My eyes hurt at night.",
+                         "I can't log in, the reset email never arrives.",
+                         "Please cancel my plan at the end of this billing period.",
+                         "Where is my order? It's been two weeks.",
+                         "Exporting to PDF cuts off the last page.",
+                         "Why did my invoice go up by $10?",
+                         "It would be great if I could share lists with my team.",
+                         "Two-factor codes aren't being sent to my new phone number.",
+                         "Thanks for the quick help yesterday!"]),
+    "Product reviews": ("positive, negative, mixed",
+                        "What is the overall sentiment of this review?",
+                        ["Absolutely love it, battery lasts all week.",
+                         "Broke after two days. Waste of money.",
+                         "Great sound, but the ear cushions are uncomfortable after an hour.",
+                         "Does what it says. Nothing special, nothing wrong.",
+                         "Customer service replaced it fast when the first one was defective, now it's perfect.",
+                         "The color in the photos is way off; it looks cheap in person.",
+                         "Best purchase I've made this year!",
+                         "Setup was a nightmare but it works fine now."]),
+    "News headlines": ("politics, business, technology, sports, science, health, entertainment",
+                       "What topic is this headline about?",
+                       ["Central bank holds interest rates steady for third month",
+                        "Underdog team clinches championship in overtime thriller",
+                        "New battery chemistry could double electric car range",
+                        "Study links daily walks to lower blood pressure",
+                        "Streaming giant renews hit drama for two more seasons",
+                        "Senate passes infrastructure bill after late-night vote",
+                        "Astronomers spot water vapor on distant exoplanet",
+                        "Chipmaker shares jump on record quarterly profits"]),
+}
+MAX_ROWS = 500
+
+
+def load_cat_preset(name: str):
+    cats, question, rows = CAT_PRESETS[name]
+    return cats, question, "\n".join(rows)
+
+
+def categorize(rows_text: str, file, cats_text: str, question: str, review_below: float, model: str = MODEL):
+    import csv
+    import tempfile
+    import time
+
+    rows = [r.strip() for r in (rows_text or "").splitlines() if r.strip()]
+    if file is not None:  # CSV: a "text" column if present, else the first column
+        with open(file if isinstance(file, str) else file.name, newline="", encoding="utf-8", errors="replace") as f:
+            reader = csv.reader(f)
+            header = next(reader, [])
+            col = next((i for i, h in enumerate(header) if h.strip().lower() == "text"), 0)
+            if col == 0 and header and header[0].strip().lower() != "text":
+                rows.append(header[0].strip())  # no header row: keep the first line as data
+            rows += [r[col].strip() for r in reader if len(r) > col and r[col].strip()]
+    cats = list(dict.fromkeys(c.strip() for c in (cats_text or "").split(",") if c.strip()))
+    if not rows or len(cats) < 2:
+        return "**Add at least one row and two categories.**", [], None
+    rows = rows[:MAX_ROWS]
+    q = {"type": "choice", "id": "category", "text": question.strip() or "Which category fits best?", "labels": cats}
+    k = LOADED.get(model, kodiak)
+    t = time.perf_counter()
+    out = k.answer([{"state": r, "questions": [q]} for r in rows])
+    secs = time.perf_counter() - t
+    table, n_review = [], 0
+    for r, resp in zip(rows, out):
+        a = resp["answers"]["category"]
+        review = a["answer"] is None or (a["confidence"] or 0) < review_below
+        n_review += review
+        conf = "" if a["answer"] is None else round(a["confidence"] or 0, 2)  # abstentions have no category confidence
+        table.append([r, a["answer"] or "(can't tell)", conf, "👀 review" if review else ""])
+    path = tempfile.NamedTemporaryFile(suffix=".csv", delete=False).name
+    with open(path, "w", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        w.writerow(["text", "category", "confidence", "needs_review"])
+        w.writerows([[t_[0], "" if t_[1] == "(can't tell)" else t_[1], t_[2], bool(t_[3])] for t_ in table])
+    auto = len(rows) - n_review
+    summary = (f"**{auto} of {len(rows)} rows categorized automatically**, {n_review} flagged for a human "
+               f"(abstained or confidence below {review_below:.2f}), in {secs:.1f} s with {model.split('/')[-1]}. "
+               "That's the System 1 / System 2 idea: the fast model takes the confident ones, people (or a bigger model) take the rest.")
+    return summary, table, path
+
+
 with gr.Blocks(title="Kodiak") as demo:
     gr.Markdown("# Kodiak 🐻\nTyped questions in, calibrated answers out, in one forward pass. "
                 "Answers are always one of your labels or inside your range, or an honest abstention.")
@@ -74,21 +161,39 @@ with gr.Blocks(title="Kodiak") as demo:
                 "[Open an issue](https://github.com/grizzlypeaksoftware/kodiak/issues) · "
                 "[How it works](https://github.com/grizzlypeaksoftware/kodiak) · "
                 "Models: " + " · ".join(f"[{m.split('/')[-1]}](https://huggingface.co/{m})" for m in MODELS))
-    with gr.Row():
+    model = gr.Dropdown(MODELS, value=MODEL, label="Model (small: fastest, most reliable \"can't tell\"; large: more accurate, slower)",
+                        visible=len(MODELS) > 1)
+    with gr.Tab("Decide"):
         example = gr.Dropdown(list(EXAMPLES), value="Support ticket", label="Example")
-        model = gr.Dropdown(MODELS, value=MODEL, label="Model (small: fastest, most reliable \"can't tell\"; large: more accurate, slower)",
-                            visible=len(MODELS) > 1)
-    with gr.Row():
-        state = gr.Textbox(label="State (text, or a JSON list/object)", lines=10)
-        questions = gr.Code(label="Questions (JSON)", language="json", lines=10)
-    threshold = gr.Slider(0.3, 0.99, value=kodiak.default_options["null_threshold"], step=0.01,
-                          label="Abstain threshold (abstain when p(unanswerable) is at least this)")
-    go = gr.Button("Decide", variant="primary")
-    summary = gr.Markdown()
-    raw = gr.JSON(label="Full response")
-    example.change(load_example, example, [state, questions])
-    demo.load(load_example, example, [state, questions])
-    go.click(run, [state, questions, threshold, model], [summary, raw])
+        with gr.Row():
+            state = gr.Textbox(label="State (text, or a JSON list/object)", lines=10)
+            questions = gr.Code(label="Questions (JSON)", language="json", lines=10)
+        threshold = gr.Slider(0.3, 0.99, value=kodiak.default_options["null_threshold"], step=0.01,
+                              label="Abstain threshold (abstain when p(unanswerable) is at least this)")
+        go = gr.Button("Decide", variant="primary")
+        summary = gr.Markdown()
+        raw = gr.JSON(label="Full response")
+        example.change(load_example, example, [state, questions])
+        demo.load(load_example, example, [state, questions])
+        go.click(run, [state, questions, threshold, model], [summary, raw])
+    with gr.Tab("Categorize a list"):
+        gr.Markdown("Paste one item per line (or upload a CSV with a `text` column), type **your own** categories, and Kodiak sorts "
+                    "every row in one batch. Rows it isn't sure about are flagged for a human instead of guessed.")
+        with gr.Row():
+            preset = gr.Dropdown(list(CAT_PRESETS), value="Support tickets", label="Example")
+            review_below = gr.Slider(0.3, 0.95, value=0.6, step=0.05, label="Flag for review when confidence is below")
+        cats = gr.Textbox(label="Categories (comma-separated)")
+        cat_q = gr.Textbox(label="Question")
+        with gr.Row():
+            rows_in = gr.Textbox(label="Items, one per line", lines=10)
+            file_in = gr.File(label="…or upload a CSV", file_types=[".csv"])
+        cat_go = gr.Button("Categorize", variant="primary")
+        cat_summary = gr.Markdown()
+        cat_table = gr.Dataframe(headers=["text", "category", "confidence", "needs review"], wrap=True)
+        cat_file = gr.File(label="Download results (CSV)")
+        preset.change(load_cat_preset, preset, [cats, cat_q, rows_in])
+        demo.load(load_cat_preset, preset, [cats, cat_q, rows_in])
+        cat_go.click(categorize, [rows_in, file_in, cats, cat_q, review_below, model], [cat_summary, cat_table, cat_file])
 
 if __name__ == "__main__":
     demo.launch()
