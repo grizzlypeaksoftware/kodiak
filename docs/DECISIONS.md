@@ -30,6 +30,22 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D23 | 2026-09-24 | Iterate on the small backbone; ModernBERT-large later; public naming decided before release | active |
 | D24 | 2026-09-24 | Scaling test result: don't buy more v1-style data; improve data *kind* (Generator v2) and the training recipe | active |
 | D25 | 2026-09-24 | Training defaults: repeat cap of 3 passes per source, full LR schedule (no early stopping), abstain threshold tuned on validation | active |
+| D26 | 2026-09-25 | Generator v2.0 as built, and two pilot-driven rules | active |
+| D27 | 2026-09-25 | The strategy is "frontier-class open-weights decision model" | active |
+| D28 | 2026-09-25 | Release home on Hugging Face | active |
+| D29 | 2026-09-26 | What v2.0 bought, and three seeds before any claim | active |
+| D30 | 2026-09-26 | Eval set v0.2, a held-out section big enough to steer by | active |
+| D31 | 2026-09-26 | Stage 3 (synthetic judgment scores) paused after five pilots | revisit (band retry queued) |
+| D32 | 2026-09-26 | Zork showed that calibration doesn't survive distribution shift | active |
+| D33 | 2026-09-26 | ModernBERT-large clears the best-in-class bar on eval v0.2 | active |
+| D34 | 2026-09-26 | A three-run ensemble fixes much of the calibration gap | active |
+| D35 | 2026-09-26 | Self-hosting via ONNX + Node, fp32 only (Phase 6) | active |
+| D36 | 2026-09-27 | Distilling the ensemble into small didn't help (negative result) | active |
+| D37 | 2026-09-27 | Release criterion 2 (near-LLM) met narrowly; the gap is world knowledge | active |
+| D38 | 2026-09-27 | Speed bar for criterion 2 lowered from ≥100× to ≥50× | active |
+| D39 | 2026-09-27 | The mixed/neutral batch barely moved the targets; the real poem failure is different | active |
+| D40 | 2026-09-27 | Zork work parked | revisit |
+| D41 | 2026-09-27 | Hard-example mining (Generator v2.1) didn't beat random selection | active |
 
 ---
 
