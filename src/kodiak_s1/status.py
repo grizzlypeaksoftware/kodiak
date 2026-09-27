@@ -60,11 +60,13 @@ def _read_run(path: Path) -> dict:
          "retry": sum(r.get("status") == "retry" for r in jobs.values()),
          "gen_in": tok("gen_prompt_tokens"), "gen_out": tok("gen_tokens"),
          "ver_in": tok("verify_prompt_tokens"), "ver_out": tok("verify_tokens"), "critic": {}}
-    for r in jobs.values():  # Generator v2 critic calls
-        for u in r.get("critic_usage", []):
-            m = c["critic"].setdefault(u["model"], [0, 0])
-            m[0] += u.get("prompt_tokens") or 0
-            m[1] += u.get("tokens") or 0
+    c["extra"] = {}
+    for r in jobs.values():  # Generator v2 critic calls, and Stage 3's second blind rater ("extra")
+        for key, usage in (("critic", r.get("critic_usage", [])), ("extra", r.get("extra_usage", []))):
+            for u in usage:
+                m = c[key].setdefault(u["model"], [0, 0])
+                m[0] += u.get("prompt_tokens") or 0
+                m[1] += u.get("tokens") or 0
     _synth_cache[path] = c
     return c
 
@@ -81,13 +83,20 @@ def synth_status(procs: list[str], cfg: dict) -> dict:
              "verifier": run.get("verifier"), "target_jobs": run.get("target_jobs"), "running": running}
         if path.exists():
             c = _read_run(path)
-            cost = 0.0
-            for model, (i, o) in ((run.get("writer"), (c["gen_in"], c["gen_out"])),
-                                  (run.get("verifier"), (c["ver_in"], c["ver_out"])),
-                                  *((m, tuple(t)) for m, t in c.get("critic", {}).items())):
+            parts = {"writer": 0.0, "checker": 0.0, "critics": 0.0, "extra": 0.0}
+            by_model: dict[str, float] = {}
+            for role, model, (i, o) in (("writer", run.get("writer"), (c["gen_in"], c["gen_out"])),
+                                        ("checker", run.get("verifier"), (c["ver_in"], c["ver_out"])),
+                                        *(("critics", m, tuple(t)) for m, t in c.get("critic", {}).items()),
+                                        *(("extra", m, tuple(t)) for m, t in c.get("extra", {}).items())):
                 if model in prices:
-                    cost += i / 1e6 * prices[model][0] + o / 1e6 * prices[model][1]
-            r.update(done_jobs=c["done"], ok_examples=c["ok"], retry=c["retry"], cost_usd=round(cost, 4) if cost else None)
+                    usd = i / 1e6 * prices[model][0] + o / 1e6 * prices[model][1]
+                    parts[role] += usd
+                    by_model[model] = by_model.get(model, 0.0) + usd
+            cost = sum(parts.values())
+            r.update(done_jobs=c["done"], ok_examples=c["ok"], retry=c["retry"], cost_usd=round(cost, 4) if cost else None,
+                     cost_parts={k: round(v, 4) for k, v in parts.items()}, cost_by_model={k: round(v, 4) for k, v in by_model.items()},
+                     date=time.strftime("%Y-%m-%d", time.localtime(path.stat().st_mtime)))
             total_ok += c["ok"] if not run.get("pilot") else 0
             if not run.get("pilot"):
                 ok_by_file[run["file"]] = c["ok"]
@@ -131,9 +140,13 @@ def training_runs(procs: list[str]) -> list[dict]:
     for mf in sorted((ROOT / "runs").glob("*/metrics.jsonl")):
         run = mf.parent
         cfg = json.loads((run / "config.json").read_text()) if (run / "config.json").exists() else {}
-        last, evals, events = {}, [], []
+        last, evals, events, first_t, powers = {}, [], [], None, []
         for line in open(mf):
             r = json.loads(line)
+            if "time" in r:
+                first_t = first_t if first_t is not None else r["time"]
+            if r.get("gpu_power_w"):
+                powers.append(r["gpu_power_w"])
             if r.get("event") == "eval":
                 evals.append({"step": r["step"], "macro_loss": r["macro_loss"]})
             elif "event" in r:
@@ -146,7 +159,9 @@ def training_runs(procs: list[str]) -> list[dict]:
         best = json.loads((run / "best.json").read_text()) if (run / "best.json").exists() else None
         runs.append({"name": run.name, "state": state, "step": last.get("step", 0), "steps": cfg.get("steps"),
                      "preset": cfg.get("preset"), "init": cfg.get("init"), "tok_per_s": last.get("tok_per_s"),
-                     "loss": last.get("loss"), "best": best, "evals": evals, "overfit": bool(cfg.get("overfit"))})
+                     "loss": last.get("loss"), "best": best, "evals": evals, "overfit": bool(cfg.get("overfit")),
+                     "wall_hours": round((last.get("time", first_t or 0) - (first_t or 0)) / 3600, 2) if first_t else 0.0,
+                     "avg_power_w": round(sum(powers) / len(powers), 1) if powers else None})
     return runs
 
 
@@ -185,6 +200,40 @@ def group_runs(runs: list[dict], experiments: list[dict], published: list[dict])
             p = by_run[r["name"]]
             r["published"] = {"name": p["name"], "link": p.get("link"), "superseded": p.get("superseded", False)}
     return runs
+
+
+def finance(synth: dict, runs: list[dict], cfg: dict) -> dict:
+    """Money in one place: cloud API spend (logged tokens × list prices), fixed subscriptions, and the free local compute."""
+    def category(r: dict) -> str:
+        n = r["name"].lower()
+        return "pilots" if r.get("pilot") else "eval data" if "eval candidates" in n else "side batches" if n.startswith(("side batch", "calibration")) \
+            else "training data"
+    items = []
+    for r in synth["runs"]:
+        if not r.get("cost_usd"):
+            continue
+        kept = r.get("ok_examples") or 0
+        items.append({"name": r["name"], "category": category(r), "date": r.get("date"), "usd": r["cost_usd"], "kept": kept,
+                      "usd_per_1k": round(1000 * r["cost_usd"] / kept, 2) if kept else None, "parts": r.get("cost_parts", {}),
+                      "running": r.get("state") == "running"})
+    by = lambda key: {k: round(sum(i["usd"] for i in items if i[key] == k), 2) for k in dict.fromkeys(i[key] for i in items)}  # noqa: E731
+    models: dict[str, float] = {}
+    for r in synth["runs"]:
+        for m, v in (r.get("cost_by_model") or {}).items():
+            models[m] = round(models.get(m, 0.0) + v, 2)
+    daily: dict[str, float] = {}
+    for i in items:
+        daily[i["date"]] = round(daily.get(i["date"], 0.0) + i["usd"], 2)
+    hours, kwh = 0.0, 0.0
+    for r in runs:
+        h = r.get("wall_hours") or 0.0
+        hours += h
+        kwh += h * (r.get("avg_power_w") or 0.0) / 1000
+    fin = cfg.get("finance", {})
+    return {"budget_usd": synth.get("budget_usd"), "spent_usd": synth.get("spent_usd"), "items": items, "by_category": by("category"),
+            "by_model": models, "daily": dict(sorted(daily.items())), "fixed": fin.get("fixed", []), "note": fin.get("note", ""),
+            "gpu_hours": round(hours, 1), "gpu_kwh": round(kwh, 1), "training_runs": len(runs),
+            "kept_examples": sum(i["kept"] for i in items if i["category"] in ("training data", "side batches"))}
 
 
 def report_list() -> list[dict]:
@@ -231,9 +280,10 @@ def collect() -> dict:
     procs = _processes()
     progress = json.loads((ROOT / "docs/progress.json").read_text())
     published = progress.get("published", [])
+    synth, runs = synth_status(procs, progress.get("synthetic", {})), training_runs(procs)
     return {"time": time.strftime("%Y-%m-%d %H:%M:%S"), "phases": progress["phases"],
-            "synth": synth_status(procs, progress.get("synthetic", {})), "milestones": progress.get("milestones", []),
-            "runs": group_runs(training_runs(procs), progress.get("experiments", []), published), "reports": eval_reports(),
+            "synth": synth, "milestones": progress.get("milestones", []), "finance": finance(synth, runs, progress),
+            "runs": group_runs(runs, progress.get("experiments", []), published), "reports": eval_reports(),
             "report_list": report_list(), "queue": queue_status(progress.get("queue", []), procs), "published": published,
             "experiments": progress.get("experiments", []), "machine": machine()}
 

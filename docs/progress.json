@@ -734,5 +734,22 @@
       "report": "kodiak-v0-checkpoints",
       "decision": ""
     }
-  ]
+  ],
+  "finance": {
+    "note": "Cloud spend is estimated from logged tokens \u00d7 DigitalOcean list prices (synthetic.prices_per_million); DigitalOcean's billing page is the source of truth. A few small unlogged calls (taxonomy generation, checker bake-offs, ~$1) aren't included. Training and evaluation run on the DGX Spark Shane already owns.",
+    "fixed": [
+      {
+        "item": "Hugging Face Pro",
+        "usd_per_month": 9,
+        "since": "2026-09-25",
+        "note": "Shane's personal account; hosts the demo Space (confirm price)"
+      },
+      {
+        "item": "DigitalOcean inference prepay",
+        "usd_once": 500,
+        "since": "2026-09-26",
+        "note": "Prepaid credit; spend is drawn from it (not an extra cost)"
+      }
+    ]
+  }
 }

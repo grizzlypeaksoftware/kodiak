@@ -39,6 +39,7 @@
     <li class="nav-item"><a class="nav-link" href="#data">Data</a></li>
     <li class="nav-item"><a class="nav-link" href="#training">Training runs</a></li>
     <li class="nav-item"><a class="nav-link" href="#evals">Evals</a></li>
+    <li class="nav-item"><a class="nav-link" href="#finance">Finance</a></li>
   </ul>
 
   <section data-tab="overview">
@@ -82,6 +83,21 @@
       <div class="col-lg-3"><div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Reports</h2><div id="report-list" class="list-group list-group-flush"></div></div></div></div>
       <div class="col-lg-9"><div class="card"><div class="card-body"><div id="report-view" class="report"><span class="muted">Pick a report.</span></div></div></div></div>
     </div>
+  </section>
+  <section data-tab="finance">
+    <div class="row g-2 mb-3" id="fin-tiles"></div>
+    <div class="row g-3">
+      <div class="col-xl-6 d-flex flex-column gap-3">
+        <div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Cloud spend by day</h2><div id="fin-daily"></div></div></div>
+        <div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Where the money went</h2><div id="fin-split"></div></div></div>
+      </div>
+      <div class="col-xl-6 d-flex flex-column gap-3">
+        <div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Fixed costs</h2><div id="fin-fixed"></div></div></div>
+        <div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Free local compute (DGX Spark)</h2><div id="fin-local"></div></div></div>
+      </div>
+      <div class="col-12"><div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Every paid batch</h2><div id="fin-items"></div></div></div></div>
+    </div>
+    <p class="muted small mt-2" id="fin-note"></p>
   </section>
   <p class="muted small mt-3">Reads the project's own logs; refreshes every 15 seconds. Served on localhost only.</p>
 </div>
@@ -145,6 +161,46 @@ function showTab() {
 }
 window.addEventListener("hashchange", showTab);
 showTab();
+
+const usd = (x, d = 2) => x == null ? "–" : "$" + Number(x).toFixed(d);
+function hbars(obj, total) {
+  const max = Math.max(...Object.values(obj), 0.01);
+  return Object.entries(obj).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<div class="mb-1">
+    <div class="d-flex justify-content-between small"><span>${esc(k)}</span><span>${usd(v)}${total ? ` <span class="muted">(${(100 * v / total).toFixed(0)}%)</span>` : ""}</span></div>
+    <div class="progress" style="height:8px"><div class="progress-bar bg-warning" style="width:${(100 * v / max).toFixed(1)}%"></div></div></div>`).join("");
+}
+function finance(f) {
+  const left = f.budget_usd - f.spent_usd;
+  const per1k = f.kept_examples ? 1000 * f.spent_usd / f.kept_examples : null;
+  const monthly = f.fixed.reduce((a, x) => a + (x.usd_per_month || 0), 0);
+  set2("fin-tiles", tile("Cloud spent", usd(f.spent_usd), `of $${f.budget_usd} budget`, "text-warning")
+    + tile("Budget left", usd(left), `${(100 * left / f.budget_usd).toFixed(0)}% remaining`, "text-success")
+    + tile("Per 1,000 examples", usd(per1k), `${f.kept_examples.toLocaleString()} kept examples, all-in`)
+    + tile("Fixed", `${usd(monthly, 0)}/mo`, "subscriptions"));
+  let cum = 0;
+  const days = Object.entries(f.daily), dmax = Math.max(...days.map(d => d[1]), 0.01);
+  set2("fin-daily", `<table class="table table-sm mb-0"><thead><tr><th>Day</th><th style="width:50%"></th><th>Spent</th><th>Running total</th></tr></thead><tbody>${
+    days.map(([d, v]) => { cum += v; return `<tr><td class="small">${esc(d)}</td>
+      <td><div class="progress" style="height:10px"><div class="progress-bar bg-warning" style="width:${(100 * v / dmax).toFixed(1)}%"></div></div></td>
+      <td>${usd(v)}</td><td class="muted">${usd(cum)}</td></tr>`; }).join("")}</tbody></table>`);
+  set2("fin-split", `<div class="small muted mb-1">By purpose</div>${hbars(f.by_category, f.spent_usd)}
+    <div class="small muted mt-3 mb-1">By model</div>${hbars(Object.fromEntries(Object.entries(f.by_model).map(([k, v]) => [k.replace("do:", ""), v])), f.spent_usd)}`);
+  set2("fin-fixed", `<table class="table table-sm mb-0"><tbody>${f.fixed.map(x => `<tr><td>${esc(x.item)}</td>
+    <td>${x.usd_per_month != null ? usd(x.usd_per_month, 0) + "/month" : usd(x.usd_once, 0) + " once"}</td>
+    <td class="small muted">since ${esc(x.since || "")}. ${esc(x.note || "")}</td></tr>`).join("")}</tbody></table>`);
+  set2("fin-local", `<div class="row g-2">${tile("GPU hours", f.gpu_hours, `${f.training_runs} training runs`)}
+    ${tile("GPU energy", `${f.gpu_kwh} kWh`, "GPU only, from logged power")}
+    ${tile("Cloud cost", "$0", "hardware already owned")}</div>
+    <div class="small muted mt-2">Local LLM baselines (Qwen through Ollama) and evals also run here and aren't counted in GPU hours.</div>`);
+  set2("fin-items", `<div class="table-responsive"><table class="table table-sm align-middle mb-0">
+    <thead><tr><th>Batch</th><th>Purpose</th><th>Date</th><th>Writer</th><th>Checker</th><th>Critics / raters</th><th>Total</th><th>Kept</th><th>$ / 1k kept</th></tr></thead>
+    <tbody>${f.items.slice().reverse().map(i => `<tr><td class="small">${esc(i.name)}${i.running ? ` <span class="badge text-bg-primary">running</span>` : ""}</td>
+      <td class="small">${esc(i.category)}</td><td class="small">${esc(i.date)}</td>
+      <td>${usd(i.parts.writer)}</td><td>${usd(i.parts.checker)}</td><td>${usd((i.parts.critics || 0) + (i.parts.extra || 0))}</td>
+      <td><b>${usd(i.usd)}</b></td><td>${i.kept.toLocaleString()}</td><td>${usd(i.usd_per_1k)}</td></tr>`).join("")}</tbody></table></div>`);
+  set2("fin-note", esc(f.note));
+}
+function set2(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; }
 
 function phases(list) {
   return list.map(p => `
@@ -264,6 +320,7 @@ async function refresh() {
     set("machine", machine(s.machine));
     set("runs", runs(s.runs, s.experiments));
     set("report-list", reportList(s.report_list));
+    finance(s.finance);
   } catch (e) {
     document.getElementById("updated").textContent = "status server not reachable: is `python -m kodiak_s1.status --serve` running?";
   }
