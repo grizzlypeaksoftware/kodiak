@@ -106,7 +106,12 @@ def synth_status(procs: list[str], cfg: dict) -> dict:
     for st in cfg.get("stages", []):
         n = sum(ok_by_file.get(f, 0) for f in st.get("files", []))
         running = any(r["state"] == "running" and r["file"] in st.get("files", []) for r in runs)
-        state = "running" if running else "done" if (st.get("done") or n >= st["goal"]) else "in progress" if n else "planned"
+        # A stage marked done stays done (a process whose command line merely mentions its file isn't a run), and a stage whose work
+        # isn't counted in files (e.g. a training test) can set its own state.
+        state = ("done" if st.get("done") else st.get("state") or ("running" if running else "done" if n >= st["goal"]
+                                                                   else "in progress" if n else "planned"))
+        if running and not st.get("done"):
+            state = "running"
         current = not current_found and state != "done"
         current_found = current_found or current
         stages.append({"name": st["name"], "why": st.get("why", ""), "goal": st["goal"], "examples": n, "state": state,

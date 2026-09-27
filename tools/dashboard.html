@@ -19,20 +19,20 @@
 </style>
 </head>
 <body class="bg-body-tertiary">
-<div class="container py-3">
+<div class="container-fluid px-4 py-3" style="max-width: 1800px">
   <div class="d-flex flex-wrap align-items-baseline gap-2 mb-3">
     <h1 class="h3 mb-0 me-auto">Kodiak</h1>
     <span class="muted small" id="updated">loading…</span>
   </div>
 
   <div class="row g-3">
-    <div class="col-lg-5">
+    <div class="col-xl-6">
       <div class="card h-100"><div class="card-body">
         <h2 class="h6 text-uppercase muted">Phases</h2>
         <div id="phases"></div>
       </div></div>
     </div>
-    <div class="col-lg-7 d-flex flex-column gap-3">
+    <div class="col-xl-6 d-flex flex-column gap-3">
       <div class="card"><div class="card-body">
         <h2 class="h6 text-uppercase muted">Machine</h2>
         <div class="row g-2" id="machine"></div>
@@ -85,9 +85,10 @@ function synth(y) {
   const pct = (n, g) => Math.min(100, 100 * n / (g || 1)).toFixed(1);
   const stBadge = s => s.state === "running" ? `<span class="badge text-bg-primary">running</span>`
     : s.state === "done" ? `<span class="badge text-bg-success">done</span>`
-    : s.state === "in progress" ? `<span class="badge text-bg-warning">in progress</span>` : `<span class="badge text-bg-secondary">planned</span>`;
+    : s.state === "in progress" ? `<span class="badge text-bg-warning">in progress</span>`
+    : s.state === "paused" ? `<span class="badge text-bg-dark border">paused</span>` : `<span class="badge text-bg-secondary">planned</span>`;
   const stages = (y.stages || []).map(s => `
-    <div class="mb-2 ${s.current ? "p-2 rounded border border-primary" : ""}" style="${s.state === "planned" ? "opacity:.6" : ""}">
+    <div class="mb-2 ${s.current ? "p-2 rounded border border-primary" : ""}" style="${s.state === "planned" || s.state === "paused" ? "opacity:.6" : ""}">
       <div class="d-flex justify-content-between align-items-center"><span>${s.current ? "▶ " : ""}<b>${esc(s.name)}</b> ${stBadge(s)}</span>
         <span class="small">${s.examples.toLocaleString()} / ${s.goal.toLocaleString()} examples · ${pct(s.examples, s.goal)}%</span></div>
       <div class="progress my-1" style="height:${s.current ? 10 : 6}px"><div class="progress-bar ${s.state === "done" ? "bg-success" : ""}" style="width:${pct(s.examples, s.goal)}%"></div></div>

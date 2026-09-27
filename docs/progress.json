@@ -340,11 +340,12 @@
       },
       {
         "name": "Stage 2 \u00b7 Generator v2.0: better data, same size",
-        "why": "Head-to-head with v1 at equal size (~9.4k kept examples)",
+        "why": "Head-to-head with v1 at equal size: fixed over-refusal, no never-seen gain (D29); 9,428 kept",
         "goal": 9400,
         "files": [
           "data/synthetic/gen2_v20.jsonl"
-        ]
+        ],
+        "done": true
       },
       {
         "name": "Stage 3 \u00b7 Generator v2.0s: judgment scores",
@@ -352,13 +353,32 @@
         "goal": 10000,
         "files": [
           "data/synthetic/gen2_s3_scores.jsonl"
+        ],
+        "state": "paused"
+      },
+      {
+        "name": "Side batch \u00b7 Mixed / neutral tone",
+        "why": "Gap from the categorizer demo; no real gain on 3 seeds (D39)",
+        "goal": 3894,
+        "files": [
+          "data/synthetic/gen2_v21_polarity.jsonl"
+        ],
+        "done": true
+      },
+      {
+        "name": "Side batch \u00b7 Calibration: unfamiliar inputs",
+        "why": "Unusual documents with tempting 'can't tell' questions (D32); 3-seed test after v2.1",
+        "goal": 4000,
+        "files": [
+          "data/synthetic/gen2_cal_unfamiliar.jsonl"
         ]
       },
       {
         "name": "Stage 4 \u00b7 Generator v2.1: hard examples",
-        "why": "Kodiak screens candidates; keep what it gets wrong (+30% easy); ablation vs v2.0",
-        "goal": 10000,
-        "files": []
+        "why": "Test running: 6,215 mined (all hard + 30% easy) vs 6,215 random from the v2.0 pool, 3 seeds each; no new generation needed",
+        "goal": 6215,
+        "files": [],
+        "state": "in progress"
       },
       {
         "name": "Stage 5 \u00b7 Generator v2.2: minimal pairs + planner",
