@@ -358,3 +358,12 @@ agent tool traces, chess notation…), 3–5 choice questions per state, 1–2 o
 when the trace doesn't settle it), at least one answerable by inference. Pilot: 22/30 kept, 35% of kept questions are "can't tell", $0.06.
 Batch `data/synthetic/gen2_cal_unfamiliar.jsonl` (cap $9.50). Test `scripts/unfamiliar_ab.sh` (after the v2.1 test): small, public + v2.0 + this
 batch, 3 seeds, vs. small v2; the rows that matter are never-seen ECE, abstain precision and never-seen accuracy (must not drop: over-refusal risk).
+
+## 16. Found by a demo user: label-word overlap (2026-09-27)
+
+A demo user (David Webster, on X) paraphrased the support-ticket example and the refund probability fell from 0.97 to 0.48. The last sentence
+alone decides it: "please cancel and refund me" → small 0.97 / large 0.87; "cancel my order and refund me" → 0.98 / 0.94; "I'd like a refund
+instead" → 0.70 / 0.37; "give me my money back" → 0.48 / 0.30. When the state repeats a label's words, Kodiak becomes near-certain, even though
+this refund is conditional ("if it can't arrive by Monday") and "expedite" is the better answer. It is a lexical-overlap shortcut (as in NLI's HANS).
+**v2.2 target:** minimal pairs of two kinds: (a) the label's words appear in the state but the answer is another option (conditional or negated
+requests, quoted text, "I don't want a refund"), and (b) the right label paraphrased with no shared words. Regression probe: these four sentences.

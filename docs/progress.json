@@ -654,7 +654,7 @@
     },
     {
       "name": "Generator v2.2 pilot: minimal pairs + planner",
-      "why": "Twins that differ only in the fact that matters; batches aimed at validation weak spots.",
+      "why": "Twins that differ only in the fact that matters; batches aimed at validation weak spots. New target from a demo user: label-word overlap (the refund ticket goes 0.97 \u2192 0.48 when reworded, GENERATOR_V2 \u00a716).",
       "after": "v2.1 result",
       "eta": "this evening",
       "cost": "pilot < $1, then a capped batch (ask first)"
