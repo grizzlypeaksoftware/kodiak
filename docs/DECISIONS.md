@@ -285,3 +285,15 @@ still to confirm (large 0.84 ± 0.08 is noisy; small 0.91).
 **Decisions.** ModernBERT-large becomes the quality tier; small stays the fast tier (8 ms vs. 16 ms GPU). Next levers, in order: calibration
 off-distribution (D32: unfamiliar inputs labeled "can't tell", a sequential eval slice, Zork re-run on large), then ratings (bands, D31).
 v1 vs v2 on v0.2 confirms D29: v2 abstain precision 0.69 → 0.91, never-seen forced +0.8 (small, within noise).
+
+### D34: A three-run ensemble fixes much of the calibration gap
+**Evidence (eval v0.2, existing predictions averaged, no retraining; abstain threshold 0.7 untuned).** Large, one run (mean of 3) → ensemble of the
+3 runs: never-seen forced 0.609 → **0.623**, never-seen accuracy 0.571 → 0.590, never-seen ECE ~0.128 → **0.099**, overall ECE ~0.087 → **0.059**,
+abstain precision 0.84 (range 0.76–0.92 across runs) → **0.93**, familiar 0.855 → 0.869. Small: forced 0.553 → 0.571, never-seen ECE ~0.136 → 0.112.
+**Reading.** Independently trained runs are overconfident in different places; averaging cancels much of it. This is the first lever that improves
+calibration on unfamiliar tasks (D32) rather than only in-distribution.
+**Decisions.** (1) Offer ensembles as an option ("accuracy mode") where 3× compute is acceptable (large: ~48 ms GPU, ~750 ms CPU). (2) Next
+experiment: **distill** the 3-run ensemble into one model (train on the ensemble's averaged probabilities) to keep most of the gain at single-model
+cost; free on the Spark. (3) Tune the ensemble's abstain threshold on validation data before any release.
+**Note.** The published large preview (seed 1, chosen by validation loss) happens to have the lowest abstain precision of the three on eval v0.2
+(0.845); selection stays validation-based so the eval set remains untouched.

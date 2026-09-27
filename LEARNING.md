@@ -635,3 +635,11 @@ On 4,200 questions across 12 tasks it's decisive. When results are noisy, measur
 
 **Concept: absolute numbers depend on the test.** Never-seen accuracy "dropped" from ~72% to ~61% only because the new tasks are harder (legal
 holdings, arXiv fields, poetry). Compare systems on the same test, never numbers across tests.
+
+## Three heads are better than one: ensembles (2026-09-26)
+
+We already had three trained copies of each model (the seed repeats). Averaging their answers, with no new training, improved everything at
+once on the twelve-task never-seen test: accuracy up about 1.5–2 points, calibration error down about a quarter, and "can't tell" answers right
+93% of the time instead of 84%. Each run is overconfident in *different* places, so averaging cancels much of it. That's why ensembles are the
+classic remedy for confidence under distribution shift. The cost is three times the compute; the next experiment, **distillation**, trains a
+single model to imitate the ensemble's averaged probabilities, aiming to keep most of the benefit at the original speed.

@@ -468,6 +468,10 @@
   {
    "date": "2026-09-26",
    "text": "ModernBERT-large (3 seeds) beats every open zero-shot classifier on eval v0.2 never-seen tasks: 60.9% vs 57.9% best clean rival. Release criterion 1 met by large (D33); ratings and off-distribution calibration still weak"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "Ensemble of 3 large runs: never-seen forced 62.3%, calibration error 0.099 (from ~0.128), abstain precision 93% (D34). Next: distill the ensemble into one model"
   }
  ]
 }
