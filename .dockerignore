@@ -1,0 +1,5 @@
+*
+!schema/kodiak-request.schema.json
+!server/package.json
+!server/package-lock.json
+!server/src

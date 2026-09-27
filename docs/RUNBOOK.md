@@ -167,6 +167,20 @@ nohup setsid uv run python -m kodiak_s1.hub push --folder dist/kodiak-small-r1 \
   Deploy a new one by creating a Gradio Space and uploading the folder; set the variable `KODIAK_MODEL`, and while the
   model is private, an `HF_TOKEN` secret with read access.
 
+### ONNX and the Node server (Phase 6, D35)
+
+```bash
+# needs the onnx extra once: uv pip install onnx onnxruntime onnxscript
+CUDA_VISIBLE_DEVICES="" uv run python -m kodiak_s1.onnx_export export --folder dist/kodiak-small-v2   # + parity check; ~1 min small, ~3 min large
+cd server && npm ci && npm test                                    # JS vs Python parity (uses runs/onnx/kodiak-small-v2 or $KODIAK_MODEL)
+KODIAK_MODEL=../dist/kodiak-small-v2 npm start                     # or: docker build -f server/Dockerfile -t kodiak-server .
+```
+
+- If the model changes, regenerate the fixtures (`scripts/make_parity_fixtures.py <model folder>`) so the JS
+  answers are compared against the model actually being served.
+- Exporting on CPU (`CUDA_VISIBLE_DEVICES=""`) is safe while a training run uses the GPU.
+- Don't quantize to int8 without re-running calibration checks: dynamic int8 broke calibration (D35).
+
 ## 6. Track A pretraining corpus (deferred)
 
 Track A is deferred (DECISIONS.md D19). A partial FineWeb-Edu `sample/10BT` download (19 of 28.5 GB, ODC-By) remains in

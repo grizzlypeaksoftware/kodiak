@@ -37,6 +37,11 @@ train = [
     "numpy>=1.26",
     "scipy>=1.11",  # Beta quantiles for score intervals
 ]
+onnx = [
+    "onnx>=1.17",
+    "onnxruntime>=1.20",
+    "onnxscript>=0.2",
+]
 
 [project.urls]
 Repository = "https://github.com/grizzlypeaksoftware/kodiak"

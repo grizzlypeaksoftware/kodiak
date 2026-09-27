@@ -340,14 +340,19 @@ confidence, and we say which.
 
 ## 12. Inference and ONNX
 
-- **Graph inputs:** `input_ids`, `position_ids`, a boolean attention mask `[N, N]` built by the client from token roles,
-  and the indices of question and label marker tokens (plus which question each label belongs to). **Outputs:** raw logits
-  and (μ, κ); calibration temperatures ship in the model config.
-- FlexAttention isn't exportable, so the export path uses standard scaled-dot-product attention with the explicit mask.
-  A parity test checks that both paths agree on fixture requests.
-- **Post-processing** (grouped softmax, thresholds, Beta quantiles) is a few dozen lines, implemented in both
-  Python and JavaScript and tested against the same fixtures.
-- Node.js server: `onnxruntime-node`, the tokenizer from `tokenizer.json`, validation with the JSON Schemas in `schema/`.
+Built in Phase 6 (D35): `src/kodiak_s1/onnx_export.py` and the Node server in `server/`.
+
+- **Graph inputs** are the packed batch as flat int64 tensors: `input_ids, pos, doc, role, qi, li` `[B, N]`, `q_row, q_col` `[Q]`
+  and `l_row, l_col, l_q` `[L]`. **Outputs:** calibrated raw heads `z_choice [L]`, `z_null [Q]`, `mu [Q]`, `kappa [Q]`.
+- **The attention mask is built inside the graph** from the role tensors, with the same `allowed` rule as training. (The original plan
+  had the client build an `[N, N]` mask; moving it into the graph keeps the JavaScript client to tokenizing and packing.)
+- FlexAttention isn't exportable, so the export uses the SDPA path. `onnx_export check` compares ONNX with PyTorch on fixture
+  requests, one at a time and packed together, and export fails if they disagree (small: relative difference ~1e-5).
+- **Post-processing** (grouped softmax, thresholds, Beta quantiles) lives in `kodiak_s1.infer` and `server/src/kodiak.js`, tested
+  against the same fixtures (`server/test/fixtures/parity.json`): packing matches token for token, probabilities to 1e-4.
+- Node.js server: `onnxruntime-node`, `@huggingface/tokenizers` (the same ids as the Rust tokenizer), Ajv validation against
+  `schema/kodiak-request.schema.json`, Express. CPU p50: small ~30 ms, large ~80 ms (8 threads).
+- **fp32 only.** Dynamic int8 quantization was ~2× faster but flipped 11 of 41 fixture choices and moved p(null) by up to 0.58.
 
 ## 13. v0.1 limits
 

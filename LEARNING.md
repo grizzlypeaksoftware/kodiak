@@ -643,3 +643,18 @@ once on the twelve-task never-seen test: accuracy up about 1.5–2 points, calib
 93% of the time instead of 84%. Each run is overconfident in *different* places, so averaging cancels much of it. That's why ensembles are the
 classic remedy for confidence under distribution shift. The cost is three times the compute; the next experiment, **distillation**, trains a
 single model to imitate the ensemble's averaged probabilities, aiming to keep most of the benefit at the original speed.
+
+## Running Kodiak without Python: ONNX and a Node server (2026-09-26)
+
+Training needs PyTorch and a GPU; *using* a model shouldn't. **ONNX** is a file format for a trained network's math (the "graph") that many
+runtimes can execute. We export Kodiak to one `model.onnx` file and run it from Node.js with ONNX Runtime: about 30 ms per request for small
+on an ordinary CPU, in a 554 MB Docker image. The pieces around the network (turning text into tokens, packing questions and labels, and the
+decision rule that turns scores into answers or abstentions) were rewritten in JavaScript and are tested against the Python version on 44
+saved requests: the same tokens, and the same probabilities to four decimal places.
+
+**Concept: the export is only as good as its parity test.** A converted model can silently differ from the original. Every export compares
+ONNX and PyTorch outputs on fixed requests and refuses to finish if they disagree.
+
+**Concept: quantization can break calibration.** "int8 quantization" stores weights as 8-bit integers instead of 32-bit floats: half the size,
+twice the speed, and usually "almost the same accuracy." For Kodiak it changed 11 of 41 answers and moved the "can't tell" probability by up
+to 0.58. For a model whose selling point is honest confidence, "almost the same" isn't good enough, so we ship full precision.

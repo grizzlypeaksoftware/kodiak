@@ -297,3 +297,15 @@ experiment: **distill** the 3-run ensemble into one model (train on the ensemble
 cost; free on the Spark. (3) Tune the ensemble's abstain threshold on validation data before any release.
 **Note.** The published large preview (seed 1, chosen by validation loss) happens to have the lowest abstain precision of the three on eval v0.2
 (0.845); selection stays validation-based so the eval set remains untouched.
+
+### D35: Self-hosting via ONNX + Node, fp32 only (Phase 6)
+**Built.** `kodiak_s1.onnx_export` exports a model folder to one ONNX file (small 610 MB, large 1.6 GB) and checks it against PyTorch
+(relative difference ~1e-5 on both). `server/` is a Node.js twin of the Python packer and decision rule, an Express API (`POST /v1/decide`)
+and a Dockerfile. JS vs Python parity on 44 fixture requests (40 from the eval set): identical tokens, probabilities within 1e-4. CPU latency
+p50 in Node, 8 threads: small ~30 ms, large ~80 ms; Docker image 554 MB, ~1 GB RAM with small.
+**Design change.** The attention mask is built inside the graph from token roles, not by the client (ARCHITECTURE §12 originally said client),
+so any client only tokenizes and packs.
+**Rejected: int8.** Dynamic int8 (per-tensor and per-channel) cut size in half and latency ~2×, but flipped 11 of 41 fixture choice answers and
+moved p(null) by up to 0.58. A calibrated model can't ship with that; revisit only with quantization-aware checks on the eval set.
+**Open.** ONNX files aren't on the Hub yet (publishing needs Shane's OK); the hosted Cortex Agent API (STRATEGY §5b) can run on this server.
+

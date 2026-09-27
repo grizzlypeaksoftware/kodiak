@@ -1,0 +1,24 @@
+{
+  "name": "kodiak-server",
+  "version": "0.1.0",
+  "description": "Self-hosted Kodiak decision model: ONNX Runtime + Express, no Python or GPU needed",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "src/kodiak.js",
+  "bin": {
+    "kodiak-server": "src/server.js"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@huggingface/tokenizers": "^0.2.0",
+    "ajv": "^8.20.0",
+    "express": "^5.2.1",
+    "onnxruntime-node": "^1.30.0"
+  }
+}

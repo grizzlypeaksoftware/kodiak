@@ -122,7 +122,7 @@ so it is cheap to host anywhere. Four ways to run it, from free to product:
 |---|---|---|
 | **Demo Space** (Gradio, free CPU) | Try it in a browser | Built: `spaces/kodiak-demo/`; deploy at release |
 | **Hugging Face Inference Endpoints** (Deploy button; `handler.py` in the model repo) | "Host it for me", billed hourly by Hugging Face | Built: `release/handler.py`, copied into every export |
-| **Self-host** (`pip install kodiak-s1[infer]`; later a Docker image with the ONNX + Node/Express server, Phase 6) | Run it on your own laptop, VPS or cloud, no GPU needed | pip path built; Docker/ONNX in Phase 6 |
+| **Self-host** (`pip install kodiak-s1[infer]`, or the ONNX + Node/Express server in `server/`, with a Docker image) | Run it on your own laptop, VPS or cloud, no GPU needed | Both built (D35); ONNX files not yet on the Hub |
 | **Kodiak hosted API by Cortex Agent** | Teams that want an API key and an SLA, not infrastructure | **The productization path** (Shane, 2026-09-25); designed after the public release |
 
 The hosted API is the business model: open weights build trust and adoption, and the hosted service (plus, later, fine-tuning on a
