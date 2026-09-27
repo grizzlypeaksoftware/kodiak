@@ -360,3 +360,7 @@ before this number existed, but it is the change that makes large pass.
 Kodiak uses "mixed" as a fallback for "neither", so the problem is mapping "no emotional impact" to neutral, not under-using "mixed".
 **Decisions.** Don't adopt this data into the default recipe. Not following up now (Shane, 2026-09-27: keep scope tight).
 
+
+### D40: Zork work parked
+**Decision (Shane, 2026-09-27).** No Zork re-run on large and no Zork-derived eval slice for now; it was a demo, not a product benchmark. Calibration
+on unfamiliar inputs (criterion 3) stays the next roadmap item, measured on eval v0.2's never-seen tasks instead.
