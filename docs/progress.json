@@ -87,7 +87,7 @@
           "status": "done"
         },
         {
-          "name": "Calibration off-distribution (D32/D34): 3-run ensemble helps; distilling it into small, 3 seeds (~8 h, running)",
+          "name": "Calibration off-distribution (D32/D34/D36): 3-run ensemble helps; distilling it into small didn't; next: 'can't tell' data for unfamiliar inputs (proposed)",
           "status": "in_progress"
         },
         {
@@ -95,8 +95,8 @@
           "status": "pending"
         },
         {
-          "name": "Next data batch: mixed / neutral sentiment choice questions (gap found in the categorizer demo; a few dollars)",
-          "status": "pending"
+          "name": "Mixed / neutral sentiment batch (3,894 examples, $9.78): no real gain, 3 seeds (D39)",
+          "status": "done"
         },
         {
           "name": "Generator v2.1 (student screen, critic) and v2.2 (minimal pairs, planner)",
@@ -126,6 +126,10 @@
           "status": "done"
         },
         {
+          "name": "Qwen3-8B on all of eval v0.2 + cascade simulation: criterion 2 met, Kodiak+LLM beats both (D37/D38)",
+          "status": "done"
+        },
+        {
           "name": "Full comparison on the final model",
           "status": "pending"
         }
@@ -134,7 +138,29 @@
     {
       "id": "6",
       "name": "ONNX export + Node.js server + demo page",
-      "status": "pending"
+      "status": "done",
+      "steps": [
+        {
+          "name": "ONNX export with parity check (D35)",
+          "status": "done"
+        },
+        {
+          "name": "Node.js server + Docker image, JS/Python parity tests",
+          "status": "done"
+        },
+        {
+          "name": "model.onnx published in both preview repos",
+          "status": "done"
+        },
+        {
+          "name": "Demo page: Hugging Face Space (small/large picker, categorizer)",
+          "status": "done"
+        },
+        {
+          "name": "int8 quantization: rejected (breaks calibration)",
+          "status": "done"
+        }
+      ]
     },
     {
       "id": "later",
