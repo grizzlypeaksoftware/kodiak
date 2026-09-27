@@ -10,8 +10,11 @@ import gradio as gr
 
 from kodiak_s1.hub import Kodiak
 
-MODEL = os.environ.get("KODIAK_MODEL", "cortex-agent-llc/kodiak-small-r1-preview")
-kodiak = Kodiak.from_pretrained(MODEL, token=os.environ.get("HF_TOKEN"))
+# KODIAK_MODELS: comma-separated repo ids (first = default). KODIAK_MODEL still works for a single model.
+MODELS = [m.strip() for m in os.environ.get("KODIAK_MODELS", os.environ.get("KODIAK_MODEL", "cortex-agent-llc/kodiak-small-v2-preview")).split(",") if m.strip()]
+LOADED = {m: Kodiak.from_pretrained(m, token=os.environ.get("HF_TOKEN")) for m in MODELS}
+MODEL = MODELS[0]
+kodiak = LOADED[MODEL]
 
 EXAMPLES = {
     "Support ticket": (
@@ -38,11 +41,11 @@ EXAMPLES = {
 }
 
 
-def run(state_text: str, questions_json: str, threshold: float):
+def run(state_text: str, questions_json: str, threshold: float, model: str = MODEL):
     try:
         state = json.loads(state_text) if state_text.strip()[:1] in "[{" else state_text
         questions = json.loads(questions_json)
-        answers = kodiak.decide(state, questions, null_threshold=threshold)
+        answers = LOADED.get(model, kodiak).decide(state, questions, null_threshold=threshold)
     except Exception as e:  # show errors in the UI instead of a stack trace
         return f"**Error:** {e}", {}
     lines = []
@@ -70,8 +73,11 @@ with gr.Blocks(title="Kodiak") as demo:
                 "A better-trained version is on the way. Found a failure? "
                 "[Open an issue](https://github.com/grizzlypeaksoftware/kodiak/issues) · "
                 "[How it works](https://github.com/grizzlypeaksoftware/kodiak) · "
-                f"Model: [{MODEL}](https://huggingface.co/{MODEL})")
-    example = gr.Dropdown(list(EXAMPLES), value="Support ticket", label="Example")
+                "Models: " + " · ".join(f"[{m.split('/')[-1]}](https://huggingface.co/{m})" for m in MODELS))
+    with gr.Row():
+        example = gr.Dropdown(list(EXAMPLES), value="Support ticket", label="Example")
+        model = gr.Dropdown(MODELS, value=MODEL, label="Model (small: fastest, most reliable \"can't tell\"; large: more accurate, slower)",
+                            visible=len(MODELS) > 1)
     with gr.Row():
         state = gr.Textbox(label="State (text, or a JSON list/object)", lines=10)
         questions = gr.Code(label="Questions (JSON)", language="json", lines=10)
@@ -82,7 +88,7 @@ with gr.Blocks(title="Kodiak") as demo:
     raw = gr.JSON(label="Full response")
     example.change(load_example, example, [state, questions])
     demo.load(load_example, example, [state, questions])
-    go.click(run, [state, questions, threshold], [summary, raw])
+    go.click(run, [state, questions, threshold, model], [summary, raw])
 
 if __name__ == "__main__":
     demo.launch()
