@@ -221,6 +221,12 @@ log as a clean negative result, along with the version worth trying later. The s
 export and a small Node.js server, about 30 ms per request on a CPU), and a ten-dollar batch went out to teach it the words "mixed" and "neutral",
 a gap Shane had spotted in his own demo.
 
+At 2:23 a.m. the last missing measurement came in: an open 8-billion-parameter LLM, run on the same desk against the whole test. It beat Kodiak
+by about eight points on never-seen tasks, all of it on questions that need outside knowledge, and lost on nearly everything else. Then a
+five-minute script, using nothing but answers already on disk, asked the question the whole design was built around: what if Kodiak answers
+when it's sure and passes the rest to the LLM? The pair beat both. With Kodiak keeping four out of five questions, the team outscored the LLM
+working alone, and sending a few more across put it three points ahead. The System 1 idea from day three had its first number.
+
 *(Continued as the project progresses.)*
 
 ---

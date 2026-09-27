@@ -670,3 +670,18 @@ any of those through the teachers' eyes.
 **Concept: a negative result is still a result.** It cost nothing but an evening of GPU time, it's recorded (D36) so nobody repeats it the same
 way, and it points at the version that might work: distill on inputs the teachers never trained on.
 
+## Measuring against a real LLM, and why the team beats both players (2026-09-27)
+
+We ran Qwen3-8B, an open 8-billion-parameter chat model, on the whole test locally. On tasks Kodiak never trained on, it scored about 8 points
+higher than large Kodiak, inside the "within ~10 points" bar we set before measuring. The per-task split explains why: the LLM wins where the answer
+needs *knowledge* (which academic field a paper belongs to, legal holdings, the mood of a poem), and Kodiak wins or ties where the answer is *in the
+text* (prompt injections, contract clauses, and everything it was trained for). Kodiak's confidence numbers are also far more trustworthy (calibration
+error 0.07 vs. 0.29), and it says "can't tell" correctly 92% of the time where the LLM manages 43%.
+
+Then the payoff. **A cascade** lets Kodiak answer when it's confident and sends the rest to the LLM. With Kodiak keeping 79% of questions, the pair
+scored higher than the LLM alone; sending 43% to the LLM beat it by three points. Nothing about either model changed. What made it work is calibration:
+when Kodiak says it's sure, it's right, so the LLM only gets the questions Kodiak would have missed.
+
+**Concept: a cascade is only as good as its confidence signal.** An overconfident first stage keeps its wrong answers and the LLM never sees them.
+That's why the project treats calibration as a feature, not a footnote.
+

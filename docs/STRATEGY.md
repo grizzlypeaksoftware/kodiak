@@ -89,9 +89,17 @@ Kodiak's calibration does not yet hold on out-of-distribution sequential decisio
 | NLI DeBERTa-v3-large -28heldout (clean) | 435M | 0.266 | 0.579 | 0.552 | 0.596 |
 | NLI ModernBERT-large zeroshot v2.0 | 395M | 0.385 | 0.569 | 0.529 | 0.414 |
 | GLiClass instruct large v1.0 | 439M | 0.502 | 0.550 | 0.505 | 0.208 |
+| *Qwen3-8B (LLM, verbalized confidence, no thinking)* | 8B | 0.658 | 0.688 | 0.646 | 0.293 |
 
 Criterion 1 (best in class on never-seen tasks) is **met by the large model**, by 3 points over the best clean rival (> 3 sd). Calibration is the
 best of all systems but not ≤ 0.05 on never-seen tasks. Ratings (clickbait) remain weak for both sizes.
+
+**Update 2026-09-27: the LLM comparison (D37).** Qwen3-8B on the full eval v0.2, run locally. On never-seen tasks it leads large Kodiak by
+**7.9 points** (0.688 vs. 0.609, 3-seed mean; 6.5 vs. the 3-run ensemble), so criterion 2's accuracy half is **met, narrowly**. Its lead comes from
+world-knowledge tasks (arXiv fields +19, legal holdings +18, poem sentiment +23, jailbreak +28); Kodiak wins prompt injection (+28), contract NLI (+14)
+and financial sentiment (+5). Kodiak wins everything else: familiar tasks 0.855 vs. 0.710, "can't tell" on constructed unanswerables 92% vs. 43%,
+calibration error 0.07 vs. 0.29 overall. On a 1,500-example sample, Qwen 27B leads large by 11 points on never-seen tasks and ties it on familiar ones.
+Speed half: 17 ms vs. ~2.3 s measured with 4 concurrent requests (~135×); a clean one-request-at-a-time measurement is queued before claiming ≥ 100×.
 
 ## 5. The product shape: System 1 in front of System 2
 
@@ -111,6 +119,10 @@ reasoning weak). Separately, TypeSafe and OpenRouter launched `typesafe/jev-rout
 proven commercial use of decision models. That turns LLM-level quality into
 something affordable at volume. The second selling point is **adaptation**: fine-tuning on a few hundred of a customer's own labeled
 examples, which typically lifts a specific task well past any zero-shot model.
+
+**Measured (D37, eval v0.2, choice questions):** Kodiak large first, Qwen3-8B only when Kodiak's top probability is below t. Kodiak alone 0.678,
+the LLM alone 0.709. With t = 0.5, Kodiak keeps 79% of questions and the pair scores **0.717**; with t = 0.7 (43% escalated), **0.740**. The cascade
+beats both systems while making a fraction of the LLM calls. (reports/v02-cascade.md; pick t on your own validation data.)
 
 ## 5b. Distribution: how people will run it
 
@@ -210,4 +222,4 @@ Two sizes are the likely release: a fast one (small) and a quality one (large). 
 - **Teacher ceiling.** Synthetic labels are only as good as writer + checker + critics (human review: 92.7% for v2.0). Label noise
   caps what the student can learn.
 - **Which public benchmark?** To choose: permissively licensed zero-shot classification sets, disjoint from our training sources.
-- **The LLM comparison point.** Qwen 27B is measured; a 7–8B LLM baseline (criterion 2) still needs to run.
+- **The LLM comparison point.** Measured (D37): Qwen3-8B leads by 7.9 points on never-seen tasks, all from world-knowledge-heavy tasks.

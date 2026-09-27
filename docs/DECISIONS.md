@@ -321,3 +321,24 @@ eyes. The student's own temperature calibration then had less to work with.
 retried, distill on inputs the teachers did *not* train on (e.g. unlabeled real text or held-back synthetic states), with the teachers' uncertainty
 as the target; cost ≈ one overnight run. Not scheduled.
 
+### D37: Release criterion 2 (near-LLM) met narrowly; the gap is world knowledge
+**Evidence (eval v0.2, choice questions; reports/v02-vs-llm-8b.md, v02-vs-llm-27b-sample.md).** Qwen3-8B (Apache-2.0; Ollama, JSON-schema output,
+no thinking, the same v3 prompt as the Qwen 27B baseline, verbalized confidence) on all 6,102 examples. Never-seen forced accuracy: **Qwen3-8B 0.688**,
+Kodiak large 0.609 ± 0.008 (3 seeds), ensemble 0.623, small 0.553. Gap 7.9 points (ensemble 6.5): inside the ~10-point bar. Per task, Qwen leads
+on jailbreak (+28), poem sentiment (+23), arXiv fields (+19), CaseHOLD (+18), financial topics (+7), banking (+3), bios (+2); Kodiak leads on
+prompt injection (+28), ContractNLI (+14), financial sentiment (+5); ETHICS tied. Elsewhere Kodiak wins clearly: familiar tasks 0.855 vs 0.710,
+overall accuracy 0.675 vs 0.658, constructed unanswerables 0.92 vs 0.43, ECE 0.072 vs 0.287 (never-seen 0.11 vs 0.29). Qwen 27B (1,500-example
+sample): never-seen forced 0.728 vs large 0.616 on the same sample; familiar 0.855 vs 0.858.
+**Speed (provisional).** Kodiak large 17 ms (GPU, batch 1); Qwen3-8B 2.3 s p50 with 4 concurrent requests. A single-stream measurement on an idle GPU
+(`scripts/latency_v02.sh`, queued) decides whether the ≥100× half holds for large; small (8 ms) clears it either way.
+**Reading.** The LLM's edge is knowledge an encoder of this size doesn't carry (academic fields, legal holdings, poetic sentiment, jailbreak phrasing);
+where the answer is in the state, Kodiak is as good or better and far better calibrated. That is the System 1 / System 2 split in numbers.
+**Decisions.** (1) Criterion 2's accuracy half is met; report it with the per-task split, not as a single number. (2) The cascade pitch (§5) uses
+this: Kodiak's calibrated confidence is what decides when to call the LLM. (3) Cascade measured the same night (below).
+**Cascade (scripts/cascade_sim.py, reports/v02-cascade.md; existing predictions, no new runs).** Kodiak large answers when its top probability ≥ t,
+otherwise Qwen3-8B answers. All choice questions: Kodiak alone 0.678, LLM alone 0.709; **t = 0.5: 21% sent to the LLM, 0.717**; t = 0.7: 43% sent,
+**0.740**; t = 0.8: 54% sent, 0.744. Never-seen: t = 0.7 matches the LLM (0.688) with 52% of the calls; familiar: t = 0.5 gives 0.866 with 8% sent
+(the LLM alone scores 0.751). **The pair beats either system alone**, because Kodiak's confidence separates the questions it has won from the ones
+it hasn't. Caveat: the curve is measured on the eval set; t = 0.5 is a natural default, not a tuned value, and a deployment should pick t on its own
+validation data.
+

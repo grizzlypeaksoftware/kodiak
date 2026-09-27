@@ -516,6 +516,10 @@
     {
       "date": "2026-09-27",
       "text": "Polarity batch (mixed/neutral tone): 3,894 examples for $9.78; 3-seed test queued"
+    },
+    {
+      "date": "2026-09-27",
+      "text": "Release criterion 2 met narrowly: Qwen3-8B leads by 7.9 on never-seen tasks (world knowledge); Kodiak\u2192LLM cascade beats both (0.740 vs 0.709 with 43% escalated) (D37)"
     }
   ]
 }

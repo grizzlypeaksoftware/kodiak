@@ -225,6 +225,19 @@ The same night, two cheaper wins: Kodiak learned to run without Python (a plain 
 request on an ordinary processor), and a ten-dollar batch of practice data went out to teach it "mixed" and "neutral", after Shane noticed his
 own demo calling a two-sided review "positive."
 
+### The 2 a.m. scoreboard: small model plus big model beats both
+
+The last test on the list was the one everybody asks about: how does Kodiak stack up against a real chatbot-style LLM? Shane's desk ran an open
+8-billion-parameter model through the entire exam overnight. It won on never-seen tasks by about eight points, and every bit of that lead came
+from questions that need outside knowledge: which science field a paper belongs to, legal case law, the mood of a poem. Where the answer is in
+the text, Kodiak won or tied, while running more than a hundred times faster, and it was far more honest: the LLM said "can't tell" correctly
+less than half the time, Kodiak 92%.
+
+Then the fun part. Using only answers already saved on disk, a tiny script played out the real product idea: Kodiak answers when it's sure,
+and only the rest goes to the LLM. **The team beat both players.** With Kodiak handling four questions out of five on its own, the pair scored
+higher than the LLM alone, and handing over a few more put it three points ahead. The whole bet of the project, a fast model that knows what it
+knows, working in front of a slow one that knows more, had its first real number. Cost of the experiment: zero dollars.
+
 ### Where it stands right now
 
 The next fights are the two honest weak spots: calibration on unfamiliar tasks (the Zork lesson: a System 1 that knows when it's lost) and
@@ -277,6 +290,7 @@ changes for every small team building with AI if the answer is yes?**
 - One sentence of question wording made Kodiak's moves **35× more productive**.
 - The bigger model beat every open rival on never-seen tasks, with three runs agreeing **within less than a point**.
 - Averaging three models made Kodiak more honest; teaching one model to copy the average made it **slightly less** honest.
+- Kodiak answering 4 of 5 questions and passing the rest to an 8B LLM **beat the LLM answering all of them**.
 
 ## Fact sheet (for accuracy)
 
