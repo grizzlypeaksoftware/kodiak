@@ -83,6 +83,14 @@
      "status": "done"
     },
     {
+     "name": "Publish Kodiak large v2 research preview (seed 1, chosen on validation; honest abstention caveat)",
+     "status": "in_progress"
+    },
+    {
+     "name": "Calibration off-distribution (D32/D34): 3-run ensemble helps; distilling it into small, 3 seeds (~8 h, running)",
+     "status": "in_progress"
+    },
+    {
      "name": "Stage 3 data (judgment scores): PAUSED after 5 pilots ($0.54) — raters disagree; next try low/medium/high bands if the large model doesn't fix scores",
      "status": "pending"
     },
