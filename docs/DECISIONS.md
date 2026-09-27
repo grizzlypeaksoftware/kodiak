@@ -349,4 +349,14 @@ any LLM had been measured single-stream.
 **Honesty note.** STRATEGY §6 says criteria may be tightened, never loosened after seeing results. This change loosens one, so it is recorded here
 openly. It was made *before* the clean single-stream latency measurement (`scripts/latency_v02.sh`, queued) and after only a provisional number
 (~135× for large, measured with concurrent requests). Every report states the measured multiple, not just pass/fail. No other criterion changes.
+**Update (clean latency, 2026-09-27 05:48, `scripts/latency_v02.sh`).** Qwen3-8B one request at a time: p50 1,530 ms. Kodiak large 16.0 ms (**96×**),
+small 7.3 ms (**210×**). Both clear ≥50×. Stated plainly: under the old ≥100× bar, large would have narrowly missed (96×); the bar was changed
+before this number existed, but it is the change that makes large pass.
+
+### D39: The mixed/neutral batch barely moved the targets; the real poem failure is different
+**Evidence (3 seeds each, eval v0.2; reports/v02-polarity.md).** Small, public + v2.0 + 3,894 polarity examples vs. small v2: poem sentiment forced
+0.258 → 0.282 (+2.5, ~1.5 sd), financial-tweet sentiment 0.704 → 0.699, never-seen average +0.6 (noise), abstain precision 0.91 → 0.85 (noisy).
+**Diagnosis.** On poem_sentiment, 257 of 400 lines are "no emotional impact", and Kodiak answers **"mixed"** for 164 of them (Qwen3-8B gets 136 right).
+Kodiak uses "mixed" as a fallback for "neither", so the problem is mapping "no emotional impact" to neutral, not under-using "mixed".
+**Decisions.** Don't adopt this data into the default recipe. Not following up now (Shane, 2026-09-27: keep scope tight).
 

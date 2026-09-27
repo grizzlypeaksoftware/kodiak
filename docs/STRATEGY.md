@@ -99,7 +99,7 @@ best of all systems but not ≤ 0.05 on never-seen tasks. Ratings (clickbait) re
 world-knowledge tasks (arXiv fields +19, legal holdings +18, poem sentiment +23, jailbreak +28); Kodiak wins prompt injection (+28), contract NLI (+14)
 and financial sentiment (+5). Kodiak wins everything else: familiar tasks 0.855 vs. 0.710, "can't tell" on constructed unanswerables 92% vs. 43%,
 calibration error 0.07 vs. 0.29 overall. On a 1,500-example sample, Qwen 27B leads large by 11 points on never-seen tasks and ties it on familiar ones.
-Speed half: 17 ms vs. ~2.3 s measured with 4 concurrent requests (~135×); a clean one-request-at-a-time measurement is queued before claiming ≥ 50× (the bar, D38).
+Speed half: 17 ms vs. ~2.3 s measured with 4 concurrent requests (~135×); single-stream: Qwen3-8B 1,530 ms vs. large 16 ms (**96×**) and small 7.3 ms (210×), so ≥50× is met (D38).
 
 ## 5. The product shape: System 1 in front of System 2
 
