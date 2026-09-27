@@ -342,3 +342,11 @@ otherwise Qwen3-8B answers. All choice questions: Kodiak alone 0.678, LLM alone 
 it hasn't. Caveat: the curve is measured on the eval set; t = 0.5 is a natural default, not a tuned value, and a deployment should pick t on its own
 validation data.
 
+### D38: Speed bar for criterion 2 lowered from ≥100× to ≥50×
+**Decision (Shane, 2026-09-27).** "Near-LLM" now means within ~10 points of a 7–8B open LLM at **≥50×** its speed. Reason: 50× faster while staying
+within reach of a well-known LLM (and beating it in a cascade, D37) is already a strong product claim; 100× was an aspirational number picked before
+any LLM had been measured single-stream.
+**Honesty note.** STRATEGY §6 says criteria may be tightened, never loosened after seeing results. This change loosens one, so it is recorded here
+openly. It was made *before* the clean single-stream latency measurement (`scripts/latency_v02.sh`, queued) and after only a provisional number
+(~135× for large, measured with concurrent requests). Every report states the measured multiple, not just pass/fail. No other criterion changes.
+

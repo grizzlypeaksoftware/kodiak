@@ -99,7 +99,7 @@ best of all systems but not ≤ 0.05 on never-seen tasks. Ratings (clickbait) re
 world-knowledge tasks (arXiv fields +19, legal holdings +18, poem sentiment +23, jailbreak +28); Kodiak wins prompt injection (+28), contract NLI (+14)
 and financial sentiment (+5). Kodiak wins everything else: familiar tasks 0.855 vs. 0.710, "can't tell" on constructed unanswerables 92% vs. 43%,
 calibration error 0.07 vs. 0.29 overall. On a 1,500-example sample, Qwen 27B leads large by 11 points on never-seen tasks and ties it on familiar ones.
-Speed half: 17 ms vs. ~2.3 s measured with 4 concurrent requests (~135×); a clean one-request-at-a-time measurement is queued before claiming ≥ 100×.
+Speed half: 17 ms vs. ~2.3 s measured with 4 concurrent requests (~135×); a clean one-request-at-a-time measurement is queued before claiming ≥ 50× (the bar, D38).
 
 ## 5. The product shape: System 1 in front of System 2
 
@@ -187,7 +187,8 @@ Kodiak v0.1 is called frontier-class only if all of these hold on the frozen eva
 
 1. **Best in class:** higher forced accuracy than every open zero-shot classifier baseline on held-out choice questions, and on the
    public suite.
-2. **Near-LLM:** within ~10 points of a 7–8B open LLM on held-out tasks, at ≥100× its speed.
+2. **Near-LLM:** within ~10 points of a 7–8B open LLM on held-out tasks, at ≥50× its speed. *(Was ≥100×; lowered 2026-09-27 by Shane,
+   before the clean latency measurement, see D38. The actual multiple is always reported.)*
 3. **Calibrated:** ECE ≤ 0.05 and lower than every baseline.
 4. **Honest abstention:** abstain precision ≥ 0.90 at the default threshold.
 5. **Reproducible:** weights, data recipe (including rebuild scripts for web text), eval set and reports published under permissive licenses.
