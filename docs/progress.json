@@ -84,7 +84,7 @@
     },
     {
      "name": "Publish Kodiak large v2 research preview (seed 1, chosen on validation; honest abstention caveat)",
-     "status": "in_progress"
+     "status": "done"
     },
     {
      "name": "Calibration off-distribution (D32/D34): 3-run ensemble helps; distilling it into small, 3 seeds (~8 h, running)",
@@ -480,6 +480,10 @@
   {
    "date": "2026-09-26",
    "text": "Ensemble of 3 large runs: never-seen forced 62.3%, calibration error 0.099 (from ~0.128), abstain precision 93% (D34). Next: distill the ensemble into one model"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "Kodiak large v2 research preview public (cortex-agent-llc/kodiak-large-v2-preview, weights verified); demo gets a small/large picker and a 'Categorize a list' tab"
   }
  ]
 }
