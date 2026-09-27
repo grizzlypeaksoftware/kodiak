@@ -637,7 +637,7 @@
       "done_marker": "v2.1 mining test complete",
       "why": "Does training on the examples an older Kodiak got wrong beat random examples of the same size? Decides whether v2.1 screening is used for new data.",
       "report": "v02-v21-mining",
-      "eta": "~15:45 today",
+      "eta": "~15:25 today",
       "cost": "free (local GPU)"
     },
     {
@@ -648,7 +648,7 @@
       "why": "Does the 'can't tell' batch make confidence more honest on never-seen tasks (criterion 3) without more wrong refusals?",
       "report": "v02-unfamiliar",
       "after": "v2.1 test + calibration batch",
-      "eta": "~19:30 today",
+      "eta": "~18:40 today",
       "cost": "free (batch ~$9.50, running)"
     },
     {

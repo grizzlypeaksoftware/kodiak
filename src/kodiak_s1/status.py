@@ -161,7 +161,10 @@ def training_runs(procs: list[str]) -> list[dict]:
                      "preset": cfg.get("preset"), "init": cfg.get("init"), "tok_per_s": last.get("tok_per_s"),
                      "loss": last.get("loss"), "best": best, "evals": evals, "overfit": bool(cfg.get("overfit")),
                      "wall_hours": round((last.get("time", first_t or 0) - (first_t or 0)) / 3600, 2) if first_t else 0.0,
-                     "avg_power_w": round(sum(powers) / len(powers), 1) if powers else None})
+                     "avg_power_w": round(sum(powers) / len(powers), 1) if powers else None,
+                     "started": time.strftime("%Y-%m-%d %H:%M", time.localtime(first_t)) if first_t else None,
+                     "ended": time.strftime("%H:%M", time.localtime(last["time"])) if last.get("time") else None,
+                     "started_ts": first_t or 0})
     return runs
 
 

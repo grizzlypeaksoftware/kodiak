@@ -285,16 +285,17 @@ function runs(list, experiments) {
   if (!real.length) return `<span class="muted">No training runs yet.</span>`;
   const order = experiments.map(e => e.name).concat(["Other"]);
   const meta = Object.fromEntries(experiments.map(e => [e.name, e]));
-  const groups = order.map(g => [g, real.filter(r => r.experiment === g)]).filter(([, rs]) => rs.length);
+  const groups = order.map(g => [g, real.filter(r => r.experiment === g).sort((a, b) => b.started_ts - a.started_ts)]).filter(([, rs]) => rs.length);
   return `<div class="table-responsive"><table class="table table-sm align-middle mb-0">
-    <thead><tr><th>Run</th><th>State</th><th>Step</th><th>Backbone</th><th>Best val loss</th><th style="min-width:180px">Val loss over time</th></tr></thead>
+    <thead><tr><th>Run</th><th>When</th><th>State</th><th>Step</th><th>Backbone</th><th>Best val loss</th><th style="min-width:180px">Val loss over time</th></tr></thead>
     <tbody>${groups.map(([g, rs]) => {
       const e = meta[g] || {};
-      return `<tr class="group-head"><td colspan="6"><b>${esc(g)}</b> <span class="small muted">${esc(e.why || "")}</span>
+      return `<tr class="group-head"><td colspan="7"><b>${esc(g)}</b> <span class="small muted">${esc(e.why || "")}</span>
         ${e.decision ? `<span class="small"> · ${esc(e.decision)}</span>` : ""}
         ${e.report ? ` · <a class="small" href="#evals/${esc(e.report)}">report</a>` : ""}</td></tr>` +
       rs.map(r => `<tr>
       <td><code>${esc(r.name)}</code>${r.published ? ` <a class="badge ${r.published.superseded ? "text-bg-secondary" : "text-bg-success"} text-decoration-none" href="${esc(r.published.link)}" target="_blank" rel="noopener">public: ${esc(r.published.name)}</a>` : ""}</td>
+      <td class="small text-nowrap">${r.started ? `${esc(r.started)}<div class="muted">${r.state === "running" ? "running" : "to " + esc(r.ended)} · ${r.wall_hours} h</div>` : "–"}</td>
       <td>${r.state === "running" ? `<span class="badge text-bg-primary">running</span>` : `<span class="badge text-bg-secondary">${esc(r.state)}</span>`}</td>
       <td>${r.step.toLocaleString()} / ${r.steps?.toLocaleString() ?? "?"}</td>
       <td class="small">${esc(r.preset)} · ${esc(r.init)}</td>
