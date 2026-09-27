@@ -212,6 +212,15 @@ ETA, and dollar cost for cloud models), training runs with validation curves, th
 
 After changing `status.py`, restart the server (`pkill -f "kodiak_s1[.]status --serve"`, then relaunch).
 
+### Keeping the dashboard honest (tabs: Overview, Plan, Published, Data, Training runs, Evals)
+
+`docs/progress.json` drives everything the logs can't infer:
+- `queue`: upcoming work, each with `why`, `after`, `eta`, `cost`, and (for scripts) `script`, `log`, `done_marker`, `report`. The state
+  (running / waiting / planned / done / failed) is computed from the script process and its log. Add an item whenever a job is queued.
+- `published`: every public model, demo and repo with its link and source `run`; set `superseded: true` instead of deleting.
+- `experiments`: regex `match` on run names → group name, why, decision, report. Add one per new experiment.
+- Reports: every `reports/*.md` is browsable at `http://localhost:8787/#evals/<name>`.
+
 ## 8. Gotchas we hit
 
 - **`pkill -f` can kill its own shell.** If the pattern also appears later in the same command line (for example, you pkill

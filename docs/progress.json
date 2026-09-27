@@ -587,5 +587,146 @@
       "date": "2026-09-27",
       "text": "Release criterion 2 met narrowly: Qwen3-8B leads by 7.9 on never-seen tasks (world knowledge); Kodiak\u2192LLM cascade beats both (0.740 vs 0.709 with 43% escalated) (D37)"
     }
+  ],
+  "published": [
+    {
+      "name": "kodiak-large-v2-preview",
+      "kind": "model",
+      "link": "https://huggingface.co/cortex-agent-llc/kodiak-large-v2-preview",
+      "run": "b-base-s1-v2-s1",
+      "date": "2026-09-26",
+      "notes": "Quality tier (ModernBERT-large, ~400M). Seed 1 of 3, chosen on validation. Includes model.onnx."
+    },
+    {
+      "name": "kodiak-small-v2-preview",
+      "kind": "model",
+      "link": "https://huggingface.co/cortex-agent-llc/kodiak-small-v2-preview",
+      "run": "b-small-s1-B-v2",
+      "date": "2026-09-26",
+      "notes": "Fast tier (ModernBERT-base, 152M). Includes model.onnx."
+    },
+    {
+      "name": "kodiak-small-r1-preview",
+      "kind": "model",
+      "link": "https://huggingface.co/cortex-agent-llc/kodiak-small-r1-preview",
+      "run": "b-small-s1-R1-cap3",
+      "date": "2026-09-25",
+      "notes": "First preview; superseded by small v2.",
+      "superseded": true
+    },
+    {
+      "name": "Demo Space",
+      "kind": "demo",
+      "link": "https://huggingface.co/spaces/comgen42/kodiak-demo",
+      "date": "2026-09-25",
+      "notes": "Decide + 'Categorize a list' tabs; small/large picker."
+    },
+    {
+      "name": "Source code",
+      "kind": "code",
+      "link": "https://github.com/grizzlypeaksoftware/kodiak",
+      "date": "2026-09-25",
+      "notes": "Code, docs, decisions, reports; Node/Docker server in server/."
+    }
+  ],
+  "queue": [
+    {
+      "name": "Generator v2.1 test: mined vs random",
+      "script": "scripts/v21_mining_ab.sh",
+      "log": "runs/v21-mining-ab.log",
+      "done_marker": "v2.1 mining test complete",
+      "why": "Does training on the examples an older Kodiak got wrong beat random examples of the same size? Decides whether v2.1 screening is used for new data.",
+      "report": "v02-v21-mining",
+      "eta": "~15:45 today",
+      "cost": "free (local GPU)"
+    },
+    {
+      "name": "Calibration test: unfamiliar inputs",
+      "script": "scripts/unfamiliar_ab.sh",
+      "log": "runs/unfamiliar-ab.log",
+      "done_marker": "unfamiliar test complete",
+      "why": "Does the 'can't tell' batch make confidence more honest on never-seen tasks (criterion 3) without more wrong refusals?",
+      "report": "v02-unfamiliar",
+      "after": "v2.1 test + calibration batch",
+      "eta": "~19:30 today",
+      "cost": "free (batch ~$9.50, running)"
+    },
+    {
+      "name": "Generator v2.2 pilot: minimal pairs + planner",
+      "why": "Twins that differ only in the fact that matters; batches aimed at validation weak spots.",
+      "after": "v2.1 result",
+      "eta": "this evening",
+      "cost": "pilot < $1, then a capped batch (ask first)"
+    },
+    {
+      "name": "Final run with the full synthetic data",
+      "why": "Train the release candidates (small + large) on everything that passed its test.",
+      "after": "v2.2 result"
+    }
+  ],
+  "experiments": [
+    {
+      "match": "v21-",
+      "name": "Generator v2.1: mined vs random (3 seeds)",
+      "why": "Hard-example mining ablation",
+      "report": "v02-v21-mining",
+      "decision": "(pending)"
+    },
+    {
+      "match": "unfam-",
+      "name": "Calibration batch: unfamiliar inputs (3 seeds)",
+      "why": "'Can't tell' data for unfamiliar inputs",
+      "report": "v02-unfamiliar",
+      "decision": "(pending)"
+    },
+    {
+      "match": "polarity-",
+      "name": "Mixed / neutral tone batch (3 seeds)",
+      "why": "Gap from the categorizer demo",
+      "report": "v02-polarity",
+      "decision": "D39: no real gain"
+    },
+    {
+      "match": "distill-",
+      "name": "Distillation of the large ensemble (3 seeds)",
+      "why": "Ensemble calibration at small-model cost",
+      "report": "v02-distill",
+      "decision": "D36: didn't help"
+    },
+    {
+      "match": "b-base-s1-v2",
+      "name": "ModernBERT-large backbone (3 seeds)",
+      "why": "Bigger reader",
+      "report": "v02-backbone",
+      "decision": "D33: beats every open classifier; seed 1 published"
+    },
+    {
+      "match": "-A-eq|-B-v2|-C-v1v2",
+      "name": "Generator v1 vs v2.0 A/B (3 seeds)",
+      "why": "Better data at equal size",
+      "report": "generator-ab-seeds",
+      "decision": "D29: fixes over-refusal, no never-seen gain; B-v2 published"
+    },
+    {
+      "match": "-R1-|-R2-",
+      "name": "Recipe test",
+      "why": "Repeat cap, full schedule, tuned threshold",
+      "report": "recipe-test",
+      "decision": "D25: new defaults; R1 published as r1"
+    },
+    {
+      "match": "-syn",
+      "name": "Data scaling test: 0 / 3k / 10k synthetic",
+      "why": "Does more v1 data help?",
+      "report": "scaling-test",
+      "decision": "D24: not on never-seen tasks"
+    },
+    {
+      "match": "-v0|p3-",
+      "name": "First runs and plumbing",
+      "why": "Phase 3-4 bring-up",
+      "report": "kodiak-v0-checkpoints",
+      "decision": ""
+    }
   ]
 }

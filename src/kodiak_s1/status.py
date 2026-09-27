@@ -16,6 +16,7 @@ import re
 import shutil
 import subprocess
 import time
+import urllib.parse
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -149,6 +150,48 @@ def training_runs(procs: list[str]) -> list[dict]:
     return runs
 
 
+def queue_status(queue: list[dict], procs: list[str]) -> list[dict]:
+    """Upcoming work from docs/progress.json → queue. A scripted item is running while its script process lives and its log shows
+    work, waiting while the script only waits for its turn, and done once the log has its completion marker."""
+    out = []
+    for q in queue:
+        q = dict(q)
+        log = ROOT / q["log"] if q.get("log") else None
+        text = log.read_text(errors="replace") if log and log.exists() else ""
+        alive = bool(q.get("script")) and any(q["script"] in c and not c.lstrip().startswith("/bin/bash -c") for c in procs)
+        lines = [line for line in text.splitlines() if line.strip()]
+        if q.get("done_marker") and q["done_marker"] in text:
+            q["state"] = "done"
+        elif "training failed" in text:
+            q["state"] = "failed"
+        elif alive and lines:
+            q["state"] = "running"
+        elif alive:
+            q["state"] = "waiting"
+        else:
+            q["state"] = "planned"
+        q["last_line"] = lines[-1][:200] if lines else ""
+        out.append(q)
+    return out
+
+
+def group_runs(runs: list[dict], experiments: list[dict], published: list[dict]) -> list[dict]:
+    """Attach each training run to its experiment (first matching pattern) and to any public release made from it."""
+    by_run = {p["run"]: p for p in published if p.get("run")}
+    for r in runs:
+        exp = next((e for e in experiments if re.search(e["match"], r["name"])), None)
+        r["experiment"] = exp["name"] if exp else "Other"
+        if r["name"] in by_run:
+            p = by_run[r["name"]]
+            r["published"] = {"name": p["name"], "link": p.get("link"), "superseded": p.get("superseded", False)}
+    return runs
+
+
+def report_list() -> list[dict]:
+    return [{"name": p.stem, "updated": time.strftime("%Y-%m-%d %H:%M", time.localtime(p.stat().st_mtime))}
+            for p in sorted((ROOT / "reports").glob("*.md"), key=lambda p: p.stat().st_mtime, reverse=True)]
+
+
 def eval_reports() -> list[dict]:
     out = []
     for p in sorted((ROOT / "reports").glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
@@ -187,9 +230,12 @@ def machine() -> dict:
 def collect() -> dict:
     procs = _processes()
     progress = json.loads((ROOT / "docs/progress.json").read_text())
+    published = progress.get("published", [])
     return {"time": time.strftime("%Y-%m-%d %H:%M:%S"), "phases": progress["phases"],
             "synth": synth_status(procs, progress.get("synthetic", {})), "milestones": progress.get("milestones", []),
-            "runs": training_runs(procs), "reports": eval_reports(), "machine": machine()}
+            "runs": group_runs(training_runs(procs), progress.get("experiments", []), published), "reports": eval_reports(),
+            "report_list": report_list(), "queue": queue_status(progress.get("queue", []), procs), "published": published,
+            "experiments": progress.get("experiments", []), "machine": machine()}
 
 
 def print_summary(s: dict) -> None:
@@ -219,6 +265,13 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith("/api/status"):
             body, ctype = json.dumps(collect()).encode(), "application/json"
+        elif self.path.startswith("/api/report/"):
+            name = urllib.parse.unquote(self.path.split("/api/report/", 1)[1])
+            path = ROOT / "reports" / f"{name}.md"
+            if not re.fullmatch(r"[\w.\-]+", name) or not path.is_file():  # report names only, no paths
+                self.send_error(404)
+                return
+            body, ctype = path.read_bytes(), "text/markdown; charset=utf-8"
         elif self.path in ("/", "/index.html"):
             body, ctype = (ROOT / "tools/dashboard.html").read_bytes(), "text/html; charset=utf-8"
         else:

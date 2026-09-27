@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kodiak Dashboard</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
 <script>
   // Follow the OS light/dark setting.
   document.documentElement.dataset.bsTheme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -17,51 +18,71 @@
   .spark circle { fill: var(--bs-success); }
   .tile .value { font-size: 1.6rem; font-weight: 600; }
   .muted { color: var(--bs-secondary-color); }
+  section[data-tab] { display: none; }
+  section[data-tab].active { display: block; }
+  .report table { font-size: .85rem; margin-bottom: 1rem; }
+  .report table td, .report table th { padding: .15rem .5rem; border-bottom: 1px solid var(--bs-border-color); }
+  .report h1 { font-size: 1.3rem; } .report h2 { font-size: 1.1rem; margin-top: 1.2rem; }
+  .group-head { background: var(--bs-tertiary-bg); }
 </style>
 </head>
 <body class="bg-body-tertiary">
 <div class="container-fluid px-4 py-3" style="max-width: 1800px">
-  <div class="d-flex flex-wrap align-items-baseline gap-2 mb-3">
+  <div class="d-flex flex-wrap align-items-baseline gap-2 mb-2">
     <h1 class="h3 mb-0 me-auto">Kodiak</h1>
     <span class="muted small" id="updated">loading…</span>
   </div>
+  <ul class="nav nav-tabs mb-3" id="tabs">
+    <li class="nav-item"><a class="nav-link" href="#overview">Overview</a></li>
+    <li class="nav-item"><a class="nav-link" href="#plan">Plan</a></li>
+    <li class="nav-item"><a class="nav-link" href="#models">Published</a></li>
+    <li class="nav-item"><a class="nav-link" href="#data">Data</a></li>
+    <li class="nav-item"><a class="nav-link" href="#training">Training runs</a></li>
+    <li class="nav-item"><a class="nav-link" href="#evals">Evals</a></li>
+  </ul>
 
-  <div class="row g-3">
-    <div class="col-xl-6">
-      <div class="card h-100"><div class="card-body">
-        <h2 class="h6 text-uppercase muted">Phases</h2>
-        <div id="phases"></div>
-      </div></div>
+  <section data-tab="overview">
+    <div class="row g-3">
+      <div class="col-xl-6 d-flex flex-column gap-3">
+        <div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Now</h2><div id="now"></div></div></div>
+        <div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Up next</h2><div id="next"></div></div></div>
+        <div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Published</h2><div id="pub-short"></div></div></div>
+      </div>
+      <div class="col-xl-6 d-flex flex-column gap-3">
+        <div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Machine</h2><div class="row g-2" id="machine"></div></div></div>
+        <div class="card flex-grow-1"><div class="card-body d-flex flex-column">
+          <h2 class="h6 text-uppercase muted">Milestones (newest first)</h2>
+          <div id="milestones" style="flex: 1 1 0; min-height: 260px; overflow: auto"></div>
+        </div></div>
+      </div>
     </div>
-    <div class="col-xl-6 d-flex flex-column gap-3">
-      <div class="card"><div class="card-body">
-        <h2 class="h6 text-uppercase muted">Machine</h2>
-        <div class="row g-2" id="machine"></div>
-      </div></div>
-      <div class="card flex-grow-1"><div class="card-body d-flex flex-column">
-        <h2 class="h6 text-uppercase muted">Milestones (newest first)</h2>
-        <div id="milestones" style="flex: 1 1 0; min-height: 260px; overflow: auto"></div>
-      </div></div>
+  </section>
+
+  <section data-tab="plan">
+    <div class="row g-3">
+      <div class="col-xl-6"><div class="card h-100"><div class="card-body"><h2 class="h6 text-uppercase muted">Queue: upcoming work and why</h2><div id="queue"></div></div></div></div>
+      <div class="col-xl-6"><div class="card h-100"><div class="card-body"><h2 class="h6 text-uppercase muted">Phases</h2><div id="phases"></div></div></div></div>
     </div>
-    <div class="col-12">
-      <div class="card"><div class="card-body">
-        <h2 class="h6 text-uppercase muted">Synthetic training data</h2>
-        <div id="synth"></div>
-      </div></div>
+  </section>
+
+  <section data-tab="models">
+    <div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Publicly deployed</h2><div id="published"></div></div></div>
+  </section>
+
+  <section data-tab="data">
+    <div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Synthetic training data</h2><div id="synth"></div></div></div>
+  </section>
+
+  <section data-tab="training">
+    <div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Training runs, by experiment</h2><div id="runs"></div></div></div>
+  </section>
+
+  <section data-tab="evals">
+    <div class="row g-3">
+      <div class="col-lg-3"><div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Reports</h2><div id="report-list" class="list-group list-group-flush"></div></div></div></div>
+      <div class="col-lg-9"><div class="card"><div class="card-body"><div id="report-view" class="report"><span class="muted">Pick a report.</span></div></div></div></div>
     </div>
-    <div class="col-12">
-      <div class="card"><div class="card-body">
-        <h2 class="h6 text-uppercase muted">Training runs</h2>
-        <div id="runs"></div>
-      </div></div>
-    </div>
-    <div class="col-12">
-      <div class="card"><div class="card-body">
-        <h2 class="h6 text-uppercase muted">Latest eval report</h2>
-        <div id="evals"></div>
-      </div></div>
-    </div>
-  </div>
+  </section>
   <p class="muted small mt-3">Reads the project's own logs; refreshes every 15 seconds. Served on localhost only.</p>
 </div>
 
@@ -72,6 +93,58 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&
 const pct = x => x == null ? "–" : (100 * x).toFixed(1) + "%";
 const num = (x, d = 3) => x == null ? "–" : Number(x).toFixed(d);
 const badge = s => `<span class="badge text-bg-${BADGE[s] || "secondary"}">${LABEL[s] || esc(s)}</span>`;
+
+
+const QBADGE = {running: "primary", waiting: "info", planned: "secondary", done: "success", failed: "danger"};
+const qbadge = s => `<span class="badge text-bg-${QBADGE[s] || "secondary"}">${esc(s)}</span>`;
+
+function queueItem(q, full) {
+  return `<div class="border rounded p-2 mb-2">
+    <div class="d-flex justify-content-between gap-3"><b>${esc(q.name)}</b><span class="text-nowrap">${qbadge(q.state)}</span></div>
+    <div class="small">${esc(q.why)}</div>
+    <div class="small muted">${[q.after && "after: " + esc(q.after), q.eta && "ETA " + esc(q.eta), q.cost && esc(q.cost),
+      q.report && `report: <a href="#evals/${esc(q.report)}">${esc(q.report)}</a>`].filter(Boolean).join(" · ")}</div>
+    ${full && q.last_line ? `<div class="small muted font-monospace text-truncate">log: ${esc(q.last_line)}</div>` : ""}</div>`;
+}
+
+function nowPanel(s) {
+  const items = [];
+  s.queue.filter(q => q.state === "running").forEach(q => items.push(queueItem(q, true)));
+  s.runs.filter(r => r.state === "running").forEach(r => items.push(`<div class="small mb-1">Training <code>${esc(r.name)}</code>: step
+    ${r.step.toLocaleString()} / ${r.steps?.toLocaleString() ?? "?"} <span class="muted">(${esc(r.experiment)})</span></div>`));
+  s.synth.runs.filter(r => r.state === "running").forEach(r => items.push(`<div class="small mb-1">Generating: ${esc(r.name)}:
+    ${(r.done_jobs || 0).toLocaleString()} / ${r.target_jobs?.toLocaleString()} jobs, ${r.cost_usd != null ? "$" + r.cost_usd.toFixed(2) : ""}
+    ${r.eta_hours ? `, ETA ~${r.eta_hours} h` : ""}</div>`));
+  return items.join("") || `<span class="muted">Nothing running.</span>`;
+}
+
+function pubTable(list, short) {
+  const rows = list.filter(p => !short || !p.superseded).map(p => `<tr class="${p.superseded ? "opacity-50" : ""}">
+    <td><a href="${esc(p.link)}" target="_blank" rel="noopener">${esc(p.name)}</a>${p.superseded ? ` <span class="badge text-bg-secondary">superseded</span>` : ""}</td>
+    <td class="small">${esc(p.kind)}</td>${short ? "" : `<td class="small"><code>${esc(p.run || "")}</code></td><td class="small">${esc(p.date || "")}</td>`}
+    <td class="small">${esc(p.notes || "")}</td></tr>`).join("");
+  return `<table class="table table-sm align-middle mb-0"><thead><tr><th>Name</th><th>Kind</th>${short ? "" : "<th>From run</th><th>Date</th>"}<th>Notes</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function reportList(list) {
+  return list.map(r => `<a href="#evals/${esc(r.name)}" class="list-group-item list-group-item-action px-1 py-1 small">
+    ${esc(r.name)}<div class="muted" style="font-size:.75rem">${esc(r.updated)}</div></a>`).join("");
+}
+async function openReport(name) {
+  const view = document.getElementById("report-view");
+  const res = await fetch(`/api/report/${encodeURIComponent(name)}`, {cache: "no-store"});
+  view.innerHTML = res.ok ? `<div class="small muted mb-2"><code>reports/${esc(name)}.md</code></div>` + marked.parse(await res.text())
+                          : `<span class="text-danger">Couldn't load ${esc(name)}.</span>`;
+}
+
+function showTab() {
+  const [t, report] = (location.hash || "#overview").slice(1).split("/");
+  if (t === "evals" && report) openReport(decodeURIComponent(report));
+  document.querySelectorAll("section[data-tab]").forEach(x => x.classList.toggle("active", x.dataset.tab === t));
+  document.querySelectorAll("#tabs .nav-link").forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + t));
+}
+window.addEventListener("hashchange", showTab);
+showTab();
 
 function phases(list) {
   return list.map(p => `
@@ -151,42 +224,46 @@ function spark(evals, best) {
   return `<svg class="spark" viewBox="0 0 200 60" role="img" aria-label="validation loss by step"><polyline points="${pts}"/>${dot}</svg>`;
 }
 
-function runs(list) {
+function runs(list, experiments) {
   const real = list.filter(r => !r.overfit);
   if (!real.length) return `<span class="muted">No training runs yet.</span>`;
+  const order = experiments.map(e => e.name).concat(["Other"]);
+  const meta = Object.fromEntries(experiments.map(e => [e.name, e]));
+  const groups = order.map(g => [g, real.filter(r => r.experiment === g)]).filter(([, rs]) => rs.length);
   return `<div class="table-responsive"><table class="table table-sm align-middle mb-0">
     <thead><tr><th>Run</th><th>State</th><th>Step</th><th>Backbone</th><th>Best val loss</th><th style="min-width:180px">Val loss over time</th></tr></thead>
-    <tbody>${real.map(r => `<tr>
-      <td><code>${esc(r.name)}</code></td>
+    <tbody>${groups.map(([g, rs]) => {
+      const e = meta[g] || {};
+      return `<tr class="group-head"><td colspan="6"><b>${esc(g)}</b> <span class="small muted">${esc(e.why || "")}</span>
+        ${e.decision ? `<span class="small"> · ${esc(e.decision)}</span>` : ""}
+        ${e.report ? ` · <a class="small" href="#evals/${esc(e.report)}">report</a>` : ""}</td></tr>` +
+      rs.map(r => `<tr>
+      <td><code>${esc(r.name)}</code>${r.published ? ` <a class="badge ${r.published.superseded ? "text-bg-secondary" : "text-bg-success"} text-decoration-none" href="${esc(r.published.link)}" target="_blank" rel="noopener">public: ${esc(r.published.name)}</a>` : ""}</td>
       <td>${r.state === "running" ? `<span class="badge text-bg-primary">running</span>` : `<span class="badge text-bg-secondary">${esc(r.state)}</span>`}</td>
       <td>${r.step.toLocaleString()} / ${r.steps?.toLocaleString() ?? "?"}</td>
       <td class="small">${esc(r.preset)} · ${esc(r.init)}</td>
       <td>${r.best ? `${num(r.best.macro_loss)} <span class="muted small">@ ${r.best.step}</span>` : "–"}</td>
-      <td>${spark(r.evals, r.best)}</td></tr>`).join("")}</tbody></table></div>`;
-}
-
-function evals(reports) {
-  if (!reports.length) return `<span class="muted">No eval reports yet.</span>`;
-  const r = reports[0];
-  return `<div class="small muted mb-2"><code>reports/${esc(r.report)}.md</code> · ${esc(r.updated)}</div>
-    <div class="table-responsive"><table class="table table-sm mb-0">
-    <thead><tr><th>System</th><th>Questions</th><th>Accuracy</th><th>Held-out acc.</th><th>ECE ↓</th><th>Abstain P / R</th><th>Latency p50</th></tr></thead>
-    <tbody>${r.systems.map(s => `<tr><td>${esc(s.system)}</td><td>${s.n_questions ?? "–"}</td><td>${pct(s.accuracy)}</td>
-      <td>${pct(s.heldout_accuracy)}</td><td>${num(s.ece)}</td>
-      <td>${num(s.abstain_precision, 2)} / ${num(s.abstain_recall, 2)}</td>
-      <td>${s.latency_p50_ms == null ? "–" : Math.round(s.latency_p50_ms).toLocaleString() + " ms"}</td></tr>`).join("")}</tbody></table></div>`;
+      <td>${spark(r.evals, r.best)}</td></tr>`).join("");
+    }).join("")}</tbody></table></div>`;
 }
 
 async function refresh() {
   try {
     const s = await (await fetch("/api/status", {cache: "no-store"})).json();
+    const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
     document.getElementById("updated").textContent = `updated ${s.time}`;
-    document.getElementById("phases").innerHTML = phases(s.phases);
-    document.getElementById("synth").innerHTML = synth(s.synth);
-    document.getElementById("milestones").innerHTML = milestones(s.milestones);
-    document.getElementById("machine").innerHTML = machine(s.machine);
-    document.getElementById("runs").innerHTML = runs(s.runs);
-    document.getElementById("evals").innerHTML = evals(s.reports);
+    set("now", nowPanel(s));
+    set("next", s.queue.filter(q => q.state === "waiting" || q.state === "planned").slice(0, 3).map(q => queueItem(q, false)).join("")
+      || `<span class="muted">Nothing queued.</span>`);
+    set("pub-short", pubTable(s.published, true));
+    set("published", pubTable(s.published, false));
+    set("queue", s.queue.map(q => queueItem(q, true)).join("") || `<span class="muted">Nothing queued.</span>`);
+    set("phases", phases(s.phases));
+    set("synth", synth(s.synth));
+    set("milestones", milestones(s.milestones));
+    set("machine", machine(s.machine));
+    set("runs", runs(s.runs, s.experiments));
+    set("report-list", reportList(s.report_list));
   } catch (e) {
     document.getElementById("updated").textContent = "status server not reachable: is `python -m kodiak_s1.status --serve` running?";
   }
