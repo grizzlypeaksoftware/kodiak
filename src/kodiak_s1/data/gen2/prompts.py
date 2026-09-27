@@ -95,6 +95,38 @@ Avoid: questions that need outside knowledge; questions where two options are de
 the answer; options that are obviously silly. Vary the phrasing; do not start every question the same way."""
 
 
+POLARITY_MEANING = {
+    "mixed": "MIXED: the writer clearly praises some things AND clearly criticizes others (both sides are real and specific, "
+             "neither is a throwaway remark)",
+    "neutral": "NEUTRAL: the writer expresses no real positive or negative feeling (a factual question, an update, a request, "
+               "a description), even if the topic itself could be emotional",
+    "positive": "POSITIVE: clearly favorable overall, with no real complaint",
+    "negative": "NEGATIVE: clearly unfavorable overall, with no real praise",
+    "very positive": "VERY POSITIVE: enthusiastic, no reservations", "somewhat positive": "SOMEWHAT POSITIVE: favorable but restrained",
+    "very negative": "VERY NEGATIVE: angry or scathing", "somewhat negative": "SOMEWHAT NEGATIVE: disappointed but restrained",
+}
+
+
+def _polarity_rules(spec: Spec) -> str:
+    concepts = ", ".join(spec.polarity_labels)
+    how = {"neutral": "Write the kind of {d} that carries no opinion: a question, a routine request, a status update or a plain factual "
+                      "account. No praise and no complaint anywhere, not even mild ('great', 'unfortunately', 'disappointing'). "
+                      "Polite formulas ('thanks', 'kind regards') are fine: they are courtesy, not praise.",
+           "mixed": "Give the praise and the criticism roughly equal weight and specific details, so neither side clearly dominates."
+           }.get(spec.polarity, "").format(d=spec.doc_type)
+    extra = ("- The other choice question(s) ask how the writer feels about ONE specific aspect named in the question (for a mixed "
+             "document, ask about an aspect that is praised or one that is criticized), or other practical decisions about the document "
+             "(what the writer wants, which team should read it).\n")
+    return f"""
+Tone target: the overall {spec.polarity_frame} of this document must be {POLARITY_MEANING[spec.polarity]}.
+Design the state so that this is clear to a careful reader, without the writer ever naming the category (never write 'mixed
+feelings', 'overall neutral', 'I am satisfied' or similar labels in the state). {how}
+- The FIRST choice question asks about the {spec.polarity_frame}. Its labels are exactly these concepts, in this order, worded
+  naturally for this document (you may add a short explanation after a colon, e.g. 'mixed: some praise and some complaints'):
+  {concepts}. The correct answer is the {spec.polarity} one, and its basis is "inferred".
+{extra}"""
+
+
 PAIR_RULES = """
 Finally, write a VARIANT of the state for the first score question: copy the state and change as little as possible (one or
 two phrases, same format and length, all other facts identical) so that the correct rating for that question moves to the
@@ -122,7 +154,7 @@ Invent specific, plausible details (names, numbers, dates). It should read like 
 or a story about it. Do not mention that it is synthetic. Do not use double quote characters inside prose; use single quotes.
 {DIFFICULTY_STATE[spec.difficulty]}
 
-{_question_rules(spec, grounded=False)}{PAIR_RULES if spec.pair else ""}
+{_question_rules(spec, grounded=False)}{PAIR_RULES if spec.pair else ""}{_polarity_rules(spec) if spec.polarity else ""}
 Return JSON only."""
 
 

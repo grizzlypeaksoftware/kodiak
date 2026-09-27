@@ -296,3 +296,26 @@ def test_step_tolerance_only_when_asked():
     ok, t = synth.agree(q, {"value": 2}, {"value": 1}, step_tolerance=True)
     assert ok and t == {"value": 1.5}
     assert not synth.agree({"type": "score", "min": 0, "max": 100}, {"value": 50}, {"value": 70}, step_tolerance=True)[0]
+
+
+def test_polarity_focus_specs_and_prompt():
+    from kodiak_s1.data.gen2.prompts import writer_prompt
+    from kodiak_s1.data.gen2.specs import NEUTRAL_OK, sample_spec
+    from kodiak_s1.data.gen2.taxonomy import load
+    from kodiak_s1.data.synth import evidence_supported
+
+    tax = load()
+    specs = [sample_spec(j, 6, tax, focus="polarity") for j in range(300)]
+    targets = {s.polarity for s in specs}
+    assert {"mixed", "neutral", "positive", "negative"} <= targets
+    for s in specs:
+        assert s.source == "synthetic" and s.n_score == 0 and s.focus == "polarity"
+        assert s.polarity in s.polarity_labels  # the tone question can always be answered correctly
+        if s.polarity == "neutral":
+            assert s.doc_type in NEUTRAL_OK and "stance" not in s.polarity_frame
+    s = next(s for s in specs if s.polarity == "mixed")
+    assert "MIXED" in writer_prompt(s) and "FIRST choice question" in writer_prompt(s)
+    # Default specs are unchanged by the polarity stream.
+    assert sample_spec(3, 6, tax).polarity is None
+    # Typographic characters in the state don't break exact quotes.
+    assert evidence_supported("merged on 2026-09-10", "it was merged on 2026‑09‑10.")

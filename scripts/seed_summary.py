@@ -13,7 +13,9 @@ ROWS = [("eval:heldout", "accuracy", "Never-seen tasks, accuracy"), ("eval:heldo
         ("overall", "accuracy", "Overall accuracy"), ("eval:indomain", "accuracy", "Familiar tasks"), ("overall", "ece", "Calibration error (ECE)"),
         ("overall", "abstain_precision", "Abstain precision"), ("eval:null_construct", "accuracy", "Constructed unanswerables"),
         ("source:banking77", "forced_accuracy", "Banking77 (forced)"), ("source:bias_in_bios", "forced_accuracy", "Bias in Bios (forced)"),
-        ("source:jailbreak_classification", "forced_accuracy", "Jailbreak (forced)")]
+        ("source:jailbreak_classification", "forced_accuracy", "Jailbreak (forced)"),
+        ("source:poem_sentiment", "forced_accuracy", "Poem sentiment, has 'mixed' (forced)"),
+        ("source:fin_tweets_sentiment", "forced_accuracy", "Financial tweet sentiment, has 'neutral' (forced)")]
 from pathlib import Path
 ap = argparse.ArgumentParser()
 ap.add_argument("--groups", nargs="*")

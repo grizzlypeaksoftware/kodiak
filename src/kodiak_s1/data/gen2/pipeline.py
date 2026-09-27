@@ -120,6 +120,10 @@ def run_job(i: int, seed: int, tax: dict, coverage: dict | None = None,
             for q in raw_qs:
                 if q["type"] == "score" and q.get("evidence"):
                     q["evidence"] = best_fragment(q["evidence"], state_text)
+        if spec.polarity and raw_qs and raw_qs[0]["type"] == "choice":
+            # The overall-tone question rests on the whole document (and a neutral one has nothing to quote); the blind checker
+            # and the critics are the safeguard, as for Stage 3 scores.
+            raw_qs[0]["quote_free"] = True
         pre_drops = ["unknown_option"] * sum(q["type"] == "choice" and has_unknown_option(q) for q in raw_qs)
         raw_qs = [q for q in raw_qs if not (q["type"] == "choice" and has_unknown_option(q))]
         basis = {}
@@ -192,6 +196,8 @@ def run_job(i: int, seed: int, tax: dict, coverage: dict | None = None,
         if any(q["type"] == "score" for q in kept_q):
             chosen = [q.get("scale") for q in raw_qs if q["type"] == "score" and q.get("scale")]
             tags += [f"scale:{s}" for s in dict.fromkeys(spec.scales or chosen)]
+        if spec.polarity:
+            tags += ["focus:polarity", f"polarity:{spec.polarity}"]
         notes = f"fineweb-edu {rec['passage']['id']}" if grounded else f"{spec.sector} / {spec.domain} / {spec.doc_type}"
         ex = {"state": state, "questions": kept_q, "answers": kept_a,
               "meta": {"source": SOURCE_ID, "license": "ODC-By-1.0 AND Apache-2.0" if grounded else "Apache-2.0",

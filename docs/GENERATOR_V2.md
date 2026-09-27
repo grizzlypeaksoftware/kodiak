@@ -327,3 +327,18 @@ the few tasks where the open rivals beat Kodiak. The training data barely contai
 **Plan (next data batch, a few dollars):** choice questions whose answer is mixed or neutral (reviews, support messages, comments, emails with
 both praise and complaint, or neither), alongside clearly positive and negative ones. Unlike ratings (D31), writer and checker agree well on
 choice questions, so the standard v2 pipeline applies. Measure on poem_sentiment and fin_tweets_sentiment (eval v0.2) with 3 seeds.
+
+**Build log (2026-09-26, Shane approved $10).** `--focus polarity` (specs `_polarity_focus`, prompts `_polarity_rules`): opinionated
+document types (30, no poems or financial posts, since poem_sentiment and fin_tweets_sentiment are never-seen eval tasks), a target tone per
+job (mixed 35%, neutral 30%, positive / negative 17.5% each), a first choice question on the overall tone whose label concepts always include the
+target (4-way, 3-way or a 6-way graded set), plus aspect questions ("how does the writer feel about the dashboard?"). Four pilots (130 jobs, $0.20):
+- **Pilot 1: 7/20 kept.** Most drops were the exact-quote check. gpt-oss writes non-breaking hyphens, curly quotes and narrow spaces in states and
+  quotes them back in ASCII; `synth._norm` now folds typography. **This affected every earlier batch too**, so future batches keep more.
+- **Pilot 2–3: neutral 0/8, then 2/10.** A neutral tone question has nothing to quote, so it is now exempt from the quote check (blind checker and
+  critics remain). Critics then rejected "neutral reviews" as "no stance expressed" (right: a review with no opinion is a contradiction).
+- **Pilot 4: 29/40 kept (73%), neutral 11/16.** Neutral targets use message-like documents (support email, chat, tenant message, forum post…)
+  framed as sentiment or tone, and polite formulas ("thanks") are declared courtesy, not praise.
+
+Batch: `data/synthetic/gen2_v21_polarity.jsonl` (seed 6, cap $9.75). Test: `scripts/polarity_ab.sh`, small, public + v2.0 + polarity, 3 seeds,
+vs. the existing small v2 runs on eval v0.2 (report `reports/v02-polarity.md`, with poem and financial-tweet sentiment rows). It adds data rather
+than swapping it, so the never-seen average must hold while the targeted tasks move.

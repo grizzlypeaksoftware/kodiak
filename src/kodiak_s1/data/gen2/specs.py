@@ -81,6 +81,43 @@ SCORE_FOCUS_SCALES = {
 }
 TARGET_BANDS = {"low": "bottom third", "medium": "middle third", "high": "top third"}
 
+# Polarity focus (--focus polarity, GENERATOR_V2 §13): the categorizer demo showed Kodiak calling two-sided reviews "positive";
+# the training data barely has "mixed" or "neutral" as answers. Opinionated document types, one target per job. Poems and
+# financial posts are left out on purpose: poem_sentiment and fin_tweets_sentiment are never-seen tasks in eval v0.2.
+POLARITY_DOCS = [
+    ("retail and e-commerce", "product review", ("text",)), ("travel and hospitality", "hotel review", ("text",)),
+    ("food service", "restaurant review", ("text",)), ("software", "app store review", ("text",)),
+    ("customer support", "customer support email", ("text",)), ("customer support", "live chat transcript", ("list",)),
+    ("customer support", "support ticket with customer comments", ("json",)),
+    ("human resources", "employee engagement survey response", ("text", "json")), ("education", "course evaluation comment", ("text",)),
+    ("healthcare", "patient feedback form", ("text", "json")), ("real estate", "tenant message to a property manager", ("text",)),
+    ("procurement", "vendor performance review note", ("text",)), ("events", "post-event attendee feedback", ("text", "json")),
+    ("SaaS", "NPS survey comment", ("text", "json")), ("online community", "forum post", ("text", "list")),
+    ("media", "comment thread under an article", ("list",)), ("automotive", "car service center review", ("text",)),
+    ("professional services", "client email to an agency after a project milestone", ("text",)),
+    ("public sector", "resident comment on a city proposal", ("text",)), ("gaming", "video game review", ("text",)),
+    ("fitness", "gym member feedback", ("text",)), ("publishing", "book review", ("text",)),
+    ("software engineering", "code review comment thread", ("list",)), ("teams", "sprint retrospective notes", ("text", "list")),
+    ("logistics", "delivery experience feedback", ("text", "json")), ("banking", "customer letter to a bank branch", ("text",)),
+    ("telecom", "internet service provider review", ("text",)), ("home services", "contractor review", ("text",)),
+    ("hiring", "candidate feedback about an interview process", ("text",)), ("pets", "veterinary clinic review", ("text",)),
+]
+# A "review" with no opinion is a contradiction (pilot: critics called such tone questions unanswerable), so neutral targets use
+# message-like documents, framed as sentiment or tone rather than satisfaction or stance.
+NEUTRAL_OK = {"customer support email", "live chat transcript", "support ticket with customer comments", "tenant message to a property manager",
+              "forum post", "comment thread under an article", "client email to an agency after a project milestone",
+              "resident comment on a city proposal", "code review comment thread", "customer letter to a bank branch",
+              "sprint retrospective notes"}
+POLARITY_TARGETS = {"mixed": 0.35, "neutral": 0.30, "positive": 0.175, "negative": 0.175}
+# Concept sets for the overall-tone question (the writer words the labels). Each must contain the target.
+POLARITY_LABEL_SETS = [
+    ("positive", "negative", "mixed", "neutral"), ("positive", "negative", "mixed", "neutral"),
+    ("positive", "negative", "neutral"), ("positive", "negative", "mixed"),
+    ("very positive", "somewhat positive", "mixed", "neutral", "somewhat negative", "very negative"),
+]
+POLARITY_FRAMES = ["overall sentiment", "overall tone toward the product, service or proposal", "the writer's overall satisfaction",
+                   "the writer's stance"]
+
 GROUNDED_SHARE = 0.45  # share of jobs that use a real FineWeb-Edu passage as the state
 COVERAGE_SHARE = 0.6
 
@@ -106,6 +143,9 @@ class Spec:
     focus: str | None = None  # "scores" = Stage 3 judgment-score batch
     targets: list[str] = field(default_factory=list)  # per score question: low | medium | high
     pair: bool = False  # also write a minimal-edit contrast twin that moves the first score to the other end
+    polarity: str | None = None  # --focus polarity: the correct overall tone (mixed | neutral | positive | negative)
+    polarity_labels: list[str] = field(default_factory=list)  # concepts the tone question's labels must cover
+    polarity_frame: str | None = None
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -172,7 +212,32 @@ def sample_spec(job: int, seed: int, tax: dict, coverage: dict | None = None, fo
                 n_null=n_null, null_kinds=null_kinds, scales=scales, ranges=ranges)
     if focus == "scores":  # drawn from a separate RNG stream so the default specs above are unchanged
         _score_focus(spec, rng_for("gen2-spec-scores", seed, job), tax)
+    elif focus == "polarity":
+        _polarity_focus(spec, rng_for("gen2-spec-polarity", seed, job))
     return spec
+
+
+def _polarity_focus(spec: Spec, rng) -> None:
+    """GENERATOR_V2 §13: an opinionated document whose overall tone is the target, a tone question whose options include the
+    target, and aspect questions (for mixed documents: which parts are praised and which criticized)."""
+    spec.source, spec.mode = "synthetic", "polarity"
+    spec.focus, spec.decision = "polarity", "classification"
+    spec.polarity = _weighted(rng, list(POLARITY_TARGETS), list(POLARITY_TARGETS.values()))
+    docs = [d for d in POLARITY_DOCS if d[1] in NEUTRAL_OK] if spec.polarity == "neutral" else POLARITY_DOCS
+    spec.sector, spec.doc_type, fmts = rng.choice(docs)
+    spec.domain = spec.doc_type
+    spec.format = rng.choice(list(fmts))
+    sets = [ls for ls in POLARITY_LABEL_SETS if spec.polarity in ls or (spec.polarity in ("positive", "negative") and len(ls) == 6)]
+    labels = list(rng.choice(sets))
+    if spec.polarity in ("positive", "negative") and len(labels) == 6:
+        spec.polarity = rng.choice([f"very {spec.polarity}", f"somewhat {spec.polarity}"])
+    spec.polarity_labels = labels
+    spec.polarity_frame = rng.choice(POLARITY_FRAMES[:2] if spec.polarity == "neutral" else POLARITY_FRAMES)
+    spec.n_score, spec.scales, spec.ranges, spec.targets, spec.pair = 0, [], [], [], False
+    spec.n_choice = rng.choice([2, 3, 3])
+    spec.n_null = _weighted(rng, [0, 1], [0.6, 0.4])
+    spec.null_kinds = [rng.choice(["missing_fact", "out_of_scope", "underspecified"]) for _ in range(spec.n_null)]
+    spec.n_inference = max(1, min(2, spec.n_choice - spec.n_null))
 
 
 def _score_focus(spec: Spec, rng, tax: dict) -> None:

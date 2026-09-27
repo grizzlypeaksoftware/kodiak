@@ -238,9 +238,17 @@ def ollama(prompt: str, schema: dict, temperature: float, model: str, max_tokens
     return {"content": json.loads(d["message"]["content"]), "tokens": d.get("eval_count", 0)}
 
 
+# gpt-oss writes typographic characters in states (non-breaking hyphens, curly quotes, narrow spaces) but quotes them back
+# in plain ASCII, so the exact-quote check rejected correct evidence (polarity pilot, 2026-09-26: most drops were this).
+_TYPOGRAPHY = str.maketrans({**{c: "-" for c in "\u2010\u2011\u2012\u2013\u2014\u2015\u2212"},
+                             **{c: "'" for c in "\u2018\u2019\u201a\u2032"}, **{c: '"' for c in "\u201c\u201d\u201e\u2033"},
+                             **{c: " " for c in "\u00a0\u2007\u2009\u202f\u200b"}, "\u2026": "..."})
+
+
 def _norm(s: str) -> str:
     """Normalize for evidence matching. JSON punctuation becomes spaces, because the teacher quotes
     '"status": "done"' while the rendered state is compact ('"status":"done"')."""
+    s = s.translate(_TYPOGRAPHY)
     s = re.sub(r'[{}\[\]":,]', " ", s)
     return re.sub(r"\s+", " ", s).strip().casefold()
 
@@ -304,7 +312,7 @@ def build_questions(raw: list[dict], state_text: str, quote_free: frozenset[str]
                 drops.append("score_no_value")
                 continue
             ans = {"null": True} if null else {"value": float(r["answer_value"])}
-        if not null and r["type"] not in quote_free and not evidence_supported(r.get("evidence") or "", state_text):
+        if not null and r["type"] not in quote_free and not r.get("quote_free") and not evidence_supported(r.get("evidence") or "", state_text):
             drops.append("evidence_not_in_state")
             continue
         qs.append(q)

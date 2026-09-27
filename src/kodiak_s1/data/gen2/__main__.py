@@ -65,7 +65,8 @@ def cmd_show(a) -> None:
         s = sample_spec(i, a.seed, tax, focus=a.focus or None)
         where = "real FineWeb passage" if s.source == "grounded" else f"{s.domain} / {s.doc_type} ({s.format})"
         print(f"job {i} [{s.mode}] {where} | focus {s.decision}, {s.difficulty} | {s.n_choice} choice + {s.n_score} score, "
-              f"{s.n_inference} inferred, {s.n_null} null {s.null_kinds} {s.scales} {s.targets}{' +twin' if s.pair else ''}")
+              f"{s.n_inference} inferred, {s.n_null} null {s.null_kinds} {s.scales} {s.targets}{' +twin' if s.pair else ''}"
+              f"{f' tone={s.polarity} {s.polarity_labels}' if s.polarity else ''}")
 
 
 def cmd_run(a) -> None:
@@ -216,7 +217,8 @@ def main(argv: list[str] | None = None) -> None:
     r.add_argument("--max-usd", type=float, default=5.0, help="stop cleanly once this much has been spent (whole file)")
     r.add_argument("--against", default="", help="comma-separated files to dedupe against (default: v1 + gen2 training files)")
     r.add_argument("--dedupe-threshold", type=float, default=0.8)
-    r.add_argument("--focus", default="", help="'scores' = Stage 3: anchored judgment scores with target bands and contrast twins")
+    r.add_argument("--focus", default="", help="'scores' = Stage 3: anchored judgment scores with target bands and contrast twins; "
+                                                 "'polarity' = mixed/neutral/positive/negative tone batch (GENERATOR_V2 §13)")
     r.add_argument("--critics", default="", help="comma-separated critic models (e.g. do:deepseek-3.2,do:openai-gpt-oss-120b); "
                    "a kept question any critic calls wrong/ambiguous is dropped")
     q = sub.add_parser("queue", help="build a human review queue from writer/checker disagreements")
