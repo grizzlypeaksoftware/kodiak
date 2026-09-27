@@ -317,3 +317,13 @@ won't fix that. Paused (D31). Options when resumed: (A) average two raters with 
 (C) ask raters for low/medium/high bands (should agree far more) and train on band centers with wide uncertainty, or (D) rely on a bigger
 backbone. Plan: read the ModernBERT-large results on eval v0.2's score tasks first; if scores are still weak, pilot (C) for about $0.15.
 Also seen: gpt-oss as a rater occasionally emits runaway JSON (9 of 50 jobs in pilot #5); guard with a tighter token budget before any batch.
+
+## 13. Data gap found in the demo: "mixed" and "neutral" (2026-09-26)
+
+Shane noticed in the categorizer demo that the reviews Kodiak flagged for review were exactly the mixed ones ("great sound, but the ear cushions
+are uncomfortable"). Kodiak's low confidence sensed the two-sidedness, but it picked "positive" instead of "mixed" (small 1/2, large 0/2 with a
+plain "mixed" label; descriptive labels helped only a little). Eval v0.2 shows the same gap: poem sentiment, which has a "mixed" class, is one of
+the few tasks where the open rivals beat Kodiak. The training data barely contains "mixed" or "neutral" as answers.
+**Plan (next data batch, a few dollars):** choice questions whose answer is mixed or neutral (reviews, support messages, comments, emails with
+both praise and complaint, or neither), alongside clearly positive and negative ones. Unlike ratings (D31), writer and checker agree well on
+choice questions, so the standard v2 pipeline applies. Measure on poem_sentiment and fin_tweets_sentiment (eval v0.2) with 3 seeds.

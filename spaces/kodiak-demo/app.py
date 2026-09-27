@@ -81,7 +81,7 @@ CAT_PRESETS = {
                          "It would be great if I could share lists with my team.",
                          "Two-factor codes aren't being sent to my new phone number.",
                          "Thanks for the quick help yesterday!"]),
-    "Product reviews": ("positive, negative, mixed",
+    "Product reviews": ("entirely positive, entirely negative, mixed: some good and some bad, neutral: neither good nor bad",
                         "What is the overall sentiment of this review?",
                         ["Absolutely love it, battery lasts all week.",
                          "Broke after two days. Waste of money.",

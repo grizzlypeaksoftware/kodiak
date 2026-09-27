@@ -95,6 +95,10 @@
      "status": "pending"
     },
     {
+     "name": "Next data batch: mixed / neutral sentiment choice questions (gap found in the categorizer demo; a few dollars)",
+     "status": "pending"
+    },
+    {
      "name": "Generator v2.1 (student screen, critic) and v2.2 (minimal pairs, planner)",
      "status": "pending"
     },
