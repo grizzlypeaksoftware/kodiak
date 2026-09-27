@@ -192,6 +192,18 @@ def cmd_coverage(a) -> None:
     print(json.dumps({k: dict(sorted(v.items(), key=lambda t: -t[1])[:8]) for k, v in cov.items()}, indent=1))
 
 
+def cmd_screen(a) -> None:
+    from kodiak_s1.data.gen2.screen import screen
+
+    print(f"screened {a.inp} -> {a.out}: {screen(a.inp, a.student, a.out)}")
+
+
+def cmd_select(a) -> None:
+    from kodiak_s1.data.gen2.screen import select
+
+    print(f"selected -> {a.out}: {select(a.inp, a.out, a.easy_share, a.random, a.n, a.seed)}")
+
+
 def main(argv: list[str] | None = None) -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -230,9 +242,20 @@ def main(argv: list[str] | None = None) -> None:
     st.add_argument("--in", dest="inp", required=True)
     c = sub.add_parser("coverage", help="recompute the coverage map")
     c.add_argument("--in", dest="inp", default="")
+    sc = sub.add_parser("screen", help="v2.1: score kept examples with a student model, mark hard / easy")
+    sc.add_argument("--in", dest="inp", required=True)
+    sc.add_argument("--student", required=True, help="run directory (latest checkpoint + calibration-final-thr.json)")
+    sc.add_argument("--out", required=True)
+    se = sub.add_parser("select", help="v2.1: all hard + a quota of easy examples per spec cell (or a random control)")
+    se.add_argument("--in", dest="inp", required=True)
+    se.add_argument("--out", required=True)
+    se.add_argument("--easy-share", type=float, default=0.3)
+    se.add_argument("--random", action="store_true", help="control: the same number of examples, drawn uniformly")
+    se.add_argument("--n", type=int, default=None)
+    se.add_argument("--seed", type=int, default=0)
     a = ap.parse_args(argv)
     {"taxonomy": cmd_taxonomy, "show": cmd_show, "run": cmd_run, "queue": cmd_queue, "stats": cmd_stats,
-     "coverage": cmd_coverage}[a.cmd](a)
+     "coverage": cmd_coverage, "screen": cmd_screen, "select": cmd_select}[a.cmd](a)
 
 
 if __name__ == "__main__":

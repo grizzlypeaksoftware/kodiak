@@ -319,3 +319,21 @@ def test_polarity_focus_specs_and_prompt():
     assert sample_spec(3, 6, tax).polarity is None
     # Typographic characters in the state don't break exact quotes.
     assert evidence_supported("merged on 2026-09-10", "it was merged on 2026‑09‑10.")
+
+
+def test_select_keeps_all_hard_and_a_quota_of_easy(tmp_path):
+    import json
+
+    from kodiak_s1.data.gen2.screen import question_hard, select
+
+    recs = [{"job": i, "spec": {"source": "synthetic", "decision": "classification", "difficulty": "easy"},
+             "screen": {"hard": i < 10}} for i in range(110)]
+    inp = tmp_path / "s.jsonl"
+    inp.write_text("".join(json.dumps(r) + "\n" for r in recs))
+    mined = select(str(inp), str(tmp_path / "m.jsonl"), easy_share=0.3)
+    assert mined == {"pool": 110, "selected": 40, "hard": 10}
+    rand = select(str(inp), str(tmp_path / "r.jsonl"), random_control=True)
+    assert rand["selected"] == 40
+    assert question_hard({"gold": {"label": "a"}, "type": "choice", "decision": "a", "confidence": 0.55, "p_null": 0.1})
+    assert not question_hard({"gold": {"label": "a"}, "type": "choice", "decision": "a", "confidence": 0.9, "p_null": 0.1})
+    assert question_hard({"gold": {"null": True}, "type": "choice", "decision": "a", "confidence": 0.9, "p_null": 0.1})

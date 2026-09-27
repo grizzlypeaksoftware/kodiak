@@ -342,3 +342,11 @@ target (4-way, 3-way or a 6-way graded set), plus aspect questions ("how does th
 Batch: `data/synthetic/gen2_v21_polarity.jsonl` (seed 6, cap $9.75). Test: `scripts/polarity_ab.sh`, small, public + v2.0 + polarity, 3 seeds,
 vs. the existing small v2 runs on eval v0.2 (report `reports/v02-polarity.md`, with poem and financial-tweet sentiment rows). It adds data rather
 than swapping it, so the never-seen average must hold while the targeted tasks move.
+
+## 14. v2.1: hard-example mining (2026-09-27)
+
+Built `gen2 screen` and `gen2 select` (`src/kodiak_s1/data/gen2/screen.py`); the critic step from the v2.1 plan was already added in v2.0c.
+**Ablation, free (no new generation):** the v1-trained small model (`b-small-s1-R1-cap3`, never saw v2.0) screened the 9,428-example v2.0 pool in
+3 minutes: 4,838 hard (51%), 4,590 easy. Mined selection = all hard + 30% of easy per cell (source × decision × difficulty) = 6,215 examples (78%
+hard); control = 6,215 drawn at random (51% hard). Small, 3 seeds per arm, eval v0.2: `scripts/v21_mining_ab.sh` → `reports/v02-v21-mining.md`.
+If mining wins, new batches are screened by the current best model before training; v2.2 (minimal pairs + planner) follows.
