@@ -87,11 +87,11 @@
           "status": "done"
         },
         {
-          "name": "Calibration off-distribution (D32/D34/D36): 3-run ensemble helps; distilling it into small didn't; next: 'can't tell' data for unfamiliar inputs (proposed)",
+          "name": "Calibration off-distribution (D32/D34/D36): 3-run ensemble helps; distilling it into small didn't; 'can't tell' batch for unfamiliar inputs generating, 3-seed test queued",
           "status": "in_progress"
         },
         {
-          "name": "Stage 3 data (judgment scores): PAUSED after 5 pilots ($0.54) \u2014 raters disagree; next try low/medium/high bands if the large model doesn't fix scores",
+          "name": "Stage 3 data (judgment scores): PAUSED after 5 pilots ($0.54); raters disagree; next try low/medium/high bands",
           "status": "pending"
         },
         {
@@ -99,7 +99,11 @@
           "status": "done"
         },
         {
-          "name": "Generator v2.1 (student screen, critic) and v2.2 (minimal pairs, planner)",
+          "name": "Generator v2.1 (student screen + hard-example selection): mined vs random test running, 3 seeds",
+          "status": "in_progress"
+        },
+        {
+          "name": "Generator v2.2 (minimal pairs, planner)",
           "status": "pending"
         },
         {
