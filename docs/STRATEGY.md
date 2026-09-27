@@ -14,7 +14,7 @@ anywhere, and honest enough to say "I can't tell from this."
 | Kodiak *is* aiming for | Kodiak is *not* aiming for |
 |---|---|
 | The best accuracy, calibration and abstention among open decision models of its size | Beating GPT- or Claude-class LLMs at reasoning, knowledge or writing |
-| Near-LLM accuracy on decision tasks at 100×+ the speed and a fraction of the cost | Replacing LLMs; the best systems use both (see §5) |
+| Near-LLM accuracy on decision tasks at 50×+ the speed (D38) and a fraction of the cost | Replacing LLMs; the best systems use both (see §5) |
 | Openness: weights, data recipe, eval and every decision published under permissive licenses | A closed product with an open demo |
 
 ## 2. Why this is worth doing
