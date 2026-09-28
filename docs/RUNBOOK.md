@@ -234,3 +234,10 @@ After changing `status.py`, restart the server (`pkill -f "kodiak_s1[.]status --
 - **Sizing a capped batch:** set `--n` to what the budget buys, not a round ceiling: `n ≈ cap / (pilot $ per job × 1.15)`. Pilots
   under-estimate per-job cost when the batch keeps more than the pilot did (every kept example pays for critic calls). The cap is checked before
   each job starts, so a run can finish up to ~16 jobs (a few cents) past it.
+
+### Backups (2026-09-28)
+
+Synthetic data (~$56 of cloud spend, not reproducible exactly), reports and predictions, and the final checkpoints of the published and ensemble
+runs are copied to Shane's Samsung T9 at `/media/larsonst/T9/backups/kodiak-<date>/` (`GIT_COMMIT.txt` records the code version). Eval sets,
+docs and code are in git; published models on Hugging Face; public datasets are re-downloadable; other checkpoints can be retrained for free.
+Refresh after each new batch: rerun the same `rsync -a` (it only adds or updates files).
