@@ -1,0 +1,304 @@
+<title>The Kodiak Field Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ink: #1f2a26;
+    --ink-soft: #4d5a55;
+    --paper: #f3f6f4;
+    --sheet: #ffffff;
+    --rule: #d5ddd8;
+    --fireweed: #b0305f;
+    --fireweed-soft: #f6e3ea;
+    --glacier: #2f6f80;
+    --glacier-soft: #e2eef1;
+    --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --body: "Literata", Georgia, "Times New Roman", serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e4ebe7; --ink-soft: #a8b6b0; --paper: #111714; --sheet: #18201c; --rule: #2e3a35;
+      --fireweed: #e57aa1; --fireweed-soft: #3a1f2a; --glacier: #86bccb; --glacier-soft: #1b2e33;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e4ebe7; --ink-soft: #a8b6b0; --paper: #111714; --sheet: #18201c; --rule: #2e3a35;
+    --fireweed: #e57aa1; --fireweed-soft: #3a1f2a; --glacier: #86bccb; --glacier-soft: #1b2e33;
+    color-scheme: dark;
+  }
+  body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.65; padding-inline: 16px; padding-block: 24px 64px; }
+  .page { max-width: 760px; margin: 0 auto; }
+  h1, h2, h3 { font-family: var(--display); line-height: 1.15; text-wrap: balance; color: var(--ink); }
+  h2 { font-size: 1.75rem; font-weight: 700; margin: 3.2rem 0 0.9rem; padding-top: 1.4rem; border-top: 1px solid var(--rule); }
+  h3 { font-size: 1.15rem; font-weight: 700; margin: 1.8rem 0 0.4rem; }
+  p { margin: 0 0 1rem; }
+  a { color: var(--glacier); text-underline-offset: 3px; }
+  a:focus-visible { outline: 2px solid var(--fireweed); outline-offset: 2px; }
+  .eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--fireweed); margin: 0 0 0.6rem; }
+  ul, ol { margin: 0 0 1rem; padding-left: 1.3rem; }
+  li { margin-bottom: 0.35rem; }
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+
+  /* Title page: a manuscript cover sheet */
+  .cover { background: var(--sheet); border: 1px solid var(--rule); padding: 2.4rem clamp(1.2rem, 5vw, 3rem); margin-bottom: 2rem; }
+  .cover h1 { font-size: clamp(2.4rem, 7vw, 3.6rem); font-weight: 800; letter-spacing: -0.02em; margin: 0.2rem 0 0.6rem; }
+  .cover .sub { font-size: 1.2rem; color: var(--ink-soft); margin: 0 0 1.6rem; max-width: 34em; }
+  .specs { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.9rem 1.6rem; border-top: 1px solid var(--rule); padding-top: 1.2rem; margin: 0; }
+  .specs div { display: flex; flex-direction: column; gap: 0.1rem; }
+  .specs dt { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); }
+  .specs dd { margin: 0; font-size: 0.98rem; }
+  .alt { font-size: 0.95rem; color: var(--ink-soft); margin-top: 1.2rem; }
+
+  .pitch { font-size: 1.22rem; line-height: 1.55; margin: 0 0 1rem; }
+
+  /* The example exchange: what Kodiak takes in and gives back */
+  .exchange { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule); border: 1px solid var(--rule); margin: 1.2rem 0 1.4rem; }
+  .exchange > div { background: var(--sheet); padding: 1rem 1.1rem; }
+  .exchange h4 { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 0.6rem; font-weight: 500; }
+  .exchange p, .exchange li { font-size: 0.95rem; }
+  .exchange ul { list-style: none; padding: 0; margin: 0; }
+  .exchange li { display: flex; justify-content: space-between; gap: 0.8rem; border-bottom: 1px dotted var(--rule); padding: 0.3rem 0; margin: 0; }
+  .exchange li:last-child { border-bottom: 0; }
+  .ans { font-family: var(--mono); font-size: 0.85rem; white-space: nowrap; }
+  .ans.cant { color: var(--fireweed); }
+  @media (max-width: 560px) { .exchange { grid-template-columns: 1fr; } }
+
+  /* Scoreboard: real figures, tabular */
+  .scroll { overflow-x: auto; margin: 1rem 0 1.4rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.93rem; min-width: 520px; }
+  th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); font-weight: 500; }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .met { color: var(--glacier); font-weight: 600; }
+  .unmet { color: var(--fireweed); font-weight: 600; }
+
+  /* Chapter outline */
+  .part { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--glacier); margin: 2rem 0 0.6rem; }
+  .chapters { list-style: none; padding: 0; margin: 0; counter-reset: none; }
+  .chapters li { display: grid; grid-template-columns: 2.4rem 1fr; gap: 0.2rem 0.8rem; padding: 0.8rem 0; border-top: 1px solid var(--rule); margin: 0; }
+  .chapters .n { font-family: var(--display); font-weight: 800; font-size: 1.3rem; color: var(--fireweed); line-height: 1.2; }
+  .chapters h3 { margin: 0 0 0.25rem; font-size: 1.08rem; }
+  .chapters p { margin: 0; font-size: 0.97rem; color: var(--ink-soft); }
+  .chapters .hands { font-family: var(--mono); font-size: 0.78rem; color: var(--glacier); margin-top: 0.3rem; }
+
+  /* Sample pages */
+  .sample { background: var(--sheet); border-left: 3px solid var(--fireweed); padding: 1.4rem 1.6rem; margin: 1rem 0 1.4rem; }
+  .sample .chap { font-family: var(--display); font-weight: 700; font-size: 1.3rem; margin: 0 0 0.8rem; }
+  .sample p:first-of-type::first-letter { font-family: var(--display); font-weight: 800; float: left; font-size: 3.1em; line-height: 0.85; padding: 0.08em 0.1em 0 0; color: var(--fireweed); }
+
+  /* Roadmap: three horizons */
+  .horizons { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0 1.4rem; }
+  .horizon { background: var(--sheet); border: 1px solid var(--rule); padding: 1.1rem 1.1rem 0.6rem; }
+  .horizon.now { border-top: 3px solid var(--fireweed); }
+  .horizon.next { border-top: 3px solid var(--glacier); }
+  .horizon.later { border-top: 3px solid var(--ink-soft); }
+  .horizon h3 { margin: 0 0 0.2rem; }
+  .horizon .when { font-family: var(--mono); font-size: 0.75rem; color: var(--ink-soft); margin: 0 0 0.7rem; }
+  .horizon ul { font-size: 0.93rem; padding-left: 1.1rem; }
+
+  .note { background: var(--glacier-soft); padding: 0.9rem 1.1rem; font-size: 0.95rem; margin: 1rem 0 1.4rem; }
+  .fill { background: var(--fireweed-soft); padding: 0 0.3em; font-family: var(--mono); font-size: 0.85em; }
+  .foot { margin-top: 3rem; font-size: 0.85rem; color: var(--ink-soft); border-top: 1px solid var(--rule); padding-top: 1rem; }
+</style>
+
+<div class="page">
+
+  <header class="cover">
+    <p class="eyebrow">Book proposal · Grizzly Peak Software</p>
+    <h1>The Kodiak Field Guide</h1>
+    <p class="sub">Fast, honest AI decisions for everyday software, and the open model that knows when to say "I can't tell"</p>
+    <dl class="specs">
+      <div><dt>Author</dt><dd>Shane Larson</dd></div>
+      <div><dt>Audience</dt><dd>Builders with little or no ML background</dd></div>
+      <div><dt>Length</dt><dd>~200 pages · 13 chapters</dd></div>
+      <div><dt>Code</dt><dd>Python and JavaScript, companion repo</dd></div>
+      <div><dt>Tied to</dt><dd>Kodiak v0.1, the first major release</dd></div>
+    </dl>
+    <p class="alt">Alternative titles: <em>The Bear Who Knew When to Ask</em> · <em>Decide in Milliseconds</em> · <em>System One: AI That Decides Fast and Admits What It Doesn't Know</em></p>
+  </header>
+
+  <p class="pitch">Most of what businesses want from AI isn't conversation. It's decisions: which team gets this ticket, is this message an attack, does this contract clause allow that. Today people send those decisions to chatbots that are slow, expensive and confidently wrong. <strong>This book is a field guide to a different kind of AI:</strong> a small, open decision model called Kodiak that answers in milliseconds on an ordinary computer, tells you how sure it is (and means it), and says "I can't tell" when the answer isn't there.</p>
+  <p>Written for developers, product people and small-business builders who have used ChatGPT but never trained a model, it explains the ideas in plain language, puts Kodiak to work on real tasks within the first chapters, and follows the model's open development from a desk in Alaska to a public release. Every result in the book can be checked: the weights, data recipe, evaluation and decision log are published.</p>
+
+  <h2 id="why">Why this book, why now</h2>
+  <p>Every company is adding AI to its software, and most of that AI is quietly doing one job: <strong>reading something and making a choice</strong>. Route the email. Flag the review. Approve the refund. Block the jailbreak. These are high-volume, repetitive decisions, exactly where a large language model is the wrong tool: it takes seconds per answer, costs money per call, can reply with something that isn't one of your options, and sounds equally confident whether it's right or guessing.</p>
+  <p>Psychologists describe two modes of thinking: a fast, automatic "System 1" and a slow, deliberate "System 2." AI products have been all System 2. Kodiak is a System 1: it handles the routine decisions instantly and hands the hard ones to a person or a bigger model. Independent research on this pattern (Carnegie Mellon's 2026 study of "accept when confident, escalate when not") points the same way, and routers that pick which model handles a request are now shipping as products.</p>
+  <p>There is no accessible book on this. Machine-learning books assume math; LLM books assume the chatbot is the answer. This one fills the gap between: <strong>how to get reliable, cheap, fast AI decisions, and how to know when not to trust them.</strong></p>
+
+  <h2 id="what">What Kodiak is, in one page</h2>
+  <p>Kodiak is a <em>decision model</em>. You give it a <strong>situation</strong> (a message, a document, a record) and <strong>questions with your own answer options</strong>. It returns an answer to every question at once, each with a confidence, or an honest "can't tell."</p>
+  <div class="exchange" role="group" aria-label="Example: what Kodiak takes in and gives back">
+    <div>
+      <h4>You send</h4>
+      <p>"Hi, I ordered the walnut desk two weeks ago. Tracking has said 'label created' for 10 days. I need it before my new job starts on Monday."</p>
+      <p style="margin:0">What does the customer want? · How urgent is this (0–10)? · Which carrier is shipping it?</p>
+    </div>
+    <div>
+      <h4>Kodiak (small) answers, in about 30 ms on a CPU</h4>
+      <ul>
+        <li><span>Intent</span><span class="ans">delivery status · 52%</span></li>
+        <li><span>Urgency</span><span class="ans">5.4 · unsure (0.8–9.6)</span></li>
+        <li><span>Carrier</span><span class="ans cant">can't tell · 99%</span></li>
+      </ul>
+    </div>
+  </div>
+  <p>Four things make it different from a chatbot, and they are the spine of the book:</p>
+  <ul>
+    <li><strong>It can only answer with your options</strong> (or a number in your range). No rambling, no invented categories.</li>
+    <li><strong>Its confidence is calibrated:</strong> when it says 90%, it's right about 90% of the time on its test set, so you can safely automate the sure answers and review the rest.</li>
+    <li><strong>It can abstain.</strong> The ticket never names a carrier, so Kodiak says so instead of guessing.</li>
+    <li><strong>It shows its doubt.</strong> Its urgency estimate comes with a range; here the range is wide, an honest sign that ratings are one of its weaker skills today.</li>
+  </ul>
+  <p>Under the hood it's an <em>encoder</em>: a model built to read, not to write, which is why it's roughly a hundred times faster than a chatbot of the kind people compare it to. It comes in two sizes (152 million and about 400 million parameters), runs on a CPU with no GPU needed, and is fully open under the Apache-2.0 license.</p>
+
+  <h3>Where it stands today (measured, not promised)</h3>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Claim</th><th>Result</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Best open model of its kind on tasks it never trained on</td><td class="num">60.9% vs 57.9%</td><td class="met">Met</td></tr>
+        <tr><td>Within 10 points of a well-known 8B chatbot, at least 50× faster</td><td class="num">7.9 pts · 96×</td><td class="met">Met</td></tr>
+        <tr><td>Says "can't tell" correctly when the answer isn't there</td><td class="num">92% vs 43%</td><td class="met">Kodiak far ahead</td></tr>
+        <tr><td>Kodiak first, chatbot only when unsure, beats the chatbot alone</td><td class="num">74.0% vs 70.9%</td><td class="met">Met</td></tr>
+        <tr><td>Confidence stays honest on unfamiliar tasks</td><td class="num">error 0.13 (goal 0.05)</td><td class="unmet">Not yet</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The book is honest about the last row and about where chatbots still win: questions that need world knowledge, like which science field a paper belongs to. That honesty is the brand.</p>
+
+  <h2 id="audience">Who it's for</h2>
+  <ul>
+    <li><strong>Application developers</strong> who've called an LLM API and want something faster, cheaper and more predictable for classification and routing.</li>
+    <li><strong>Product managers and founders</strong> deciding where AI belongs in their product and how to make it trustworthy.</li>
+    <li><strong>Automation builders and small teams</strong> (support desks, shops, publishers, agencies) who want AI help without a data-science department.</li>
+    <li><strong>Curious technologists</strong> who want to understand how a model is actually built and tested, told as a story rather than a textbook.</li>
+  </ul>
+  <p><strong>Assumed:</strong> comfort reading short Python or JavaScript. <strong>Not assumed:</strong> any math, statistics or machine-learning background. Every concept is introduced with an everyday analogy first: a weather forecast for calibration, a new employee who knows when to ask for help for abstention.</p>
+
+  <h3>What readers will be able to do</h3>
+  <ul>
+    <li>Explain the difference between a decision model and a chatbot, and choose the right one for a job.</li>
+    <li>Run Kodiak three ways: the free web demo, five lines of Python, or a self-hosted server in Docker.</li>
+    <li>Write questions and answer options that get reliable results (and recognize the wording traps).</li>
+    <li>Build a review queue: automate the confident answers, route the rest to a human.</li>
+    <li>Put Kodiak in front of an LLM as a fast first pass and measure what it saves.</li>
+    <li>Test any AI system honestly: held-out tests, repeated runs, and checking whether confidence means anything.</li>
+  </ul>
+
+  <h2 id="comps">Comparable titles</h2>
+  <p>The closest books each cover one side of this one:</p>
+  <ul>
+    <li><em>Thinking, Fast and Slow</em> (Daniel Kahneman, 2011): the System 1 / System 2 idea this book applies to software.</li>
+    <li><em>AI Engineering</em> (Chip Huyen, O'Reilly, 2025): building products on foundation models; assumes the LLM is the core.</li>
+    <li><em>Hands-On Large Language Models</em> (Jay Alammar and Maarten Grootendorst, O'Reilly, 2024): visual and practical, including classification with encoders; aimed at readers ready for ML concepts.</li>
+    <li><em>Designing Machine Learning Systems</em> (Chip Huyen, O'Reilly, 2022): production ML for engineers with ML background.</li>
+  </ul>
+  <p><strong>The gap:</strong> no current book teaches non-specialists to use a small, calibrated decision model, or treats "knowing when not to answer" as the central feature. This one also has a live, open model, a free demo and a public build log behind every page.</p>
+
+  <h2 id="outline">Chapter outline</h2>
+
+  <p class="part">Part I · Meet the bear</p>
+  <ol class="chapters">
+    <li><span class="n">1</span><div><h3>Most AI is a decision</h3><p>The hidden majority of AI work: routing, flagging, approving, sorting. Why a chatbot is an expensive, slow and overconfident way to do it. System 1 and System 2.</p></div></li>
+    <li><span class="n">2</span><div><h3>What a decision model is</h3><p>Situations, questions and your own options. Choice, score and "can't tell." Reading models versus writing models, explained without math.</p></div></li>
+    <li><span class="n">3</span><div><h3>Confidence you can trust</h3><p>Calibration through the weather forecast: when it says 70% chance of rain, does it rain 70% of the time? Why a chatbot's "I'm 90% sure" is just words, and Kodiak's is a measurement.</p></div></li>
+    <li><span class="n">4</span><div><h3>The honest "I can't tell"</h3><p>Abstention as the most valuable feature: the missing carrier, the unanswerable question, and how a system that admits ignorance becomes safe to automate.</p></div></li>
+  </ol>
+
+  <p class="part">Part II · Put Kodiak to work</p>
+  <ol class="chapters">
+    <li><span class="n">5</span><div><h3>Your first decisions</h3><p>The web demo, five lines of Python, and how to write good questions. Includes the true story of a stranger who reworded one sentence and dropped Kodiak's confidence from 97% to 48%, and what that teaches about wording.</p><p class="hands">Hands-on: the demo · Python quick start</p></div></li>
+    <li><span class="n">6</span><div><h3>Sorting the pile</h3><p>Categorizing a spreadsheet of reviews or tickets in seconds, with a review queue for the uncertain rows. Choosing your threshold.</p><p class="hands">Hands-on: a categorizer with a review queue</p></div></li>
+    <li><span class="n">7</span><div><h3>Guardrails in front of your chatbot</h3><p>Catching prompt injections and jailbreaks before they reach an LLM, where Kodiak beats an 8B chatbot by 28 points.</p><p class="hands">Hands-on: an injection filter</p></div></li>
+    <li><span class="n">8</span><div><h3>The cascade: fast first, smart second</h3><p>Kodiak answers the confident cases, the LLM gets the rest. Measuring the trade-off, and why the pair beat the chatbot alone while calling it for fewer than half the questions.</p><p class="hands">Hands-on: a working router with cost math</p></div></li>
+    <li><span class="n">9</span><div><h3>Running it yourself</h3><p>CPU, not GPU. The Node.js server and Docker image, privacy by default, and when to use a hosted API instead.</p><p class="hands">Hands-on: self-host in three commands</p></div></li>
+    <li><span class="n">10</span><div><h3>Teaching Kodiak your business</h3><p>Turning your own past decisions (tickets, approvals, even a publisher's release and pricing calls) into a private model. Labeling, testing on your own data, and knowing when it's good enough.</p><p class="hands">Hands-on: the fine-tuning kit</p></div></li>
+  </ol>
+
+  <p class="part">Part III · How it's made, and where it's going</p>
+  <ol class="chapters">
+    <li><span class="n">11</span><div><h3>Built in public for under $60</h3><p>The bootstrapper's playbook: borrowing a pretrained reader, open-model teachers writing practice data, a second AI checking the first, the three-runs-before-any-claim rule, and the four experiments that failed in a row. Plus the wizard shop: a simulated world where code knows every right answer.</p></div></li>
+    <li><span class="n">12</span><div><h3>Knowing the limits</h3><p>Where chatbots still win, bias in training data, weak spots like "how urgent is this?", and how to use a decision model responsibly when the decision is about a person.</p></div></li>
+    <li><span class="n">13</span><div><h3>The road ahead</h3><p>Where decision models are going, and Kodiak's roadmap: longer documents, step-by-step decisions for AI agents, a hosted API, and models that learn from their users.</p></div></li>
+  </ol>
+  <p><strong>Appendices:</strong> a plain-English glossary · a question-writing cheat sheet · API reference for Python and JavaScript · the full scoreboards.</p>
+
+  <h2 id="sample">Sample pages</h2>
+  <div class="sample">
+    <p class="chap">Chapter 1 · Most AI is a decision</p>
+    <p>Somewhere right now, a support team is paying a chatbot to read an email and pick one of four words. The chatbot reads the whole message, thinks about it, writes a polite paragraph, and somewhere in that paragraph is the word "billing." A second program digs the word out. The whole round trip takes three seconds and costs a fraction of a cent, which sounds like nothing until you multiply it by a million emails.</p>
+    <p>That is most of the AI in business software today: not conversation, but decisions dressed up as conversation. Which team gets this ticket? Is this review spam? Does this contract allow sharing the data? Is this message trying to trick our assistant? Each question has a short list of possible answers. Each needs to be answered fast, thousands of times a day, and each is safer if the system knows the difference between "I'm sure" and "I'm guessing."</p>
+    <p>This book is about a tool built for exactly that job. It doesn't chat. It reads, it decides, and when the answer isn't in front of it, it says so. Its name is Kodiak, after the largest bears in Alaska, which is where it was built.</p>
+  </div>
+
+  <h2 id="roadmap">The roadmap</h2>
+  <p>Kodiak is a long-term project with a committed owner and budget. The first major release, v0.1, is the launch of the platform, not the finish line. Each horizon below ships only when it beats the previous version on published tests.</p>
+  <div class="horizons">
+    <section class="horizon now" aria-labelledby="h-now">
+      <h3 id="h-now">Now: v0.1</h3>
+      <p class="when">The first major release</p>
+      <ul>
+        <li>Two sizes: fast (152M) and quality (~400M)</li>
+        <li>Python package, Node.js server, Docker image</li>
+        <li>Free demo with a decision game and a feedback form</li>
+        <li>Published test set, scoreboards and model card, including what isn't met yet</li>
+        <li>Simulated worlds with computed answers to fix wording traps</li>
+      </ul>
+    </section>
+    <section class="horizon next" aria-labelledby="h-next">
+      <h3 id="h-next">Next: v0.2</h3>
+      <p class="when">Production features</p>
+      <ul>
+        <li>Fine-tuning kit: teach Kodiak your own decisions</li>
+        <li>Longer documents (up to ~8,000 tokens)</li>
+        <li>Reliable ratings through low / medium / high bands</li>
+        <li>Router and "AI judge" starter kits</li>
+        <li>Hosted Kodiak API from Cortex Agent</li>
+        <li>A public benchmark anyone can rerun</li>
+      </ul>
+    </section>
+    <section class="horizon later" aria-labelledby="h-later">
+      <h3 id="h-later">Later: v1 and beyond</h3>
+      <p class="when">The platform</p>
+      <ul>
+        <li>Step-by-step decisions for AI agents</li>
+        <li>More languages</li>
+        <li>Models that improve from reviewed user feedback</li>
+        <li>Industry packs: support, compliance, publishing</li>
+        <li>Browser and edge builds</li>
+        <li>A purpose-built Kodiak encoder, trained from scratch</li>
+      </ul>
+    </section>
+  </div>
+  <p>The book's companion site tracks the roadmap as it moves, so readers always know which chapters describe shipped features and which describe plans.</p>
+
+  <h2 id="author">About the author</h2>
+  <p>Shane Larson is a software engineer and the founder of Grizzly Peak Software and Cortex Agent LLC, based in Alaska. He built Kodiak in public, starting with no machine-learning background, on a single desktop machine and a cloud budget of under $60 for the first release, documenting every decision and dead end along the way. <span class="fill">Add: years in software, prior books, notable projects</span></p>
+
+  <h2 id="platform">Platform and marketing</h2>
+  <p>The book is designed to double as a content engine for Kodiak adoption:</p>
+  <ul>
+    <li><strong>Every chapter becomes content:</strong> an article on grizzlypeaksoftware.com, a thread on X (@PeakGrizzly), and a runnable demo.</li>
+    <li><strong>A live, open model behind every claim:</strong> readers can try each example in the free demo, on Hugging Face, and check the numbers in the public repository.</li>
+    <li><strong>Built-in shareability:</strong> the "Returns Desk: you vs. the Bear" game and a "break the bear" challenge that turns readers' failure reports into training data.</li>
+    <li><strong>Audio:</strong> NotebookLM-style episodes on the build story for podcast audiences.</li>
+    <li><strong>A path from reader to customer:</strong> the self-hosted model is free; the hosted API and fine-tuning services are the business.</li>
+  </ul>
+
+  <h2 id="specs">Format and schedule</h2>
+  <ul>
+    <li><strong>Length:</strong> about 200 pages (45,000–55,000 words), 13 chapters in three parts, plus appendices.</li>
+    <li><strong>Code:</strong> short, runnable examples in Python and JavaScript, maintained in a companion repository and tested against each Kodiak release.</li>
+    <li><strong>Visuals:</strong> about 40 diagrams and charts (answer flows, calibration charts, cascade trade-offs), all generated from real results.</li>
+    <li><strong>Publishing path:</strong> an early-access edition through Grizzly Peak alongside Kodiak v0.1, updated chapter by chapter; the finished edition with v0.2. A traditional technical publisher remains an option for the finished edition.</li>
+    <li><strong>Keeping it current:</strong> versioned chapters, and a companion site that flags when a chapter has been superseded by a new release.</li>
+  </ul>
+
+  <div class="note"><strong>Honesty policy.</strong> Every number in the book comes from a published test, averaged over repeated training runs, with its limits stated. Where Kodiak loses, the book says so. That policy is the project's and the book's main promise to readers.</div>
+
+  <p class="foot">Draft proposal, September 2026. Figures from the Kodiak evaluation reports (eval set v0.2) and decision log; see github.com/grizzlypeaksoftware/kodiak.</p>
+</div>
