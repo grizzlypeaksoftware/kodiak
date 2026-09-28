@@ -250,13 +250,15 @@ def game_new(model: str):
 
     picks = random.sample(range(len(GAME_CASES)), ROUNDS)
     g = {"picks": picks, "i": 0, "you": 0, "bear": 0, "model": model, "log": []}
-    return (g, *_game_show(g), "**You 0 · Bear 0.** Read the customer's message and the rules, then decide.", gr.update(interactive=True))
+    return (g, *_game_show(g), "**You 0 · Bear 0.** Read the customer's message and the rules, then decide.",
+            gr.update(interactive=True, visible=True))
 
 
 def _game_show(g: dict):
     case = GAME_CASES[g["picks"][g["i"]]]
     w, n = _labels(case, "want"), _labels(case, "next")
-    return (_case_md(case, g["i"] + 1), gr.update(choices=list(w.values()), value=None), gr.update(choices=list(n.values()), value=None), "")
+    return (_case_md(case, g["i"] + 1), gr.update(choices=list(w.values()), value=None, visible=True),
+            gr.update(choices=list(n.values()), value=None, visible=True), "")
 
 
 def game_answer(g: dict | None, want_txt: str, next_txt: str):
@@ -288,10 +290,12 @@ def game_answer(g: dict | None, want_txt: str, next_txt: str):
     table += f"\n\n*Under the rules, the shop can offer: {offer}.*"
     score = f"**You {g['you']} · Bear {g['bear']}**"
     if g["i"] >= ROUNDS:
-        verdict = ("You beat the Bear! 🏆" if g["you"] > g["bear"] else "The Bear wins this time. 🐻" if g["bear"] > g["you"] else "A tie!")
-        share = f"I scored {g['you']} vs Kodiak's {g['bear']} at the Enchanted Returns Desk 🧙🐻"
-        return (g, gr.update(), gr.update(), gr.update(), f"{score}. **{verdict}** Share it: *{share}* Press **New game** to play again.",
-                table, gr.update(interactive=False))
+        verdict = ("You beat the Bear! 🏆" if g["you"] > g["bear"] else "The Bear wins this time. 🐻" if g["bear"] > g["you"] else "A tie! 🤝")
+        share = f"I scored {g['you']} vs Kodiak's {g['bear']} at the Enchanted Returns Desk 🧙🐻 huggingface.co/spaces/comgen42/kodiak-demo"
+        over = (f"## Game over: {verdict}\n\n### You {g['you']} · Bear {g['bear']} (out of {ROUNDS * 20})\n\n"
+                f"Share it: `{share}`\n\nPress **New game** to play five new customers.")
+        return (g, over, gr.update(visible=False, value=None), gr.update(visible=False, value=None), f"**Final: You {g['you']} · Bear {g['bear']}**",
+                table, gr.update(interactive=False, visible=False))
     return (g, *_game_show(g)[:3], f"{score}. Next customer!", table, gr.update())
 
 
