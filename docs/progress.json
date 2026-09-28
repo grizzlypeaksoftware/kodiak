@@ -623,6 +623,10 @@
     {
       "date": "2026-09-28",
       "text": "Demo: 'Returns Desk: you vs. the Bear' game (233 computed-answer cases) and a live feedback form feeding a private review dataset"
+    },
+    {
+      "date": "2026-09-28",
+      "text": "Returns Desk simulator data (computed labels, $2.01): word-trap probe 3 \u2192 5 of 8, the first targeted data gain since v2.0; costs ~1 pt and teaches a new shortcut (D43)"
     }
   ],
   "published": [
@@ -668,15 +672,10 @@
   ],
   "queue": [
     {
-      "name": "Returns Desk batch + 3-seed test",
-      "why": "Computed-label simulator (GENERATOR_V2 \u00a717): does it fix the word-matching shortcut David found, measured on his 4 sentences plus eval v0.2?",
-      "after": "batch (~1 h), then 3 runs of ~1 h",
-      "cost": "batch \u2264 $2; test free",
-      "script": "scripts/simret_ab.sh",
-      "log": "runs/simret-ab.log",
-      "done_marker": "returns desk test complete",
-      "report": "v02-simret",
-      "eta": "~11:45 today"
+      "name": "Returns Desk v2: fix its shortcut, add real-world domains",
+      "why": "D43: the simulator moved the word-matching probe 3 \u2192 5 of 8 but taught 'phrased as a question \u2192 question label' and cost ~1 pt. Split the info intent, add retail/SaaS worlds and policy templates, smaller mix.",
+      "after": "Shane's OK",
+      "cost": "batch ~$2-3; test free"
     },
     {
       "name": "Stage 3 retry: ratings as low / medium / high bands",
@@ -696,7 +695,7 @@
       "name": "Returns Desk simulator (3 seeds)",
       "why": "Computed-label data vs the word-matching shortcut",
       "report": "v02-simret",
-      "decision": "(pending)"
+      "decision": "D43: probe 3 \u2192 5 of 8; \u22121 pt never-seen; new shortcut"
     },
     {
       "match": "unfam-",

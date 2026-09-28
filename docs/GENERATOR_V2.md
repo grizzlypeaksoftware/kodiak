@@ -379,4 +379,6 @@ Four questions per case: the want (checked), what the rules allow, the clerk's n
 time, otherwise "can't tell"). **Pilot: 36/40 kept, $0.01 total** (~$0.30 per 1,000; no critics needed since three of four answers are computed).
 The 4 drops were "store credit" letters the checker read as refunds. Fixed after the pilot: when neither want nor fallback is allowed, the clerk
 offers what the rules allow (credit, else exchange) before declining. Tests: `tests/test_sim_returns.py`.
+**Result (D43):** probe 3.0 → 5.0 of 8 on average; never-seen −1.0; new "question → question label" shortcut. Next: split the info intent,
+add real-world domains and policy templates, smaller mix share.
 

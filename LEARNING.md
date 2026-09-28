@@ -704,3 +704,13 @@ trains on, and what limits Kodiak on never-seen tasks is mostly knowledge, not t
 **Concept: know when to stop turning a knob.** Three flat seeds cost nothing but GPU time, but a fourth, fifth and sixth would cost weeks. Time to
 change the question, not the dataset.
 
+## A targeted fix that worked, and taught a new shortcut (2026-09-28)
+
+The Enchanted Returns Desk (wizard-shop customer letters whose right answers are computed by code) was aimed at the flaw a demo user found:
+"if it can't arrive by Monday, cancel and refund me" was read as a refund request because the words matched. After training on 5,000 such cases,
+the models got 5 of 8 tricky rewordings right instead of 3. But they also learned something we didn't intend: "Can you tell me where my package
+is?" became a "product question", because in the wizard shop, customers who only ask questions were labeled "just a question".
+
+**Concept: models learn exactly what the data rewards, including accidents.** Every simulator teaches its own shortcuts. The fix is variety (more
+domains, more policy templates) and probes that check the lesson transferred, not just the score on the new data.
+

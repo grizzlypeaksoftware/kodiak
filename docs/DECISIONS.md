@@ -47,6 +47,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D40 | 2026-09-27 | Zork work parked | revisit |
 | D41 | 2026-09-27 | Hard-example mining (Generator v2.1) didn't beat random selection | active |
 | D42 | 2026-09-27 | The unfamiliar-inputs calibration batch didn't move calibration | active |
+| D43 | 2026-09-28 | Computed-label simulator data moves the word-matching shortcut, at a small cost | active |
 
 ---
 
@@ -402,4 +403,17 @@ examples of a new *kind* to ~370k training examples doesn't shift behaviour on n
 larger backbone (D29, D33). Calibration off-distribution (criterion 3) is still unmet; the 3-run ensemble (D34) remains the only lever that worked.
 **Decisions.** Stop small-model data tweaks. Next data work is computed-label simulators and user-found failures (GENERATOR_V2 §16-17), measured
 on targeted probes as well as eval v0.2; criterion 3 is reported as unmet for v0.1 unless the ensemble is the shipped configuration.
+
+### D43: Computed-label simulator data moves the word-matching shortcut (first targeted gain since v2.0), at a small cost
+**Evidence (3 seeds each; reports/v02-simret.md).** Small, public + v2.0 + 5,139 Enchanted Returns Desk cases ($2.01) vs small v2.
+**Target, label-overlap probe (8 sentences, GENERATOR_V2 §16):** right 3/2/4 → **6/4/5** (mean p(right) 0.41 → 0.55). Conditional refunds that repeat
+the label's words ("if it can't arrive by then, please cancel and refund me"): p(expedite) 0.01-0.02 → 0.21-0.58; David's rewording 0.22-0.75 →
+0.71-0.88. **Cost on eval v0.2:** never-seen forced 0.553 → 0.543 (~1.5 sd), never-seen ECE 0.136 → 0.145, jailbreak 0.78 → 0.67 (±0.07); familiar
+unchanged. **New shortcut:** "Can you tell me where it is?" → "product question" at 0.85-0.94 (baseline 0.58): the simulator's "just a question"
+intent taught "phrased as a question → question label".
+**Reading.** Data whose answers are computed, aimed at one diagnosed failure, is the first data change since v2.0 to move its target. It also shows the
+risk: a narrow domain (one wizard shop) with a few thousand cases teaches its own shortcuts and costs a little general accuracy.
+**Next (proposed, not started).** (1) Split the "information" intent into "status of my order" vs "general question"; (2) add non-wizard domains
+(real-world retail, SaaS support) and several policy templates so the lesson is "read the condition", not "wizard letters"; (3) mix at a smaller share;
+then re-test with the same probe + eval v0.2.
 
