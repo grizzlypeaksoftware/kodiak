@@ -75,15 +75,26 @@ def run(state_text: str, questions_json: str, threshold: float, model: str = MOD
     return "\n".join(lines), answers, last, gr.update(choices=list(answers), value=next(iter(answers), None))
 
 
-def submit_feedback(last: dict | None, qid: str, correct: str, note: str, consent: bool):
-    """Save one "Kodiak got this wrong" report. The correct answer must be one of the labels, a number in range, or "can't tell"."""
+def question_ids(questions_json: str):
+    """Fill the feedback form's question list from whatever questions are on screen (no need to click Decide first)."""
+    try:
+        ids = [q["id"] for q in json.loads(questions_json) if isinstance(q, dict) and q.get("id")]
+    except (ValueError, TypeError):
+        ids = []
+    return gr.update(choices=ids, value=ids[0] if ids else None)
+
+
+def submit_feedback(state_text: str, questions_json: str, threshold: float, model: str, qid: str, correct: str, note: str, consent: bool):
+    """Save one "Kodiak got this wrong" report. The correct answer must be one of the labels, a number in range, or "can't tell".
+    Kodiak's answers are recomputed here, so the report always matches what's on screen, whether or not Decide was clicked."""
     import datetime
     import uuid
 
     if scheduler is None:
         return "Feedback isn't switched on for this demo yet. Please [open an issue](https://github.com/grizzlypeaksoftware/kodiak/issues) instead."
+    _, _, last, _ = run(state_text, questions_json, threshold, model)
     if not last:
-        return "Run **Decide** first, then report what it got wrong."
+        return "The state or questions have an error; fix them (click **Decide** to see it), then send."
     if not consent:
         return "Please tick the box to release this example (it's how we're allowed to use it)."
     q = next((q for q in last["questions"] if q.get("id") == qid), None)
@@ -238,7 +249,7 @@ with gr.Blocks(title="Kodiak") as demo:
             gr.Markdown("Found a wrong answer? That's the most useful thing you can send us. Reviewed by hand, then used to train the "
                         "next version. **Don't include personal information.**")
             with gr.Row():
-                fb_q = gr.Dropdown([], label="Which question?")
+                fb_q = gr.Dropdown([], label="Which question? (the id from the questions box)")
                 fb_correct = gr.Textbox(label="The correct answer (one of the labels, a number, or \"can't tell\")")
             fb_note = gr.Textbox(label="Why? (optional)", lines=2)
             fb_consent = gr.Checkbox(label="I release this example (state, questions, answer) under CC0, and it contains no personal information.")
@@ -248,7 +259,8 @@ with gr.Blocks(title="Kodiak") as demo:
         example.change(load_example, example, [state, questions])
         demo.load(load_example, example, [state, questions])
         go.click(run, [state, questions, threshold, model], [summary, raw, last_run, fb_q])
-        fb_go.click(submit_feedback, [last_run, fb_q, fb_correct, fb_note, fb_consent], fb_msg)
+        questions.change(question_ids, questions, fb_q)
+        fb_go.click(submit_feedback, [state, questions, threshold, model, fb_q, fb_correct, fb_note, fb_consent], fb_msg)
     with gr.Tab("Categorize a list"):
         gr.Markdown("Paste one item per line (or upload a CSV with a `text` column), type **your own** categories, and Kodiak sorts "
                     "every row in one batch. Rows it isn't sure about are flagged for a human instead of guessed.")
