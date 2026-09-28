@@ -337,6 +337,14 @@
         "writer": "do:openai-gpt-oss-120b",
         "verifier": "do:deepseek-3.2",
         "pilot": true
+      },
+      {
+        "name": "Side batch: Enchanted Returns Desk simulator (computed labels), $2 cap",
+        "file": "data/synthetic/sim_returns_v1.jsonl",
+        "log": "data/synthetic/sim_returns_v1.log",
+        "target_jobs": 6800,
+        "writer": "do:openai-gpt-oss-120b",
+        "verifier": "do:deepseek-3.2"
       }
     ],
     "stages": [
@@ -650,8 +658,13 @@
     {
       "name": "Returns Desk batch + 3-seed test",
       "why": "Computed-label simulator (GENERATOR_V2 \u00a717): does it fix the word-matching shortcut David found, measured on his 4 sentences plus eval v0.2?",
-      "after": "Shane's OK",
-      "cost": "batch ~$2 (\u22486,000 examples), test free (~3 h)"
+      "after": "batch (~1 h), then 3 runs of ~1 h",
+      "cost": "batch \u2264 $2; test free",
+      "script": "scripts/simret_ab.sh",
+      "log": "runs/simret-ab.log",
+      "done_marker": "returns desk test complete",
+      "report": "v02-simret",
+      "eta": "~11:45 today"
     },
     {
       "name": "Returns Desk game tab in the demo",
@@ -671,6 +684,13 @@
     }
   ],
   "experiments": [
+    {
+      "match": "simret-",
+      "name": "Returns Desk simulator (3 seeds)",
+      "why": "Computed-label data vs the word-matching shortcut",
+      "report": "v02-simret",
+      "decision": "(pending)"
+    },
     {
       "match": "unfam-",
       "name": "Calibration batch: unfamiliar inputs (3 seeds)",
