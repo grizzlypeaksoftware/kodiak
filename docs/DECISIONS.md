@@ -46,6 +46,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D39 | 2026-09-27 | The mixed/neutral batch barely moved the targets; the real poem failure is different | active |
 | D40 | 2026-09-27 | Zork work parked | revisit |
 | D41 | 2026-09-27 | Hard-example mining (Generator v2.1) didn't beat random selection | active |
+| D42 | 2026-09-27 | The unfamiliar-inputs calibration batch didn't move calibration | active |
 
 ---
 
@@ -391,4 +392,14 @@ examples, perhaps because hard examples also concentrate label noise (GENERATOR_
 with the current best model could differ, but that isn't worth another day.
 **Decisions.** (1) Don't build screening into the generator; keep `gen2 screen/select` as tools. (2) Move to v2.2, which now has a concrete, user-found
 target (label-word overlap, GENERATOR_V2 §16). (3) The mining pitch ("pay only for examples the model gets wrong") is shelved, not claimed.
+
+### D42: The unfamiliar-inputs calibration batch didn't move calibration
+**Evidence (3 seeds, eval v0.2; reports/v02-unfamiliar.md).** Small, public + v2.0 + 3,520 unfamiliar-input examples (35% "can't tell") vs small v2:
+never-seen ECE 0.136 → 0.137, never-seen forced 0.553 → 0.548, abstain precision 0.91 → 0.92, constructed unanswerables 0.93 → 0.92, jailbreak
+0.78 → 0.72 (±0.07). Nothing beyond noise.
+**Reading.** Fourth flat data intervention on the small model in a row (D36 distillation, D39 mixed/neutral, D41 mining, D42). Adding a few thousand
+examples of a new *kind* to ~370k training examples doesn't shift behaviour on never-seen tasks; the big gains came from v2.0's inference fix and the
+larger backbone (D29, D33). Calibration off-distribution (criterion 3) is still unmet; the 3-run ensemble (D34) remains the only lever that worked.
+**Decisions.** Stop small-model data tweaks. Next data work is computed-label simulators and user-found failures (GENERATOR_V2 §16-17), measured
+on targeted probes as well as eval v0.2; criterion 3 is reported as unmet for v0.1 unless the ensemble is the shipped configuration.
 

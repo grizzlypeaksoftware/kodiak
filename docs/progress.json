@@ -87,7 +87,7 @@
           "status": "done"
         },
         {
-          "name": "Calibration off-distribution (D32/D34/D36): 3-run ensemble helps; distilling it into small didn't; 'can't tell' batch for unfamiliar inputs generating, 3-seed test queued",
+          "name": "Calibration off-distribution (D32/D34/D36/D42): 3-run ensemble helps; distillation and 'can't tell' data didn't",
           "status": "in_progress"
         },
         {
@@ -371,7 +371,7 @@
       },
       {
         "name": "Side batch \u00b7 Calibration: unfamiliar inputs",
-        "why": "Unusual documents with tempting 'can't tell' questions (D32); 3,520 kept for $9.54; 3-seed test after v2.1",
+        "why": "Unusual documents with tempting 'can't tell' questions (D32); no effect on calibration, 3 seeds (D42)",
         "goal": 3520,
         "files": [
           "data/synthetic/gen2_cal_unfamiliar.jsonl"
@@ -591,6 +591,10 @@
     {
       "date": "2026-09-27",
       "text": "Generator v2.1 hard-example mining tied random selection (3 seeds each): not adopted (D41). A demo user found a label-word overlap shortcut (0.97 \u2192 0.48 on a reworded ticket): v2.2's first target"
+    },
+    {
+      "date": "2026-09-27",
+      "text": "Calibration batch (unfamiliar inputs) had no effect, 3 seeds (D42): the fourth flat data tweak in a row; small-model data tweaks stop here. Demo gets a 'Did Kodiak get something wrong?' form"
     }
   ],
   "published": [
@@ -636,17 +640,6 @@
   ],
   "queue": [
     {
-      "name": "Calibration test: unfamiliar inputs",
-      "script": "scripts/unfamiliar_ab.sh",
-      "log": "runs/unfamiliar-ab.log",
-      "done_marker": "unfamiliar test complete",
-      "why": "Does the 'can't tell' batch make confidence more honest on never-seen tasks (criterion 3) without more wrong refusals?",
-      "report": "v02-unfamiliar",
-      "after": "started 15:30",
-      "eta": "~18:40 today",
-      "cost": "free (batch ~$9.50, running)"
-    },
-    {
       "name": "Generator v2.2 pilot: minimal pairs + planner",
       "why": "Twins that differ only in the fact that matters; batches aimed at validation weak spots. New target from a demo user: label-word overlap (the refund ticket goes 0.97 \u2192 0.48 when reworded, GENERATOR_V2 \u00a716).",
       "after": "v2.1 result",
@@ -667,18 +660,18 @@
   ],
   "experiments": [
     {
+      "match": "unfam-",
+      "name": "Calibration batch: unfamiliar inputs (3 seeds)",
+      "why": "'Can't tell' data for unfamiliar inputs",
+      "report": "v02-unfamiliar",
+      "decision": "D42: no effect"
+    },
+    {
       "match": "v21-",
       "name": "Generator v2.1: mined vs random (3 seeds)",
       "why": "Hard-example mining ablation",
       "report": "v02-v21-mining",
       "decision": "D41: tie, not adopted"
-    },
-    {
-      "match": "unfam-",
-      "name": "Calibration batch: unfamiliar inputs (3 seeds)",
-      "why": "'Can't tell' data for unfamiliar inputs",
-      "report": "v02-unfamiliar",
-      "decision": "(pending)"
     },
     {
       "match": "polarity-",

@@ -694,3 +694,13 @@ a model the "hard" pile also holds more examples whose answer key is wrong, and 
 **Concept: an idea from a design doc is a hypothesis.** Hard-example mining was a pillar of the v2.1 plan. One afternoon of free training showed
 it doesn't pay here, before any money went into building it into the generator.
 
+## Four flat results in a row, and what they say (2026-09-27)
+
+Distillation, mixed/neutral data, hard-example mining, and "can't tell" data for unfamiliar inputs: each was a reasonable idea, each got three
+training runs, each came back flat. The pattern is the lesson. A few thousand new examples barely register next to the ~370,000 the model already
+trains on, and what limits Kodiak on never-seen tasks is mostly knowledge, not the kind of practice data. The two things that did work were fixing a
+*systematic* flaw (v2.0's wrong refusals) and a bigger model.
+
+**Concept: know when to stop turning a knob.** Three flat seeds cost nothing but GPU time, but a fourth, fifth and sixth would cost weeks. Time to
+change the question, not the dataset.
+
