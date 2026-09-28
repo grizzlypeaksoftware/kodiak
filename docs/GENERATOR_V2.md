@@ -368,3 +368,15 @@ instead" → 0.70 / 0.37; "give me my money back" → 0.48 / 0.30. When the stat
 this refund is conditional ("if it can't arrive by Monday") and "expedite" is the better answer. It is a lexical-overlap shortcut (as in NLI's HANS).
 **v2.2 target:** minimal pairs of two kinds: (a) the label's words appear in the state but the answer is another option (conditional or negated
 requests, quoted text, "I don't want a refund"), and (b) the right label paraphrased with no shared words. Regression probe: these four sentences.
+
+## 17. Simulators with computed labels: the Enchanted Returns Desk (2026-09-27)
+
+`src/kodiak_s1/data/sim/returns_desk.py`. Code invents a wizard shop (randomized return window, Guild-member bonus, cursed items → store credit only,
+opened potions and read scrolls → no returns, creatures → exchange only within 7 days, damaged or overdue orders → refund or free replacement), an order
+record and the customer's real want (plus a conditional fallback in ~45% of replacement/exchange cases, a "do NOT want X" trap in 30%, and a
+paraphrase-only instruction in 50%). The writer model writes only the letter; a blind checker must recover the main want or the case is dropped.
+Four questions per case: the want (checked), what the rules allow, the clerk's next action (computed), and the courier (in the record 60% of the
+time, otherwise "can't tell"). **Pilot: 36/40 kept, $0.01 total** (~$0.30 per 1,000; no critics needed since three of four answers are computed).
+The 4 drops were "store credit" letters the checker read as refunds. Fixed after the pilot: when neither want nor fallback is allowed, the clerk
+offers what the rules allow (credit, else exchange) before declining. Tests: `tests/test_sim_returns.py`.
+
