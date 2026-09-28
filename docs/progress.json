@@ -353,6 +353,22 @@
         "writer": "do:openai-gpt-oss-120b",
         "verifier": "do:deepseek-3.2",
         "pilot": true
+      },
+      {
+        "name": "Pilot: Returns Desk v2 (three worlds)",
+        "file": "data/synthetic/pilot_sim_returns_v2.jsonl",
+        "target_jobs": 30,
+        "writer": "do:openai-gpt-oss-120b",
+        "verifier": "do:deepseek-3.2",
+        "pilot": true
+      },
+      {
+        "name": "Side batch: Returns Desk v2 (wizard, home goods, outdoor co-op; $1.40 cap)",
+        "file": "data/synthetic/sim_returns_v2.jsonl",
+        "log": "data/synthetic/sim_returns_v2.log",
+        "target_jobs": 3400,
+        "writer": "do:openai-gpt-oss-120b",
+        "verifier": "do:deepseek-3.2"
       }
     ],
     "stages": [
@@ -674,8 +690,13 @@
     {
       "name": "Returns Desk v2: fix its shortcut, add real-world domains",
       "why": "D43: the simulator moved the word-matching probe 3 \u2192 5 of 8 but taught 'phrased as a question \u2192 question label' and cost ~1 pt. Split the info intent, add retail/SaaS worlds and policy templates, smaller mix.",
-      "after": "Shane's OK",
-      "cost": "batch ~$2-3; test free"
+      "after": "batch (~30 min), then 3 runs of ~1 h",
+      "cost": "batch \u2264 $1.40 (Shane approved); test free",
+      "script": "scripts/simret2_ab.sh",
+      "log": "runs/simret2-ab.log",
+      "done_marker": "returns desk v2 test complete",
+      "report": "v02-simret2",
+      "eta": "~16:30 today"
     },
     {
       "name": "Stage 3 retry: ratings as low / medium / high bands",
@@ -690,6 +711,13 @@
     }
   ],
   "experiments": [
+    {
+      "match": "simret2-",
+      "name": "Returns Desk v2 (3 seeds)",
+      "why": "Three worlds + split info intent (D43 follow-up)",
+      "report": "v02-simret2",
+      "decision": "(pending)"
+    },
     {
       "match": "simret-",
       "name": "Returns Desk simulator (3 seeds)",

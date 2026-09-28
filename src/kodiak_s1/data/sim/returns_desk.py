@@ -23,33 +23,65 @@ from pathlib import Path
 WRITER, CHECKER = "do:openai-gpt-oss-120b", "do:deepseek-3.2"
 SOURCE_ID = "kodiak_sim_returns"
 
-SHOPS = ["Wyrmwood Potions & Curios", "The Gilded Cauldron", "Mossback Artifacts", "Hollowmere Wand Emporium", "The Crooked Candle",
-         "Starfall Sundries", "Brambleglen Apothecary", "The Quiet Dragon Trading Co."]
-COURIERS = ["Owl Post Express", "Broomline Couriers", "Griffin Freight"]
-# (category, items, price range in gold)
-CATALOG = {
-    "potion": (["Draught of Deep Sleep", "Elixir of Borrowed Courage", "Tonic of Tolerable Mornings", "Philter of Minor Luck"], (8, 60)),
-    "scroll": (["Scroll of Weather Bending", "Scroll of Lesser Summoning", "Scroll of Perfect Recall"], (15, 120)),
-    "wand": (["Hawthorn Wand (dragon-scale core)", "Willow Wand (unicorn-hair core)", "Ebony Wand (phoenix-ash core)"], (40, 300)),
-    "artifact": (["Self-Stirring Cauldron", "Enchanted Hourglass", "Mirror of Mild Honesty", "Lantern of Unfailing Light"], (30, 500)),
-    "creature": (["Miniature Dragon Hatchling", "Familiar Owl", "Mimic Chest (house-trained)"], (80, 900)),
-    "apparel": (["Cloak of Partial Invisibility", "Boots of Brisk Walking", "Hat of Warm Ears"], (20, 200)),
+# v2 (D43): three worlds with the same rule *shapes* but different surface, so the lesson is "read the condition", not "wizard letters".
+# Per category: kind = normal | consumable (no returns once opened) | special (exchange only, within 7 days); flag = the "store credit only" marker.
+WORLDS = {
+    "wizard": {"desc": "a wizard shop", "currency": "gold", "weight": 0.35,
+               "shops": ["Wyrmwood Potions & Curios", "The Gilded Cauldron", "Mossback Artifacts", "Hollowmere Wand Emporium", "The Crooked Candle",
+                         "Starfall Sundries", "Brambleglen Apothecary", "The Quiet Dragon Trading Co."],
+               "couriers": ["Owl Post Express", "Broomline Couriers", "Griffin Freight"],
+               "catalog": {"potion": (["Draught of Deep Sleep", "Elixir of Borrowed Courage", "Tonic of Tolerable Mornings"], (8, 60), "consumable", "opened"),
+                           "scroll": (["Scroll of Weather Bending", "Scroll of Lesser Summoning"], (15, 120), "consumable", "read"),
+                           "wand": (["Hawthorn Wand (dragon-scale core)", "Willow Wand (unicorn-hair core)"], (40, 300), "normal", "cursed"),
+                           "artifact": (["Self-Stirring Cauldron", "Enchanted Hourglass", "Mirror of Mild Honesty"], (30, 500), "normal", "cursed"),
+                           "creature": (["Miniature Dragon Hatchling", "Familiar Owl", "Mimic Chest (house-trained)"], (80, 900), "special", None),
+                           "apparel": (["Cloak of Partial Invisibility", "Boots of Brisk Walking"], (20, 200), "normal", "cursed")},
+               "rules": {"credit": "Cursed items can only be returned for store credit.", "consumable": "Opened potions and read scrolls cannot be returned.",
+                         "special": "Creatures can only be exchanged, and only within 7 days of purchase."},
+               "member": "Guild members", "voice": "Sign with an invented wizardly name."},
+    "retail": {"desc": "an online home goods store", "currency": "USD", "weight": 0.45,
+               "shops": ["Oak & Ember Home", "Northline Living", "Parcel & Pine", "The Walnut Room", "Brightside Goods"],
+               "couriers": ["UPS", "FedEx", "USPS"],
+               "catalog": {"cosmetics": (["Vitamin C serum", "Lavender body oil", "Clay face mask set"], (12, 90), "consumable", "opened"),
+                           "software": (["Photo-editing app license", "Tax software download"], (20, 150), "consumable", "activated"),
+                           "furniture": (["Walnut writing desk", "Oak bookshelf", "Linen armchair"], (120, 1400), "normal", "clearance"),
+                           "custom": (["Custom-sized dining table", "Monogrammed headboard"], (400, 2500), "special", None),
+                           "lighting": (["Brass floor lamp", "Ceramic table lamp"], (35, 300), "normal", "clearance"),
+                           "textiles": (["Wool throw blanket", "Linen duvet cover"], (30, 250), "normal", "clearance")},
+               "rules": {"credit": "Clearance items can only be returned for store credit.",
+                         "consumable": "Opened cosmetics and activated software cannot be returned.",
+                         "special": "Custom-made items can only be exchanged, and only within 7 days of purchase."},
+               "member": "Plus members", "voice": "Sign with an ordinary first name or initials, or no signature."},
+    "outdoor": {"desc": "an outdoor gear co-op in Alaska", "currency": "USD", "weight": 0.20,
+                "shops": ["Grizzly Peak Outfitters", "Kenai Trail Co-op", "Denali Basecamp Supply", "Tundra & Timber Gear"],
+                "couriers": ["UPS", "Alaska Air Cargo", "USPS"],
+                "catalog": {"fuel": (["Isobutane fuel canister (4-pack)", "Freeze-dried meal bundle"], (15, 80), "consumable", "used"),
+                            "boots": (["Custom-fitted mountaineering boots"], (300, 700), "special", None),
+                            "tents": (["Two-person backpacking tent", "Four-season expedition tent"], (180, 900), "normal", "on_sale"),
+                            "packs": (["65-liter backpack", "Bear-resistant food canister"], (60, 400), "normal", "on_sale"),
+                            "outerwear": (["Insulated parka", "Rain shell jacket"], (90, 500), "normal", "on_sale")},
+                "rules": {"credit": "Sale items can only be returned for store credit.", "consumable": "Used fuel and opened food cannot be returned.",
+                          "special": "Custom-fitted boots can only be exchanged, and only within 7 days of purchase."},
+                "member": "co-op members", "voice": "Sign with an ordinary name."},
 }
-WANTS = {  # what the customer wants most -> the intent label
-    "refund": "a refund of their gold",
+WANTS = {  # what the customer wants most -> the intent label (v2 splits "just information" into order status vs a general question)
+    "refund": "a refund of their money",
     "replacement": "a replacement or faster delivery",
     "exchange": "an exchange for a different item",
     "credit": "store credit",
-    "info": "just information (a question, no request)",
+    "status": "an update on where their order is",
+    "question": "an answer to a general question about the item",
 }
 OFFERS = ["a full refund or a free replacement", "a full refund", "store credit only", "an exchange only", "nothing: the return isn't allowed"]
 ACTIONS = {"refund": "process a refund", "replacement": "ship a replacement or speed up delivery", "exchange": "arrange an exchange",
-           "credit": "offer store credit", "decline": "decline and explain the rules", "info": "answer their question"}
+           "credit": "offer store credit", "decline": "decline and explain the rules", "status": "give a delivery update",
+           "question": "answer their question"}
 
 
 @dataclass
 class Case:
     job: int
+    world: str
     shop: str
     window_days: int
     member_bonus: int
@@ -66,9 +98,11 @@ class Case:
 
 
 def make_case(job: int, seed: int) -> Case:
-    rng = random.Random(f"returns-desk:{seed}:{job}")
-    cat = rng.choice(list(CATALOG))
-    items, (lo, hi) = CATALOG[cat]
+    rng = random.Random(f"returns-desk-v2:{seed}:{job}")
+    wname = rng.choices(list(WORLDS), [w["weight"] for w in WORLDS.values()])[0]
+    W = WORLDS[wname]
+    cat = rng.choice(list(W["catalog"]))
+    items, (lo, hi), kind, flag = W["catalog"][cat]
     today = dt.date(2026, 1, 1) + dt.timedelta(days=rng.randrange(0, 365))
     window = rng.choice([14, 30, 60])
     bonus = rng.choice([0, 15, 30])
@@ -76,33 +110,40 @@ def make_case(job: int, seed: int) -> Case:
     purchase = today - dt.timedelta(days=days_ago)
     status = rng.choices(["delivered", "delivered damaged", "in transit", "in transit, overdue"], [0.55, 0.15, 0.12, 0.18])[0]
     order = {"order_id": f"{rng.choice('ABCDEFGHJK')}-{rng.randint(1000, 9999)}", "item": rng.choice(items), "category": cat,
-             "price_gold": rng.randint(lo, hi), "purchased": purchase.isoformat(), "delivery": status,
-             "guild_member": rng.random() < 0.35}
+             f"price_{'gold' if W['currency'] == 'gold' else 'usd'}": rng.randint(lo, hi), "purchased": purchase.isoformat(), "delivery": status,
+             "member": rng.random() < 0.35}
     if status.startswith("in transit"):
         order["expected_by"] = (today + dt.timedelta(days=rng.randint(1, 6)) if status == "in transit"
                                 else today - dt.timedelta(days=rng.randint(3, 12))).isoformat()
-    if cat in ("potion", "scroll") and status.startswith("delivered"):
-        order["opened" if cat == "potion" else "read"] = rng.random() < 0.4
-    if cat in ("wand", "artifact", "apparel") and status.startswith("delivered"):
-        order["cursed"] = rng.random() < 0.25
+    if kind == "consumable" and status.startswith("delivered"):
+        order[flag] = rng.random() < 0.4
+    if kind == "normal" and flag and status.startswith("delivered"):
+        order[flag] = rng.random() < 0.25
     courier_known = rng.random() < 0.6
     if courier_known:
-        order["courier"] = rng.choice(COURIERS)
-    want = rng.choices(list(WANTS), [0.3, 0.25, 0.15, 0.12, 0.18])[0]
+        order["courier"] = rng.choice(W["couriers"])
+    want = rng.choices(list(WANTS), [0.28, 0.22, 0.13, 0.1, 0.14, 0.13])[0]
     if status.startswith("in transit") and want in ("exchange", "credit"):
-        want = rng.choice(["replacement", "refund", "info"])
-    fallback = rng.choice([w for w in ("refund", "credit", "exchange") if w != want]) if want in ("replacement", "exchange") and rng.random() < 0.45 else None
+        want = rng.choice(["replacement", "refund", "status"])
+    if want == "status" and not status.startswith("in transit") and rng.random() < 0.7:
+        want = rng.choice(["refund", "question"])  # "where is it?" mostly comes with orders still on their way
+    fallback = rng.choice([w for w in ("refund", "credit", "exchange") if w != want]) if want in ("replacement", "exchange", "status") and rng.random() < 0.45 else None
     trap = rng.choice([w for w in ("refund", "credit", "exchange", "replacement") if w not in (want, fallback)]) if rng.random() < 0.3 else None
-    rules = [f"Returns are accepted within {window} days of purchase" + (f" ({window + bonus} days for Guild members)." if bonus else "."),
+    member = W["member"]
+    rules = [f"Returns are accepted within {window} days of purchase" + (f" ({window + bonus} days for {member})." if bonus else "."),
              "If an order arrives damaged, or is more than 2 days past its expected delivery date, the customer may choose a full refund or a free replacement, whatever the other rules say.",
-             "Cursed items can only be returned for store credit.",
-             "Opened potions and read scrolls cannot be returned.",
-             "Creatures can only be exchanged, and only within 7 days of purchase."]
+             W["rules"]["credit"], W["rules"]["consumable"], W["rules"]["special"]]
     rng.shuffle(rules)
-    return Case(job=job, shop=rng.choice(SHOPS), window_days=window, member_bonus=bonus, today=today.isoformat(), order=order, want=want,
-                fallback=fallback, trap=trap, avoid_words=rng.random() < 0.5,
+    return Case(job=job, world=wname, shop=rng.choice(W["shops"]), window_days=window, member_bonus=bonus, today=today.isoformat(), order=order,
+                want=want, fallback=fallback, trap=trap, avoid_words=rng.random() < 0.5,
                 tone=rng.choice(["polite", "frazzled", "grumpy", "overly formal", "chatty", "terse"]),
-                letter_format=rng.choice(["letter", "short note", "message sent by owl"]), courier_known=courier_known, rules=rules)
+                letter_format=rng.choice(["email", "short note", "chat message"] if wname != "wizard" else ["letter", "short note", "message sent by owl"]),
+                courier_known=courier_known, rules=rules)
+
+
+def _kind(c: Case) -> tuple[str, str | None]:
+    _, _, kind, flag = WORLDS[c.world]["catalog"][c.order["category"]]
+    return kind, flag
 
 
 # ---- the rules, in code ------------------------------------------------------------------------------------------------------------
@@ -113,20 +154,21 @@ def offer(c: Case) -> str:
     if o["delivery"] == "delivered damaged" or overdue:
         return OFFERS[0]
     age = (today - dt.date.fromisoformat(o["purchased"])).days
-    if o["category"] == "creature":
+    kind, flag = _kind(c)
+    if kind == "special":
         return OFFERS[3] if age <= 7 else OFFERS[4]
-    if age > c.window_days + (c.member_bonus if o["guild_member"] else 0):
+    if age > c.window_days + (c.member_bonus if o["member"] else 0):
         return OFFERS[4]
-    if o.get("cursed"):
+    if kind == "normal" and flag and o.get(flag):
         return OFFERS[2]
-    if o.get("opened") or o.get("read"):
+    if kind == "consumable" and o.get(flag):
         return OFFERS[4]
     return OFFERS[1]
 
 
 def action(c: Case, off: str) -> str:
-    if c.want == "info":
-        return ACTIONS["info"]
+    if c.want in ("status", "question"):
+        return ACTIONS[c.want]
     allowed = {OFFERS[0]: {"refund", "replacement"}, OFFERS[1]: {"refund", "replacement", "exchange", "credit"},
                OFFERS[2]: {"credit"}, OFFERS[3]: {"exchange"}, OFFERS[4]: set()}[off]
     for w in (c.want, c.fallback):
@@ -138,40 +180,42 @@ def action(c: Case, off: str) -> str:
 
 def questions_and_answers(c: Case) -> tuple[list[dict], dict]:
     off = offer(c)
+    couriers = WORLDS[c.world]["couriers"]
     qs = [{"type": "choice", "id": "want", "text": "What does the customer want most?",
            "labels": [{"id": k, "text": v} for k, v in WANTS.items()]},
           {"type": "choice", "id": "allowed", "text": "Under the shop's rules, what can the shop offer for this item?",
            "labels": [{"id": f"o{i}", "text": t} for i, t in enumerate(OFFERS)]},
-          {"type": "choice", "id": "next", "text": "What should the returns clerk do next? (Grant what the customer wants most if the rules allow it, "
+          {"type": "choice", "id": "next", "text": "What should the clerk do next? (Grant what the customer wants most if the rules allow it, "
                                                    "else their stated fallback, else offer what the rules do allow, else decline.)",
            "labels": [{"id": k, "text": v} for k, v in ACTIONS.items()]},
-          {"type": "choice", "id": "courier", "text": "Which courier handled this order?", "labels": [{"id": f"c{i}", "text": t} for i, t in enumerate(COURIERS)]}]
+          {"type": "choice", "id": "courier", "text": "Which courier handled this order?", "labels": [{"id": f"c{i}", "text": t} for i, t in enumerate(couriers)]}]
     ans = {"want": {"label": c.want}, "allowed": {"label": f"o{OFFERS.index(off)}"},
            "next": {"label": next(k for k, v in ACTIONS.items() if v == action(c, off))},
-           "courier": {"label": f"c{COURIERS.index(c.order['courier'])}"} if c.courier_known else {"null": True}}
+           "courier": {"label": f"c{couriers.index(c.order['courier'])}"} if c.courier_known else {"null": True}}
     return qs, ans
 
 
 # ---- the letter ---------------------------------------------------------------------------------------------------------------------
 
 def letter_prompt(c: Case) -> str:
-    o = c.order
-    facts = {k: v for k, v in o.items() if k not in ("courier",)}
-    want = WANTS[c.want]
-    lines = [f"Write a customer's {c.letter_format} to the returns desk of {c.shop}, a wizard shop. Tone: {c.tone}. 40-140 words.",
-             f"Order facts (the letter may mention some of them, must not contradict any): {json.dumps(facts)}",
+    W = WORLDS[c.world]
+    facts = {k: v for k, v in c.order.items() if k != "courier"}
+    lines = [f"Write a customer's {c.letter_format} to the returns desk of {c.shop}, {W['desc']}. Tone: {c.tone}. 40-140 words.",
+             f"Order facts (the message may mention some of them, must not contradict any): {json.dumps(facts)}",
              f"Today is {c.today}.",
-             f"What the customer wants most: {want}."]
+             f"What the customer wants most: {WANTS[c.want]}."]
     if c.fallback:
         lines.append(f"They also say what they'd accept if that isn't possible: {WANTS[c.fallback]}. Make clear that is only a fallback.")
     if c.trap:
         lines.append(f"They explicitly say they do NOT want {WANTS[c.trap]}.")
-    if c.avoid_words and c.want != "info":
+    if c.avoid_words and c.want in ("refund", "replacement", "exchange", "credit"):
         words = {"refund": "refund", "replacement": "replace/replacement", "exchange": "exchange", "credit": "credit"}[c.want]
-        lines.append(f"Express what they want without using the word(s) '{words}': paraphrase naturally (e.g. 'I'd like my gold back').")
-    if c.want == "info":
-        lines.append("They are only asking a question about the item or the order; they are not requesting any return or remedy.")
-    lines.append("Do not mention the courier's name. Do not mention the shop's rules. Sign with an invented wizardly name. Return JSON only.")
+        lines.append(f"Express what they want without using the word(s) '{words}': paraphrase naturally (e.g. 'I'd like my money back').")
+    if c.want == "status":
+        lines.append("Their main point is asking where the order is or when it will arrive (phrase it as a question).")
+    if c.want == "question":
+        lines.append("They only ask a general question about using or caring for the item; they are not asking about delivery or requesting any remedy.")
+    lines.append(f"Do not mention the courier's name. Do not mention the shop's rules. {W['voice']} Return JSON only.")
     return "\n".join(lines)
 
 
@@ -184,7 +228,7 @@ def run_job(job: int, seed: int, writer: str, checker: str) -> dict:
     from kodiak_s1.schema import Example
 
     c = make_case(job, seed)
-    rec = {"job": job, "seed": seed, "gen": "sim-returns-v1", "writer": writer, "verifier": checker, "case": asdict(c), "status": "error"}
+    rec = {"job": job, "seed": seed, "gen": "sim-returns-v2", "writer": writer, "verifier": checker, "case": asdict(c), "status": "error"}
     t0 = time.time()
     try:
         g = synth.teacher(letter_prompt(c), {"type": "object", "properties": {"message": {"type": "string"}}, "required": ["message"]},
@@ -207,7 +251,7 @@ def run_job(job: int, seed: int, writer: str, checker: str) -> dict:
             return rec
         ex = {"state": state_for(c, letter), "questions": qs, "answers": ans,
               "meta": {"source": SOURCE_ID, "license": "Apache-2.0", "split": "train", "teacher": f"{writer} (letter; checked by {checker})",
-                       "tags": ["synthetic", "sim:returns_desk", "computed_labels", "multiq", f"want:{c.want}"]
+                       "tags": ["synthetic", "sim:returns_desk", f"world:{c.world}", "computed_labels", "multiq", f"want:{c.want}"]
                        + (["fallback"] if c.fallback else []) + (["trap"] if c.trap else []) + (["paraphrase"] if c.avoid_words else [])
                        + ([] if c.courier_known else ["null:synthetic"]), "notes": f"{c.shop}; offer={offer(c)}"}}
         Example.model_validate(ex)
