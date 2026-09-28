@@ -224,6 +224,77 @@ def categorize(rows_text: str, file, cats_text: str, question: str, review_below
     return summary, table, path
 
 
+# ---- Game: the Enchanted Returns Desk ---------------------------------------------------------------------------------
+# Cases come from the Returns Desk simulator (seed 9, never used for training): the shop's rules are code, so every answer is known exactly.
+GAME_CASES = json.load(open(os.path.join(os.path.dirname(__file__), "returns_desk_cases.json"), encoding="utf-8"))
+ROUNDS = 5
+GAME_QS = ("want", "next")
+
+
+def _labels(case: dict, qid: str) -> dict:
+    q = next(q for q in case["questions"] if q["id"] == qid)
+    return {lab["id"]: lab["text"] for lab in q["labels"]}
+
+
+def _case_md(case: dict, n: int) -> str:
+    s = case["state"]
+    rules = "\n".join(f"- {r}" for r in s["returns_rules"])
+    fmt = lambda v: "yes" if v is True else "no" if v is False else v  # noqa: E731
+    order = "\n".join(f"- **{k.replace('_', ' ')}:** {fmt(v)}" for k, v in s["order"].items())
+    return (f"### Customer {n} of {ROUNDS} · {s['shop']} · today is {s['today']}\n\n> {s['customer_message'].replace(chr(10), chr(10) + '> ')}\n\n"
+            f"**The shop's rules**\n{rules}\n\n**The order record**\n{order}")
+
+
+def game_new(model: str):
+    import random
+
+    picks = random.sample(range(len(GAME_CASES)), ROUNDS)
+    g = {"picks": picks, "i": 0, "you": 0, "bear": 0, "model": model, "log": []}
+    return (g, *_game_show(g), "**You 0 · Bear 0.** Read the customer's message and the rules, then decide.", gr.update(interactive=True))
+
+
+def _game_show(g: dict):
+    case = GAME_CASES[g["picks"][g["i"]]]
+    w, n = _labels(case, "want"), _labels(case, "next")
+    return (_case_md(case, g["i"] + 1), gr.update(choices=list(w.values()), value=None), gr.update(choices=list(n.values()), value=None), "")
+
+
+def game_answer(g: dict | None, want_txt: str, next_txt: str):
+    if not g or g["i"] >= ROUNDS:
+        return g, gr.update(), gr.update(), gr.update(), "Press **New game** to start.", "", gr.update()
+    if not want_txt or not next_txt:
+        return g, gr.update(), gr.update(), gr.update(), "Pick an answer for both questions.", "", gr.update()
+    case = GAME_CASES[g["picks"][g["i"]]]
+    qs = [q for q in case["questions"] if q["id"] in GAME_QS]
+    k = LOADED.get(g["model"], kodiak).decide(case["state"], qs, null_threshold=1.0)
+    rows, you_pts, bear_pts = [], 0, 0
+    for qid, mine in (("want", want_txt), ("next", next_txt)):
+        labels = _labels(case, qid)
+        right = labels[case["answers"][qid]["label"]]
+        a = k[qid]
+        bear = labels.get(max(a["probs"], key=a["probs"].get))
+        conf = max(a["probs"].values())
+        you_ok, bear_ok = mine == right, bear == right
+        you_pts += 10 * you_ok
+        bear_pts += 10 * bear_ok
+        unsure = " *(unsure: in a real deployment it would pass this one to a human)*" if conf < 0.6 else ""
+        rows.append(f"| {'What they want' if qid == 'want' else 'Next step'} | {'✅' if you_ok else '❌'} {mine} | "
+                    f"{'✅' if bear_ok else '❌'} {bear} ({conf:.0%}){unsure} | **{right}** |")
+    g["you"] += you_pts
+    g["bear"] += bear_pts
+    g["i"] += 1
+    table = (f"#### Customer {g['i']} result\n\n| | You | 🐻 Kodiak (confidence) | Right answer |\n|---|---|---|---|\n" + "\n".join(rows))
+    offer = next(lab["text"] for q in case["questions"] if q["id"] == "allowed" for lab in q["labels"] if lab["id"] == case["answers"]["allowed"]["label"])
+    table += f"\n\n*Under the rules, the shop can offer: {offer}.*"
+    score = f"**You {g['you']} · Bear {g['bear']}**"
+    if g["i"] >= ROUNDS:
+        verdict = ("You beat the Bear! 🏆" if g["you"] > g["bear"] else "The Bear wins this time. 🐻" if g["bear"] > g["you"] else "A tie!")
+        share = f"I scored {g['you']} vs Kodiak's {g['bear']} at the Enchanted Returns Desk 🧙🐻"
+        return (g, gr.update(), gr.update(), gr.update(), f"{score}. **{verdict}** Share it: *{share}* Press **New game** to play again.",
+                table, gr.update(interactive=False))
+    return (g, *_game_show(g)[:3], f"{score}. Next customer!", table, gr.update())
+
+
 with gr.Blocks(title="Kodiak") as demo:
     gr.Markdown("# Kodiak 🐻\nTyped questions in, calibrated answers out, in one forward pass. "
                 "Answers are always one of your labels or inside your range, or an honest abstention.")
@@ -279,6 +350,22 @@ with gr.Blocks(title="Kodiak") as demo:
         preset.change(load_cat_preset, preset, [cats, cat_q, rows_in])
         demo.load(load_cat_preset, preset, [cats, cat_q, rows_in])
         cat_go.click(categorize, [rows_in, file_in, cats, cat_q, review_below, model], [cat_summary, cat_table, cat_file])
+    with gr.Tab("🧙 Returns Desk: you vs. the Bear"):
+        gr.Markdown("You work the returns desk of a wizard shop. Each customer writes in; you decide **what they want most** and "
+                    "**what to do next**, following the shop's rules. Kodiak plays the same customers. The rules are code, so the right "
+                    f"answer is exact. {ROUNDS} customers per game, 10 points per right answer.")
+        game = gr.State(None)
+        game_go = gr.Button("New game", variant="primary")
+        game_score = gr.Markdown()
+        game_result = gr.Markdown()
+        game_case = gr.Markdown()
+        with gr.Row():
+            game_want = gr.Radio([], label="What does the customer want most?")
+            game_next = gr.Radio([], label="What should the clerk do next?")
+        game_submit = gr.Button("Decide!", interactive=False)
+        game_go.click(game_new, model, [game, game_case, game_want, game_next, game_result, game_score, game_submit])
+        game_submit.click(game_answer, [game, game_want, game_next], [game, game_case, game_want, game_next, game_score, game_result, game_submit])
+
 
 if __name__ == "__main__":
     demo.launch()

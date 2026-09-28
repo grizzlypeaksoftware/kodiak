@@ -345,6 +345,14 @@
         "target_jobs": 6800,
         "writer": "do:openai-gpt-oss-120b",
         "verifier": "do:deepseek-3.2"
+      },
+      {
+        "name": "Game cases: Returns Desk (seed 9, for the demo game; never trained on)",
+        "file": "data/synthetic/game_sim_returns.jsonl",
+        "target_jobs": 250,
+        "writer": "do:openai-gpt-oss-120b",
+        "verifier": "do:deepseek-3.2",
+        "pilot": true
       }
     ],
     "stages": [
@@ -611,6 +619,10 @@
     {
       "date": "2026-09-27",
       "text": "Calibration batch (unfamiliar inputs) had no effect, 3 seeds (D42): the fourth flat data tweak in a row; small-model data tweaks stop here. Demo gets a 'Did Kodiak get something wrong?' form"
+    },
+    {
+      "date": "2026-09-28",
+      "text": "Demo: 'Returns Desk: you vs. the Bear' game (233 computed-answer cases) and a live feedback form feeding a private review dataset"
     }
   ],
   "published": [
@@ -644,7 +656,7 @@
       "kind": "demo",
       "link": "https://huggingface.co/spaces/comgen42/kodiak-demo",
       "date": "2026-09-25",
-      "notes": "Decide + 'Categorize a list' tabs; small/large picker."
+      "notes": "Decide (with 'Did Kodiak get something wrong?' feedback form), 'Categorize a list', and the 'Returns Desk: you vs. the Bear' game; small/large picker."
     },
     {
       "name": "Source code",
@@ -665,11 +677,6 @@
       "done_marker": "returns desk test complete",
       "report": "v02-simret",
       "eta": "~11:45 today"
-    },
-    {
-      "name": "Returns Desk game tab in the demo",
-      "why": "You vs. the Bear: players and Kodiak both handle customers; the shop's rules score both. Fun, shareable, shows Kodiak live.",
-      "after": "batch"
     },
     {
       "name": "Stage 3 retry: ratings as low / medium / high bands",
