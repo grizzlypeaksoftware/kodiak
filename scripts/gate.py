@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 REQUIRED = {
-    "product sentence": r"\*\*Product sentence.*\*\*\s*\S{20,}",
+    "product sentence": r"\*\*Product sentence[^*]*\*\*[ \t]*(?!<)[A-Za-z].{40,}",
     "exact failure (Q1)": r"## 1\..*\n(?!<)\S.{15,}",
     "mechanism (Q2)": r"## 2\..*\n(?!<)\S.{15,}",
     "metric": r"- Metric:\s*(?!<)\S+",
