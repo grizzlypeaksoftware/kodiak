@@ -443,3 +443,7 @@ days of small-model data tweaks (D36-D44 were flat or mixed on the general eval)
    run-to-run noise) → confirm with two more seeds and make it the v0.2 flagship; otherwise drop it.
 3. While the GPU trains: the fine-tuning kit (customers' own labels), the v0.2 product feature.
 
+**D45 addendum, before re-scoring (2026-09-28 19:50).** The ensemble's validation-tuned threshold (0.45, best decision accuracy) gave eval abstain
+precision 0.81, below criterion 4 (≥ 0.90). New threshold rule for every released model, fixed now and applied to validation data only: pick the
+threshold with the best validation decision accuracy **among thresholds whose validation abstain precision is ≥ 0.90**; if none qualifies, the
+highest-precision one. Eval results are then reported as they fall.

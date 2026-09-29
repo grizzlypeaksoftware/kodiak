@@ -108,7 +108,7 @@ def fit_calibration(pairs: list[tuple[dict, dict, dict]]) -> dict:
     return out
 
 
-def fit_null_threshold(pairs: list[tuple[dict, dict, dict]], cal: dict) -> dict:
+def fit_null_threshold(pairs: list[tuple[dict, dict, dict]], cal: dict, min_precision: float = 0.9) -> dict:
     """Choose the abstain threshold that makes the most correct calls on validation data.
 
     A call is correct if the model abstains exactly when the question is unanswerable, and otherwise (for choice
@@ -131,9 +131,18 @@ def fit_null_threshold(pairs: list[tuple[dict, dict, dict]], cal: dict) -> dict:
             else:
                 correct += 1  # answered an answerable score question (value quality is judged separately)
         scores[t] = correct / len(cal_pairs)
-    best = max(grid, key=lambda t: (scores[t], -abs(t - 0.5)))  # ties go to the threshold nearest 0.5
-    return {"null_threshold": best, "decision_acc_at_best": round(scores[best], 4),
-            "decision_acc_at_0.5": round(scores[0.5], 4)}
+    # Abstain precision per threshold: of the questions it abstains on, how many are truly unanswerable (release criterion 4).
+    prec = {}
+    for t in grid:
+        abst = [g.get("null", False) for r, q, g in cal_pairs if r["allow_null"] and r["p_null"] >= t]
+        prec[t] = sum(abst) / len(abst) if abst else 1.0
+    ok = [t for t in grid if prec[t] >= min_precision]
+    if ok:  # D45: best decision accuracy among thresholds that keep "can't tell" at least `min_precision` right
+        best = max(ok, key=lambda t: (scores[t], -abs(t - 0.5)))
+    else:
+        best = max(grid, key=lambda t: (prec[t], scores[t]))
+    return {"null_threshold": best, "decision_acc_at_best": round(scores[best], 4), "abstain_precision_at_best": round(prec[best], 4),
+            "decision_acc_at_0.5": round(scores[0.5], 4), "min_precision": min_precision}
 
 
 def synthetic_val_examples(files: str, limit: int) -> list[dict]:
