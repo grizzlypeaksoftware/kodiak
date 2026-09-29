@@ -662,9 +662,14 @@
       "name": "kodiak-large-v2-ensemble-preview",
       "kind": "model",
       "link": "https://huggingface.co/cortex-agent-llc/kodiak-large-v2-ensemble-preview",
-      "run": "b-base-s1-v2-s0/s1/s2",
+      "run": [
+        "b-base-s1-v2-s0",
+        "b-base-s1-v2-s1",
+        "b-base-s1-v2-s2"
+      ],
       "date": "2026-09-28",
-      "notes": "Accuracy mode: the 3 large v2 runs averaged; the recommended large model. Never-seen 0.623, abstain precision 0.94, ECE 0.059."
+      "notes": "Accuracy mode: the 3 large v2 runs averaged; the recommended large model. Never-seen 0.623, abstain precision 0.94, ECE 0.059.",
+      "badge": "accuracy mode"
     },
     {
       "name": "kodiak-large-v2-preview",
@@ -789,7 +794,7 @@
       "name": "ModernBERT-large backbone (3 seeds)",
       "why": "Bigger reader",
       "report": "v02-backbone",
-      "decision": "D33: beats every open classifier; seed 1 published"
+      "decision": "D33: beats every open classifier; all 3 runs together = accuracy mode (the recommended large model, D45); seed 1 also published alone"
     },
     {
       "match": "-A-eq|-B-v2|-C-v1v2",

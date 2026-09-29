@@ -195,13 +195,15 @@ def queue_status(queue: list[dict], procs: list[str]) -> list[dict]:
 
 def group_runs(runs: list[dict], experiments: list[dict], published: list[dict]) -> list[dict]:
     """Attach each training run to its experiment (first matching pattern) and to any public release made from it."""
-    by_run = {p["run"]: p for p in published if p.get("run")}
+    by_run: dict[str, list[dict]] = {}
+    for p in published:  # "run" may be one run name or a list (an ensemble such as accuracy mode)
+        for name in ([p["run"]] if isinstance(p.get("run"), str) else p.get("run") or []):
+            by_run.setdefault(name, []).append(p)
     for r in runs:
         exp = next((e for e in experiments if re.search(e["match"], r["name"])), None)
         r["experiment"] = exp["name"] if exp else "Other"
-        if r["name"] in by_run:
-            p = by_run[r["name"]]
-            r["published"] = {"name": p["name"], "link": p.get("link"), "superseded": p.get("superseded", False)}
+        r["published"] = [{"name": p["name"], "link": p.get("link"), "superseded": p.get("superseded", False), "badge": p.get("badge")}
+                          for p in by_run.get(r["name"], [])]
     return runs
 
 

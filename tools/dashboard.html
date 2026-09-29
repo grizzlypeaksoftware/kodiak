@@ -137,7 +137,7 @@ function nowPanel(s) {
 function pubTable(list, short) {
   const rows = list.filter(p => !short || !p.superseded).map(p => `<tr class="${p.superseded ? "opacity-50" : ""}">
     <td><a href="${esc(p.link)}" target="_blank" rel="noopener">${esc(p.name)}</a>${p.superseded ? ` <span class="badge text-bg-secondary">superseded</span>` : ""}</td>
-    <td class="small">${esc(p.kind)}</td>${short ? "" : `<td class="small"><code>${esc(p.run || "")}</code></td><td class="small">${esc(p.date || "")}</td>`}
+    <td class="small">${esc(p.kind)}</td>${short ? "" : `<td class="small"><code>${esc(Array.isArray(p.run) ? p.run.join(" + ") : (p.run || ""))}</code></td><td class="small">${esc(p.date || "")}</td>`}
     <td class="small">${esc(p.notes || "")}</td></tr>`).join("");
   return `<table class="table table-sm align-middle mb-0"><thead><tr><th>Name</th><th>Kind</th>${short ? "" : "<th>From run</th><th>Date</th>"}<th>Notes</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
@@ -297,7 +297,7 @@ function runs(list, experiments) {
         ${e.decision ? `<span class="small"> · ${esc(e.decision)}</span>` : ""}
         ${e.report ? ` · <a class="small" href="#evals/${esc(e.report)}">report</a>` : ""}</td></tr>` +
       rs.map(r => `<tr>
-      <td>${r.best && r.best.macro_loss === bestLoss && rs.length > 1 ? `<span title="Lowest validation loss in this experiment: the run we'd pick to publish (chosen on validation data, never the eval set)">★</span> ` : ""}<code>${esc(r.name)}</code>${r.published ? ` <a class="badge ${r.published.superseded ? "text-bg-secondary" : "text-bg-success"} text-decoration-none" href="${esc(r.published.link)}" target="_blank" rel="noopener">public: ${esc(r.published.name)}</a>` : ""}</td>
+      <td>${r.best && r.best.macro_loss === bestLoss && rs.length > 1 ? `<span title="Lowest validation loss in this experiment: the run we'd pick to publish (chosen on validation data, never the eval set)">★</span> ` : ""}<code>${esc(r.name)}</code>${(r.published || []).map(p => ` <a class="badge ${p.superseded ? "text-bg-secondary" : p.badge ? "text-bg-warning" : "text-bg-success"} text-decoration-none" href="${esc(p.link)}" target="_blank" rel="noopener" title="${esc(p.name)}">${p.badge ? "★ " + esc(p.badge) : "public: " + esc(p.name)}</a>`).join("")}</td>
       <td class="small text-nowrap">${r.started ? `${esc(r.started)}<div class="muted">${r.state === "running" ? "running" : "to " + esc(r.ended)} · ${r.wall_hours} h</div>` : "–"}</td>
       <td>${r.state === "running" ? `<span class="badge text-bg-primary">running</span>` : `<span class="badge text-bg-secondary">${esc(r.state)}</span>`}</td>
       <td>${r.step.toLocaleString()} / ${r.steps?.toLocaleString() ?? "?"}</td>
