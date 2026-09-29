@@ -643,6 +643,10 @@
     {
       "date": "2026-09-28",
       "text": "Returns Desk simulator data (computed labels, $2.01): word-trap probe 3 \u2192 5 of 8, the first targeted data gain since v2.0; costs ~1 pt and teaches a new shortcut (D43)"
+    },
+    {
+      "date": "2026-09-28",
+      "text": "Returns Desk v2 (three worlds, $1.21) matched v1: probe gain real but unreliable across seeds, same ~1-pt cost; simulators move to v0.2 (D44). Book proposal drafted"
     }
   ],
   "published": [
@@ -688,17 +692,6 @@
   ],
   "queue": [
     {
-      "name": "Returns Desk v2: fix its shortcut, add real-world domains",
-      "why": "D43: the simulator moved the word-matching probe 3 \u2192 5 of 8 but taught 'phrased as a question \u2192 question label' and cost ~1 pt. Split the info intent, add retail/SaaS worlds and policy templates, smaller mix.",
-      "after": "batch (~30 min), then 3 runs of ~1 h",
-      "cost": "batch \u2264 $1.40 (Shane approved); test free",
-      "script": "scripts/simret2_ab.sh",
-      "log": "runs/simret2-ab.log",
-      "done_marker": "returns desk v2 test complete",
-      "report": "v02-simret2",
-      "eta": "~16:30 today"
-    },
-    {
       "name": "Stage 3 retry: ratings as low / medium / high bands",
       "why": "Ratings are the weakest answer type and a bigger model didn't fix them (D33). Raters disagreed on exact numbers (D31); test whether they agree on bands. If \u226580%: ~$10 batch + 3 seeds; if not, ratings ship as 'experimental' in v0.1.",
       "after": "v2.2 (or alongside it)",
@@ -716,7 +709,7 @@
       "name": "Returns Desk v2 (3 seeds)",
       "why": "Three worlds + split info intent (D43 follow-up)",
       "report": "v02-simret2",
-      "decision": "(pending)"
+      "decision": "D44: like v1; not in v0.1"
     },
     {
       "match": "simret-",

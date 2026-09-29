@@ -48,6 +48,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D41 | 2026-09-27 | Hard-example mining (Generator v2.1) didn't beat random selection | active |
 | D42 | 2026-09-27 | The unfamiliar-inputs calibration batch didn't move calibration | active |
 | D43 | 2026-09-28 | Computed-label simulator data moves the word-matching shortcut, at a small cost | active |
+| D44 | 2026-09-28 | Returns Desk v2 matches v1: real but unreliable probe gain, same small cost; not in v0.1 | active |
 
 ---
 
@@ -416,4 +417,14 @@ risk: a narrow domain (one wizard shop) with a few thousand cases teaches its ow
 **Next (proposed, not started).** (1) Split the "information" intent into "status of my order" vs "general question"; (2) add non-wizard domains
 (real-world retail, SaaS support) and several policy templates so the lesson is "read the condition", not "wizard letters"; (3) mix at a smaller share;
 then re-test with the same probe + eval v0.2.
+
+### D44: Returns Desk v2 (three worlds, split intent) matches v1: a real but unreliable probe gain, the same small cost
+**Evidence (3 seeds; reports/v02-simret2.md).** 3,224 cases ($1.21) across wizard / home goods / outdoor co-op, "status" vs "general question"
+split. Probe right: 3, 4, 7 of 8 (v1: 6, 4, 5; baseline 3, 2, 4), mean p(right) 0.55 (v1 0.55; baseline 0.41). "Where is it?" → delivery status:
+0.06 / 0.31 / 0.76 (v1 0.05-0.12). Never-seen forced 0.544 (v1 0.543, baseline 0.553); familiar 0.822; ECE unchanged; jailbreak −4.8 (±8).
+**Reading.** Simulator data teaches the conditional-request skill, but only partly: seed-to-seed spread is wide, so the model hasn't settled on
+the lesson. Variety of worlds didn't remove the ~1-point general cost, so it comes from adding a narrow kind of data, not from the costume.
+**Decisions.** (1) Not in the v0.1 training mix: the probe gain doesn't yet justify a measurable never-seen cost. (2) Simulators stay the most
+promising data idea (the only targeted gains since v2.0, D43-D44) and move to v0.2 work: many simulators across decision types rather than one,
+and a test on the large model, which may absorb the data without the cost. (3) The probe stays as a standing regression test for every release.
 

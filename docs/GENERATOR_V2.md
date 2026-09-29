@@ -381,4 +381,6 @@ The 4 drops were "store credit" letters the checker read as refunds. Fixed after
 offers what the rules allow (credit, else exchange) before declining. Tests: `tests/test_sim_returns.py`.
 **Result (D43):** probe 3.0 → 5.0 of 8 on average; never-seen −1.0; new "question → question label" shortcut. Next: split the info intent,
 add real-world domains and policy templates, smaller mix share.
+**Returns Desk v2 result (D44):** probe 3/4/7 of 8 (v1 6/4/5), never-seen −0.9, same as v1. Not in the v0.1 mix; simulators continue in v0.2 as
+many simulators across decision types, and a test on the large model.
 
