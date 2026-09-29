@@ -31,7 +31,7 @@ worth it now), **running**.
 | E13 | 09-28 | Same, with 3 worlds and split intent | +3.2k Returns Desk v2 (small, 3 seeds) | $1.2 | probe up, guards hold | probe 3 → 4.7 of 8 (spread 3-7); never-seen −0.9 | park (D44) |
 | E14 | 09-28 | Validation threshold rule keeps abstain precision ≥ 0.90 | threshold rule (accuracy mode) | free | precision ≥ 0.90 | 0.81 → 0.94, other metrics equal | **keep** (D45) |
 | E15 | 09-28 | Bigger backbone again: Ettin-1B | backbone 400M → 1B (1 seed; lr 3e-5 vs 5e-5) | free, ~5 GPU-h | **≥ 0.629** | **0.609 → 0.666**; familiar 0.878; never-seen ECE 0.116; guard miss: abstain precision 0.86 (< 0.90); speed 38 ms (~40× vs Qwen3-8B) | **keep: confirmed** (3 seeds: 0.659 ± 0.013; D47) |
-
+| E16 | 09-29 | 1B accuracy mode fixes "can't tell" precision | average the three 1B runs (no training) | free | precision ≥ 0.90 and never-seen ≥ 0.659 | precision 0.868 → **0.879** (miss); never-seen 0.673, never-seen ECE 0.088 (best ever), familiar 0.885; ~3 × 38 ms | kill as a precision fix; park as a slower top tier (D48) |
 **Lesson from E8-E13 (written 2026-09-28):** after the large model shipped, work drifted into local data tweaks on the small model without
 pre-set bars. The only big wins came from changing the search space (data *kind* E3, backbone E5, ensembling E6). From E15 on, every
 experiment uses `docs/experiments/TEMPLATE.md` and passes `scripts/gate.py` before a full run.

@@ -663,9 +663,21 @@
     {
       "date": "2026-09-29",
       "text": "Ettin-1B confirmed on 3 seeds: never-seen 0.659 \u00b1 0.013 vs large 0.609 (+5.0); gap to Qwen3-8B now ~3 points; 'can't tell' precision 0.87 still below 0.90 (D47)"
+    },
+    {
+      "date": "2026-09-29",
+      "text": "1B accuracy mode (E16) missed its precision target (0.879 < 0.90) despite the best calibration yet; single 1B published as kodiak-xl-v2-preview (D48). Demo redesigned: answer cards with confidence bars"
     }
   ],
   "published": [
+    {
+      "name": "kodiak-xl-v2-preview",
+      "kind": "model",
+      "link": "https://huggingface.co/cortex-agent-llc/kodiak-xl-v2-preview",
+      "run": "b-xl-s1-v2-s1",
+      "date": "2026-09-29",
+      "notes": "Ettin-1B backbone, the most accurate single Kodiak: never-seen 0.666 (3-run mean 0.659). 'Can't tell' precision 0.86 (below 0.90). 38 ms GPU."
+    },
     {
       "name": "kodiak-large-v2-ensemble-preview",
       "kind": "model",

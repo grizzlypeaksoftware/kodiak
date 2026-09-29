@@ -52,6 +52,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D45 | 2026-09-28 | v0.2 starts with the big levers: Ettin-1B backbone test; accuracy mode as the main large model | active |
 | D46 | 2026-09-28 | Ettin-1B clears its pre-set bar (0.666 vs 0.629; one seed), confirming with 2 seeds | superseded by D47 |
 | D47 | 2026-09-29 | Ettin-1B confirmed on 3 seeds (0.659 ± 0.013); v0.2 flagship candidate | active |
+| D48 | 2026-09-29 | 1B accuracy mode misses its precision target (0.879); single 1B published as Kodiak XL | active |
 
 ---
 
@@ -476,4 +477,12 @@ sentiment 0.70 (0.755) and rating error 0.272 (0.257) are worse. Speed 38 ms GPU
 **Guard miss:** "can't tell" precision 0.868 ± 0.007, below 0.90 on every seed (validation-rule thresholds 0.55 / 0.7 / 0.75).
 **Decision.** E15 is a keep: Ettin-1B becomes the v0.2 flagship candidate. Next proposals (each through the gate): the abstain-precision miss
 (a 1B accuracy mode from the three runs already trained is free to evaluate) and publishing.
+
+### D48: 1B accuracy mode misses its target; the single 1B is published as Kodiak XL
+**E16 (pre-registered kill line: "can't tell" precision ≥ 0.90 and never-seen ≥ 0.659).** Averaging the three 1B runs (threshold 0.60 from the
+validation rule, validation precision 0.92): never-seen forced 0.673, familiar 0.885, never-seen ECE **0.088** (lowest of any Kodiak), overall ECE
+0.056, but eval "can't tell" precision **0.879**: the target is missed. The validation rule's precision (0.92) doesn't transfer to the eval set's
+unanswerable questions, for either size. Verdict: kill as a precision fix; park as a possible slower top tier (~115 ms GPU).
+**B.** The single 1B, seed 1 (lowest validation loss; eval never-seen 0.666), is published as `cortex-agent-llc/kodiak-xl-v2-preview`, with the
+precision miss stated on its card. Next target for "can't tell" precision is the training data or objective, not the threshold.
 
