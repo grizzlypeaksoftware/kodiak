@@ -30,3 +30,4 @@ dist/
 
 # Downloaded model folders for the Node server
 models/
+reports/preds_v02/
