@@ -50,7 +50,8 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D43 | 2026-09-28 | Computed-label simulator data moves the word-matching shortcut, at a small cost | active |
 | D44 | 2026-09-28 | Returns Desk v2 matches v1: real but unreliable probe gain, same small cost; not in v0.1 | active |
 | D45 | 2026-09-28 | v0.2 starts with the big levers: Ettin-1B backbone test; accuracy mode as the main large model | active |
-| D46 | 2026-09-28 | Ettin-1B clears its pre-set bar (0.666 vs 0.629; one seed), confirming with 2 seeds | active |
+| D46 | 2026-09-28 | Ettin-1B clears its pre-set bar (0.666 vs 0.629; one seed), confirming with 2 seeds | superseded by D47 |
+| D47 | 2026-09-29 | Ettin-1B confirmed on 3 seeds (0.659 ± 0.013); v0.2 flagship candidate | active |
 
 ---
 
@@ -466,4 +467,13 @@ below the ≥ 50× bar that large meets. **Confound:** lr also changed (3e-5 vs 
 **Decisions.** (1) Per the approved plan, two confirming seeds run now (scripts/xl_confirm.sh). (2) If they hold (mean ≥ 0.629), the 1B becomes the
 v0.2 flagship candidate; its abstain-precision miss is then the next target (a 1B accuracy mode, or a precision-constrained threshold), and the
 speed trade (40×) is reported, with large kept as the fast-and-honest tier.
+
+### D47: Ettin-1B confirmed on three seeds; the new flagship candidate
+**Evidence (reports/v02-xl-3seeds.md).** Three seeds (0, 1, 2), same recipe: never-seen forced **0.659 ± 0.013** (large v2 0.609 ± 0.008; bar
+0.629), new v0.2 tasks 0.608 (0.570), familiar 0.881 (0.855), overall 0.713 (0.674), ECE 0.076 (0.087), never-seen ECE 0.113 (0.128), constructed
+unanswerables 0.961. Per task: jailbreak 0.89 (0.67), Bias in Bios 0.81 (0.77), banking 0.81 (0.79), poem sentiment 0.54 (0.44); financial
+sentiment 0.70 (0.755) and rating error 0.272 (0.257) are worse. Speed 38 ms GPU batch-1 (~40× faster than Qwen3-8B).
+**Guard miss:** "can't tell" precision 0.868 ± 0.007, below 0.90 on every seed (validation-rule thresholds 0.55 / 0.7 / 0.75).
+**Decision.** E15 is a keep: Ettin-1B becomes the v0.2 flagship candidate. Next proposals (each through the gate): the abstain-precision miss
+(a 1B accuracy mode from the three runs already trained is free to evaluate) and publishing.
 

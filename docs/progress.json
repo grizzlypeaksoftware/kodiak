@@ -659,6 +659,10 @@
     {
       "date": "2026-09-28",
       "text": "Ettin-1B (E15) clears its pre-set bar: never-seen 0.666 vs 0.629 bar (large 0.609, Qwen3-8B 0.688); guard miss on 'can't tell' precision (0.86); 2 confirming seeds running (D46)"
+    },
+    {
+      "date": "2026-09-29",
+      "text": "Ettin-1B confirmed on 3 seeds: never-seen 0.659 \u00b1 0.013 vs large 0.609 (+5.0); gap to Qwen3-8B now ~3 points; 'can't tell' precision 0.87 still below 0.90 (D47)"
     }
   ],
   "published": [
@@ -717,16 +721,6 @@
   ],
   "queue": [
     {
-      "name": "E15 confirmation: Ettin-1B seeds 0 and 2",
-      "script": "scripts/xl_confirm.sh",
-      "log": "runs/xl-confirm.log",
-      "done_marker": "xl confirm complete",
-      "why": "Seed 1 scored 0.666 never-seen (bar 0.629). Two more seeds confirm it isn't luck before it becomes the v0.2 flagship.",
-      "report": "v02-xl-3seeds",
-      "eta": "~08:30 tomorrow",
-      "cost": "free (local GPU)"
-    },
-    {
       "name": "Fine-tuning kit (v0.2 feature)",
       "why": "Teach Kodiak a team's own decisions from their labeled examples: the main path to production accuracy.",
       "after": "now, alongside training"
@@ -749,7 +743,7 @@
       "name": "v0.2 backbone: Ettin-1B",
       "why": "Bigger reader (1B, ModernBERT architecture)",
       "report": "v02-xl",
-      "decision": "D46: seed 1 = 0.666 (bar 0.629); confirming"
+      "decision": "D47: confirmed, 0.659 \u00b1 0.013 (3 seeds); flagship candidate"
     },
     {
       "match": "simret2-",
