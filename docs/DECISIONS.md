@@ -447,3 +447,8 @@ days of small-model data tweaks (D36-D44 were flat or mixed on the general eval)
 precision 0.81, below criterion 4 (≥ 0.90). New threshold rule for every released model, fixed now and applied to validation data only: pick the
 threshold with the best validation decision accuracy **among thresholds whose validation abstain precision is ≥ 0.90**; if none qualifies, the
 highest-precision one. Eval results are then reported as they fall.
+**D45 result: accuracy mode (eval v0.2, threshold 0.75 from the validation rule; reports/preds_v02/large-v2-ensemble.jsonl).** Never-seen forced
+0.623 (single large 0.609 ± 0.008), familiar 0.869 (0.855), ECE 0.059 (0.087), never-seen ECE 0.098 (0.128), abstain precision **0.942** (0.84 ±
+0.08), constructed unanswerables 0.943 (0.948). Criterion 4 (abstain precision ≥ 0.90) is met by accuracy mode; criterion 3 (ECE ≤ 0.05) is
+close overall (0.059), not met on never-seen tasks (0.098). Published as `cortex-agent-llc/kodiak-large-v2-ensemble-preview`.
+

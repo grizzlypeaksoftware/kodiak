@@ -651,9 +651,21 @@
     {
       "date": "2026-09-28",
       "text": "Returns Desk v2 (three worlds, $1.21) matched v1: probe gain real but unreliable across seeds, same ~1-pt cost; simulators move to v0.2 (D44). Book proposal drafted"
+    },
+    {
+      "date": "2026-09-28",
+      "text": "Accuracy mode published (3-run large ensemble, threshold from a validation rule fixed in advance): never-seen 0.623, abstain precision 0.94, ECE 0.059 (D45). Fine-tuning kit built: demo 75.8% \u2192 98.3%"
     }
   ],
   "published": [
+    {
+      "name": "kodiak-large-v2-ensemble-preview",
+      "kind": "model",
+      "link": "https://huggingface.co/cortex-agent-llc/kodiak-large-v2-ensemble-preview",
+      "run": "b-base-s1-v2-s0/s1/s2",
+      "date": "2026-09-28",
+      "notes": "Accuracy mode: the 3 large v2 runs averaged; the recommended large model. Never-seen 0.623, abstain precision 0.94, ECE 0.059."
+    },
     {
       "name": "kodiak-large-v2-preview",
       "kind": "model",
@@ -704,12 +716,6 @@
       "report": "v02-xl",
       "eta": "~23:30 tonight",
       "cost": "free (local GPU)"
-    },
-    {
-      "name": "Accuracy mode: publish the large ensemble as the main large model",
-      "why": "Beats the single large model on never-seen accuracy, calibration and abstention (D34); threshold tuned on validation.",
-      "after": "ensemble build (running)",
-      "cost": "free"
     },
     {
       "name": "Fine-tuning kit (v0.2 feature)",
