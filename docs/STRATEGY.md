@@ -40,7 +40,51 @@ The open alternatives (§3) each cover part of it. That gap is the dent we want 
 The baselines are measured on our frozen eval set with `src/kodiak_s1/eval/zeroshot.py` (choice questions only; forced accuracy
 compares pure ranking skill, since these models can't abstain).
 
-## 4. Where we stand (updated 2026-09-25)
+## 4. Where we stand (updated 2026-09-28)
+
+**Current models** (all public as research previews): **accuracy mode** (`kodiak-large-v2-ensemble-preview`, the 3 large v2 runs averaged; the
+demo default), **large v2** (`kodiak-large-v2-preview`, ModernBERT-large, ~400M) and **small v2** (`kodiak-small-v2-preview`, ModernBERT-base,
+152M). **Frozen eval set v0.2**: 12 never-seen tasks (4,200 examples) plus familiar tasks. Choice questions only, so every system is compared
+on the same ground; "forced" = always pick a label. Single-model Kodiak rows are means of 3 training runs.
+
+| System (eval v0.2, choice questions) | Params | Overall | **Never-seen, forced** | Never-seen ECE ↓ | "Can't tell" precision | p50 latency (GPU) |
+|---|---|---|---|---|---|---|
+| **Kodiak accuracy mode** (3 large, averaged) | 3 × 400M | **0.689** | **0.623** | **0.098** | **0.94** | ~48 ms |
+| Kodiak large v2 | ~400M | 0.674 | 0.609 ± 0.008 | 0.128 | 0.84 | 16 ms |
+| Kodiak small v2 | 152M | 0.629 | 0.553 ± 0.007 | 0.136 | 0.91 | 7 ms |
+| NLI DeBERTa-v3-large -28heldout (best clean open classifier) | 435M | 0.266 | 0.579 | 0.596 | – | 62 ms |
+| NLI ModernBERT-large zeroshot v2.0 | 395M | 0.385 | 0.569 | 0.414 | – | 17 ms |
+| GLiClass instruct large v1.0 | 439M | 0.502 | 0.550 | 0.208 | – | 27 ms |
+| *Qwen3-8B (LLM)* | 8B | 0.658 | 0.688 | 0.293 | – | 1,530 ms |
+| *Qwen 27B (LLM, 1,500-example sample)* | 27B | 0.716 | 0.728 | 0.241 | – | ~4,600 ms |
+
+**Release bar (§6), status:**
+
+| Criterion | Status | Evidence |
+|---|---|---|
+| 1. Best in class on never-seen tasks | **Met** | large 0.609 and accuracy mode 0.623 vs 0.579 for the best clean open classifier (D33) |
+| 2. Within ~10 points of a 7-8B LLM, ≥ 50× faster (D38) | **Met by large** | 7.9 points behind Qwen3-8B at 96× (D37). Accuracy mode is 6.5 behind but only ~32× faster: **not met** on speed |
+| 3. ECE ≤ 0.05 and lowest of all systems | **Not met** | lowest of all systems; accuracy mode 0.059 overall, 0.098 on never-seen tasks |
+| 4. "Can't tell" precision ≥ 0.90 at the default threshold | **Met by accuracy mode and small** | 0.94 and 0.91; single large 0.84 |
+| 5. Reproducible and permissively licensed | **Met** | weights, code, eval set, reports and data recipe are public |
+
+**Where Kodiak wins and loses.** It wins where the answer is in the text (prompt injection +28 over Qwen3-8B, contract clauses +14, familiar
+tasks 0.87 vs 0.71) and on honesty ("can't tell" right 92% vs 43%). It loses where a question needs world knowledge (arXiv fields, legal holdings,
+poem sentiment). Kodiak first, LLM for the unsure rest, beats the LLM alone: 0.740 vs 0.709 with 43% of questions escalated (D37).
+
+**In progress (v0.2, docs/EXPERIMENTS.md):** E15, the Ettin-1B backbone (1B, same architecture); bar ≥ 0.629 never-seen, set before the run.
+Also shipped for v0.2: the fine-tuning kit (demo 75.8% → 98.3% on a user's own labels).
+
+### History (superseded results, kept for the record)
+
+- **2026-09-25/26, eval v0.1 (4 never-seen tasks, 1,000 examples):** small Kodiak roughly tied the best open classifier on never-seen tasks
+  (0.72 vs 0.705 forced) and led far on familiar tasks and calibration; v2.0 data cut wrong refusals ~60% (D29). The full v0.1 table is below.
+- **2026-09-26:** Zork long-horizon check: Jev beat Kodiak; calibration didn't hold on game states (D32). Zork parked (D40).
+- **2026-09-26:** eval v0.2 built (D30); large v2 met criterion 1 (D33); 3-run ensemble found (D34).
+- **2026-09-27:** Qwen3-8B comparison and cascade (D37); speed bar set at ≥ 50× (D38).
+- **2026-09-28:** accuracy mode published with a validation threshold rule (D45).
+
+<details><summary>Eval v0.1 table (2026-09-25/26)</summary>
 
 Current best model: `b-small-s1-R1-cap3` (ModernBERT-base backbone, 150M parameters). Frozen eval set v0.1. Choice questions only,
 so the open classifiers can be compared (`reports/zeroshot-baselines.md`); "forced" = always pick a label, the fair ranking comparison.
@@ -76,30 +120,7 @@ from 0.812 to 0.692 forced accuracy on banking77.
 - **Where Kodiak wins big:** jailbreak detection, held-out for everyone (0.68 vs. ≤ 0.52); the NLI models abstain on almost everything with
   a naive threshold, which is why their plain accuracy is low.
 
-**Long-horizon check (Zork, 2026-09-26, D32).** On Shane's Zork benchmark (5 × 100 moves, same harness), Jev's own moves earned 45 points vs.
-~0–2 for Kodiak; Kodiak lost to a no-model exploration baseline on Zork I, and v2 was confidently wrong on game states. Zero invalid moves for all.
-Kodiak's calibration does not yet hold on out-of-distribution sequential decisions; closing that is now a release-relevant gap for the cascade story.
-
-**Update 2026-09-26 afternoon: eval v0.2 (12 never-seen tasks, 4,200 examples), 3 seeds each (D33).**
-
-| System (choice questions) | Params | Overall | **Never-seen, forced** | New tasks only, forced | Never-seen ECE |
-|---|---|---|---|---|---|
-| **Kodiak large, v2 data** | ~400M | **0.674** | **0.609 ± 0.008** | **0.570** | **0.128** |
-| Kodiak small, v2 data | 152M | 0.629 | 0.553 ± 0.007 | 0.505 | 0.136 |
-| NLI DeBERTa-v3-large -28heldout (clean) | 435M | 0.266 | 0.579 | 0.552 | 0.596 |
-| NLI ModernBERT-large zeroshot v2.0 | 395M | 0.385 | 0.569 | 0.529 | 0.414 |
-| GLiClass instruct large v1.0 | 439M | 0.502 | 0.550 | 0.505 | 0.208 |
-| *Qwen3-8B (LLM, verbalized confidence, no thinking)* | 8B | 0.658 | 0.688 | 0.646 | 0.293 |
-
-Criterion 1 (best in class on never-seen tasks) is **met by the large model**, by 3 points over the best clean rival (> 3 sd). Calibration is the
-best of all systems but not ≤ 0.05 on never-seen tasks. Ratings (clickbait) remain weak for both sizes.
-
-**Update 2026-09-27: the LLM comparison (D37).** Qwen3-8B on the full eval v0.2, run locally. On never-seen tasks it leads large Kodiak by
-**7.9 points** (0.688 vs. 0.609, 3-seed mean; 6.5 vs. the 3-run ensemble), so criterion 2's accuracy half is **met, narrowly**. Its lead comes from
-world-knowledge tasks (arXiv fields +19, legal holdings +18, poem sentiment +23, jailbreak +28); Kodiak wins prompt injection (+28), contract NLI (+14)
-and financial sentiment (+5). Kodiak wins everything else: familiar tasks 0.855 vs. 0.710, "can't tell" on constructed unanswerables 92% vs. 43%,
-calibration error 0.07 vs. 0.29 overall. On a 1,500-example sample, Qwen 27B leads large by 11 points on never-seen tasks and ties it on familiar ones.
-Speed half: 17 ms vs. ~2.3 s measured with 4 concurrent requests (~135×); single-stream: Qwen3-8B 1,530 ms vs. large 16 ms (**96×**) and small 7.3 ms (210×), so ≥50× is met (D38).
+</details>
 
 ## 5. The product shape: System 1 in front of System 2
 

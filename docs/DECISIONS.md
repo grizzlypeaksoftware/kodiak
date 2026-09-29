@@ -452,3 +452,5 @@ highest-precision one. Eval results are then reported as they fall.
 0.08), constructed unanswerables 0.943 (0.948). Criterion 4 (abstain precision ≥ 0.90) is met by accuracy mode; criterion 3 (ECE ≤ 0.05) is
 close overall (0.059), not met on never-seen tasks (0.098). Published as `cortex-agent-llc/kodiak-large-v2-ensemble-preview`.
 
+**D45 note (2026-09-28).** Accuracy mode runs three large models: ~48 ms GPU vs Qwen3-8B's 1,530 ms is ~32×, below criterion 2's ≥ 50× speed
+bar; the single large model (96×) still meets it. STRATEGY §4 now leads with the current eval v0.2 scoreboard and per-criterion status.
