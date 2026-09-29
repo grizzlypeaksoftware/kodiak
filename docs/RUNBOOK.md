@@ -193,6 +193,15 @@ Holds back 20% of rows as a test set, reports before/after (forced accuracy, acc
 letters (6 intents), small v2: 75.8% → 98.3% on 120 held-back rows, ECE 0.042 → 0.021, 63 s on the Spark. Simulator letters are cleaner than real
 tickets, so expect smaller gains on real data.
 
+### Demo Space gotchas (2026-09-28)
+
+- **Pin the package commit** in `spaces/kodiak-demo/requirements.txt` (`...kodiak@<sha>`). The Space's Docker build caches the pip layer, so an
+  unpinned `git+https` install keeps an old kodiak-s1; accuracy mode crashed the Space on startup until the pin forced a fresh install.
+  Bump the sha (after pushing) whenever the demo needs new package code.
+- **`ssr_mode=False`**: Gradio's SSR Node proxy returned 502s for the page's CSS. Intermittent 502s on every Space (including a control Space)
+  also happen when Hugging Face's Spaces proxy is degraded; test the app through `gradio_client` before assuming our code is broken.
+- Default model = the first entry of the Space variable `KODIAK_MODELS` (now accuracy mode, then small, then single large).
+
 ## 6. Track A pretraining corpus (deferred)
 
 Track A is deferred (DECISIONS.md D19). A partial FineWeb-Edu `sample/10BT` download (19 of 28.5 GB, ODC-By) remains in

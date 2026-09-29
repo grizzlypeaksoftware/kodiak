@@ -308,7 +308,8 @@ with gr.Blocks(title="Kodiak") as demo:
                 "[open an issue](https://github.com/grizzlypeaksoftware/kodiak/issues) · "
                 "[How it works](https://github.com/grizzlypeaksoftware/kodiak) · "
                 "Models: " + " · ".join(f"[{m.split('/')[-1]}](https://huggingface.co/{m})" for m in MODELS))
-    model = gr.Dropdown(MODELS, value=MODEL, label="Model (small: fastest, most reliable \"can't tell\"; large: more accurate, slower)",
+    model = gr.Dropdown(MODELS, value=MODEL, label="Model (large-v2-ensemble = accuracy mode: most accurate and best calibrated, slowest; "
+                                                 "small: fastest; large: one large model)",
                         visible=len(MODELS) > 1)
     with gr.Tab("Decide"):
         example = gr.Dropdown(list(EXAMPLES), value="Support ticket", label="Example")
@@ -372,4 +373,5 @@ with gr.Blocks(title="Kodiak") as demo:
 
 
 if __name__ == "__main__":
-    demo.launch()
+    # SSR mode (a Node proxy in front of Python) returned 502s for the page's CSS on this Space (2026-09-28), so Python serves directly.
+    demo.launch(ssr_mode=False)
