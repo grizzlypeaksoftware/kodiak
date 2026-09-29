@@ -44,7 +44,8 @@ def _resolve(name_or_path: str, revision: str | None, token: str | None) -> Path
         return p
     from huggingface_hub import snapshot_download
 
-    return Path(snapshot_download(name_or_path, revision=revision, token=token, allow_patterns=list(FILES) + ["README.md"]))
+    return Path(snapshot_download(name_or_path, revision=revision, token=token,
+                                  allow_patterns=list(FILES) + ["README.md", "ensemble.json"] + [f"*/{f}" for f in FILES]))
 
 
 def apply_calibration(model: KodiakModel, cal: dict) -> None:
@@ -67,6 +68,8 @@ class Kodiak:
         from safetensors.torch import load_file
 
         folder = _resolve(name_or_path, revision, token)
+        if (folder / "ensemble.json").exists():  # accuracy mode: several models, answers averaged
+            return KodiakEnsemble.from_folder(folder, device)
         model = KodiakModel(ModelConfig.load(folder / "model_config.json"))
         model.load_state_dict(load_file(folder / "model.safetensors"))
         cal = json.loads((folder / "calibration.json").read_text()) if (folder / "calibration.json").exists() else {}
@@ -109,6 +112,54 @@ class Kodiak:
         for name in ("handler.py", "requirements.txt"):
             if (release / name).exists():
                 shutil.copy(release / name, out / name)
+        return out
+
+
+class KodiakEnsemble(Kodiak):
+    """'Accuracy mode' (D34): several independently trained models; their calibrated answers are averaged, which cancels much of each
+    model's overconfidence. A folder holds ensemble.json ({"members": [...subfolders], "null_threshold": ...}) and one model folder per
+    member. Same API as Kodiak; about len(members) times the compute."""
+
+    def __init__(self, members: list[Kodiak], null_threshold: float = 0.5, name: str = "kodiak-ensemble"):
+        self.members = members
+        self.model = members[0].model
+        self.calibration = {"null_threshold": null_threshold, "members": len(members)}
+        self.name = name
+        self.default_options = {"null_threshold": float(null_threshold)}
+
+    @classmethod
+    def from_folder(cls, folder: Path, device: str = "auto") -> KodiakEnsemble:
+        spec = json.loads((folder / "ensemble.json").read_text())
+        members = [Kodiak.from_pretrained(str(folder / m), device=device) for m in spec["members"]]
+        return cls(members, spec.get("null_threshold", 0.5), name=folder.name)
+
+    def answer(self, requests: list[dict]) -> list[dict]:
+        import time as _time
+
+        from kodiak_s1.infer import combine_raw, decide, raw_outputs
+        from kodiak_s1.schema import Options, Request
+
+        reqs = [Request.model_validate({**r, "options": {**self.default_options, **(r.get("options") or {})}}).model_dump()
+                for r in requests]
+        t0 = _time.perf_counter()
+        raws = combine_raw([raw_outputs(m.model, reqs) for m in self.members])
+        ms = (_time.perf_counter() - t0) * 1000 / max(1, len(reqs))
+        out = []
+        for req, raw in zip(reqs, raws):
+            opts = Options(**req.get("options", {}))
+            qs = {q["id"]: q for q in req["questions"]}
+            out.append({"model": self.name, "latency_ms": round(ms, 2),
+                        "answers": {r["qid"]: decide(r, qs[r["qid"]], opts) for r in raw}})
+        return out
+
+    def save_pretrained(self, out: str | Path, tokenizer_json: str | Path | None = None) -> Path:
+        out = Path(out)
+        names = []
+        for i, m in enumerate(self.members):
+            m.save_pretrained(out / f"m{i}", tokenizer_json)
+            names.append(f"m{i}")
+        (out / "ensemble.json").write_text(json.dumps({"members": names, "null_threshold": self.default_options["null_threshold"]},
+                                                      indent=2) + "\n")
         return out
 
 

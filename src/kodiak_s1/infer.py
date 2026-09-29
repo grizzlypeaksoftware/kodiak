@@ -75,6 +75,35 @@ def raw_outputs(model: KodiakModel, requests: list[dict], max_len: int = 4096, r
     return out
 
 
+def combine_raw(members: list[list[list[dict]]]) -> list[list[dict]]:
+    """Average several calibrated models' raw outputs (the 'accuracy mode' ensemble, D34).
+
+    members[m][request][question] -> one raw record per request and question. Choice: mean of each model's label distribution.
+    Null: mean p(null). Score: the mixture of the models' Betas, moment-matched to one Beta (same mean and variance), so disagreement
+    between models widens the interval. Logits (z, z_null) are rewritten from the averaged probabilities, so the result is already
+    calibrated and flows through `decide` and threshold fitting unchanged."""
+    out = []
+    for per_req in zip(*members):
+        req_out = []
+        for recs in zip(*per_req):
+            r = dict(recs[0])
+            if r["allow_null"]:
+                p = sum(x["p_null"] for x in recs) / len(recs)
+                r["p_null"] = p
+                r["z_null"] = math.log(max(p, 1e-9) / max(1 - p, 1e-9))
+            if r["type"] == "choice":
+                probs = [sum(x["cond_probs"][i] for x in recs) / len(recs) for i in range(len(r["labels"]))]
+                r["cond_probs"], r["z"] = probs, [math.log(max(v, 1e-12)) for v in probs]
+            else:
+                mean = sum(x["mu"] for x in recs) / len(recs)
+                second = sum(x["mu"] * (1 - x["mu"]) / (x["kappa"] + 1) + x["mu"] ** 2 for x in recs) / len(recs)
+                var = max(second - mean ** 2, 1e-6)
+                r["mu"], r["kappa"] = mean, max(mean * (1 - mean) / var - 1, 1e-3)
+            req_out.append(r)
+        out.append(req_out)
+    return out
+
+
 def decide(raw: dict, q: dict, opts: Options) -> dict:
     """Apply the decision rule to one question's raw output -> a schema Answer dict."""
     p_null = raw["p_null"]

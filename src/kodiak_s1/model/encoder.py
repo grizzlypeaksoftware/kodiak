@@ -201,6 +201,9 @@ def load_modernbert(encoder: Encoder, repo: str = "answerdotai/ModernBERT-base")
     from huggingface_hub import hf_hub_download
     from safetensors.torch import load_file
 
-    sd = load_file(hf_hub_download(repo, "model.safetensors"))
+    try:
+        sd = load_file(hf_hub_download(repo, "model.safetensors"))
+    except Exception:  # some checkpoints (Ettin) ship only the older PyTorch format
+        sd = torch.load(hf_hub_download(repo, "pytorch_model.bin"), map_location="cpu", weights_only=True)
     encoder.load_state_dict({k.removeprefix("model."): v for k, v in sd.items() if k.startswith("model.")}, strict=True)
     return [k for k in sd if not k.startswith("model.")]

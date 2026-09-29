@@ -56,4 +56,6 @@ PRESETS: dict[str, EncoderConfig] = {
     "small": EncoderConfig(),
     # ModernBERT-large shape.
     "base": EncoderConfig(hidden_size=1024, num_layers=28, num_heads=16, intermediate_size=2624),
+    # Ettin-encoder-1B shape (jhu-clsp, MIT): ModernBERT architecture and tokenizer at ~1B parameters (v0.2 backbone test).
+    "xl": EncoderConfig(hidden_size=1792, num_layers=28, num_heads=28, intermediate_size=3840, local_rope_theta=160_000.0),
 }

@@ -330,7 +330,7 @@ def latest_ckpt(run: Path) -> Path | None:
 def build_model(cfg: TrainConfig) -> KodiakModel:
     model = KodiakModel(ModelConfig(PRESETS[cfg.preset], HeadConfig()))
     if cfg.init == "modernbert":
-        repo = {"small": "answerdotai/ModernBERT-base", "base": "answerdotai/ModernBERT-large"}[cfg.preset]
+        repo = {"small": "answerdotai/ModernBERT-base", "base": "answerdotai/ModernBERT-large", "xl": "jhu-clsp/ettin-encoder-1b"}[cfg.preset]
         load_modernbert(model.encoder, repo)
     model.encoder.gradient_checkpointing = cfg.grad_checkpointing
     return model

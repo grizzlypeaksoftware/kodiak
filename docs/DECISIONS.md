@@ -49,6 +49,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D42 | 2026-09-27 | The unfamiliar-inputs calibration batch didn't move calibration | active |
 | D43 | 2026-09-28 | Computed-label simulator data moves the word-matching shortcut, at a small cost | active |
 | D44 | 2026-09-28 | Returns Desk v2 matches v1: real but unreliable probe gain, same small cost; not in v0.1 | active |
+| D45 | 2026-09-28 | v0.2 starts with the big levers: Ettin-1B backbone test; accuracy mode as the main large model | active |
 
 ---
 
@@ -427,4 +428,18 @@ the lesson. Variety of worlds didn't remove the ~1-point general cost, so it com
 **Decisions.** (1) Not in the v0.1 training mix: the probe gain doesn't yet justify a measurable never-seen cost. (2) Simulators stay the most
 promising data idea (the only targeted gains since v2.0, D43-D44) and move to v0.2 work: many simulators across decision types rather than one,
 and a test on the large model, which may absorb the data without the cost. (3) The probe stays as a standing regression test for every release.
+
+### D45: v0.2 starts with the big levers: a 1B backbone and accuracy mode as the main large model
+**Context (Shane, 2026-09-28).** No v0.1 release yet (the previews stay up); move to v0.2 with real training and real improvements, no more
+days of small-model data tweaks (D36-D44 were flat or mixed on the general eval).
+**Decisions.**
+1. **Accuracy mode becomes the main large model**: the 3-run ModernBERT-large ensemble (D34), with its abstain threshold tuned on validation
+   data, published as its own preview and recommended on the large card. ~3× the compute of one large model.
+2. **Backbone test: Ettin-encoder-1B** (jhu-clsp, MIT): the same ModernBERT architecture and identical tokenizer at ~1B parameters, so the
+   attention mask, calibration, ONNX export and Node server carry over unchanged; our encoder reproduces its reference outputs exactly (max
+   diff 0.0). Chosen over EuroBERT-2.1B (different architecture: days of porting), DeBERTa-v3-large (no bigger than ours), an LLM backbone (breaks
+   D1) and training from scratch (Track A, far too costly). Same data and steps as large v2; lr 3e-5 (vs 5e-5) for stability at 1B.
+   **Pass bar, set before the run:** never-seen forced accuracy ≥ 0.629 on eval v0.2 with one seed (large v2 mean 0.609 + 2 points, twice the
+   run-to-run noise) → confirm with two more seeds and make it the v0.2 flagship; otherwise drop it.
+3. While the GPU trains: the fine-tuning kit (customers' own labels), the v0.2 product feature.
 

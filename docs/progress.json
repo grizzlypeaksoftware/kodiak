@@ -107,6 +107,10 @@
           "status": "pending"
         },
         {
+          "name": "v0.2: Ettin-1B backbone test (bar \u2265 0.629 never-seen, set before the run) and accuracy mode as main large model (D45)",
+          "status": "in_progress"
+        },
+        {
           "name": "Final run with full synthetic data",
           "status": "pending"
         },
@@ -692,6 +696,27 @@
   ],
   "queue": [
     {
+      "name": "v0.2 backbone test: Ettin-1B (one run)",
+      "script": "scripts/xl_test.sh",
+      "log": "runs/xl-test.log",
+      "done_marker": "xl test complete",
+      "why": "A bigger model was the biggest proven lever (+5.6 small \u2192 large). Pass bar set before the run: never-seen forced \u2265 0.629 \u2192 confirm with 2 more seeds.",
+      "report": "v02-xl",
+      "eta": "~23:30 tonight",
+      "cost": "free (local GPU)"
+    },
+    {
+      "name": "Accuracy mode: publish the large ensemble as the main large model",
+      "why": "Beats the single large model on never-seen accuracy, calibration and abstention (D34); threshold tuned on validation.",
+      "after": "ensemble build (running)",
+      "cost": "free"
+    },
+    {
+      "name": "Fine-tuning kit (v0.2 feature)",
+      "why": "Teach Kodiak a team's own decisions from their labeled examples: the main path to production accuracy.",
+      "after": "now, alongside training"
+    },
+    {
       "name": "Stage 3 retry: ratings as low / medium / high bands",
       "why": "Ratings are the weakest answer type and a bigger model didn't fix them (D33). Raters disagreed on exact numbers (D31); test whether they agree on bands. If \u226580%: ~$10 batch + 3 seeds; if not, ratings ship as 'experimental' in v0.1.",
       "after": "v2.2 (or alongside it)",
@@ -704,6 +729,13 @@
     }
   ],
   "experiments": [
+    {
+      "match": "b-xl-",
+      "name": "v0.2 backbone: Ettin-1B",
+      "why": "Bigger reader (1B, ModernBERT architecture)",
+      "report": "v02-xl",
+      "decision": "(pending; bar \u2265 0.629)"
+    },
     {
       "match": "simret2-",
       "name": "Returns Desk v2 (3 seeds)",
