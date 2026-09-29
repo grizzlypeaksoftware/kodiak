@@ -40,16 +40,18 @@ The open alternatives (§3) each cover part of it. That gap is the dent we want 
 The baselines are measured on our frozen eval set with `src/kodiak_s1/eval/zeroshot.py` (choice questions only; forced accuracy
 compares pure ranking skill, since these models can't abstain).
 
-## 4. Where we stand (updated 2026-09-28)
+## 4. Where we stand (updated 2026-09-29)
 
-**Current models** (all public as research previews): **accuracy mode** (`kodiak-large-v2-ensemble-preview`, the 3 large v2 runs averaged; the
-demo default), **large v2** (`kodiak-large-v2-preview`, ModernBERT-large, ~400M) and **small v2** (`kodiak-small-v2-preview`, ModernBERT-base,
-152M). **Frozen eval set v0.2**: 12 never-seen tasks (4,200 examples) plus familiar tasks. Choice questions only, so every system is compared
+**Current models** (all public as research previews): **XL v2** (`kodiak-xl-v2-preview`, Ettin-encoder-1B; the most accurate single model and the
+demo default), **large accuracy mode** (`kodiak-large-v2-ensemble-preview`, 3 large runs averaged; the most trustworthy "can't tell"), **large v2**
+(`kodiak-large-v2-preview`, ModernBERT-large, ~400M) and **small v2** (`kodiak-small-v2-preview`, ModernBERT-base, 152M). **Frozen eval set v0.2**: 12 never-seen tasks (4,200 examples) plus familiar tasks. Choice questions only, so every system is compared
 on the same ground; "forced" = always pick a label. Single-model Kodiak rows are means of 3 training runs.
 
 | System (eval v0.2, choice questions) | Params | Overall | **Never-seen, forced** | Never-seen ECE ↓ | "Can't tell" precision | p50 latency (GPU) |
 |---|---|---|---|---|---|---|
-| **Kodiak accuracy mode** (3 large, averaged) | 3 × 400M | **0.689** | **0.623** | **0.098** | **0.94** | ~48 ms |
+| *Kodiak XL accuracy mode* (3 × 1B, averaged; not published, E16) | 3 × 1B | 0.723 | **0.673** | **0.088** | 0.88 | ~115 ms |
+| **Kodiak XL v2** (Ettin-1B) | ~1B | **0.713** | **0.659 ± 0.013** | 0.113 | 0.87 | 38 ms |
+| **Kodiak large accuracy mode** (3 large, averaged) | 3 × 400M | 0.689 | 0.623 | 0.098 | **0.94** | ~48 ms |
 | Kodiak large v2 | ~400M | 0.674 | 0.609 ± 0.008 | 0.128 | 0.84 | 16 ms |
 | Kodiak small v2 | 152M | 0.629 | 0.553 ± 0.007 | 0.136 | 0.91 | 7 ms |
 | NLI DeBERTa-v3-large -28heldout (best clean open classifier) | 435M | 0.266 | 0.579 | 0.596 | – | 62 ms |
@@ -62,18 +64,20 @@ on the same ground; "forced" = always pick a label. Single-model Kodiak rows are
 
 | Criterion | Status | Evidence |
 |---|---|---|
-| 1. Best in class on never-seen tasks | **Met** | large 0.609 and accuracy mode 0.623 vs 0.579 for the best clean open classifier (D33) |
-| 2. Within ~10 points of a 7-8B LLM, ≥ 50× faster (D38) | **Met by large** | 7.9 points behind Qwen3-8B at 96× (D37). Accuracy mode is 6.5 behind but only ~32× faster: **not met** on speed |
-| 3. ECE ≤ 0.05 and lowest of all systems | **Not met** | lowest of all systems; accuracy mode 0.059 overall, 0.098 on never-seen tasks |
-| 4. "Can't tell" precision ≥ 0.90 at the default threshold | **Met by accuracy mode and small** | 0.94 and 0.91; single large 0.84 |
+| 1. Best in class on never-seen tasks | **Met** | XL 0.659, large 0.609 vs 0.579 for the best clean open classifier (D33, D47) |
+| 2. Within ~10 points of a 7-8B LLM, ≥ 50× faster (D38) | **Met by large** | large: 7.9 behind Qwen3-8B at 96× (D37). XL: only 2.9 behind but ~40× faster; accuracy modes ~13-32×: the speed half fails for the bigger tiers |
+| 3. ECE ≤ 0.05 and lowest of all systems | **Not met** | lowest of all systems; best is XL accuracy mode 0.056 overall, 0.088 on never-seen tasks |
+| 4. "Can't tell" precision ≥ 0.90 at the default threshold | **Met by large accuracy mode and small** | 0.94 and 0.91; XL 0.87, XL accuracy mode 0.88, large 0.84 (D48) |
 | 5. Reproducible and permissively licensed | **Met** | weights, code, eval set, reports and data recipe are public |
 
 **Where Kodiak wins and loses.** It wins where the answer is in the text (prompt injection +28 over Qwen3-8B, contract clauses +14, familiar
 tasks 0.87 vs 0.71) and on honesty ("can't tell" right 92% vs 43%). It loses where a question needs world knowledge (arXiv fields, legal holdings,
 poem sentiment). Kodiak first, LLM for the unsure rest, beats the LLM alone: 0.740 vs 0.709 with 43% of questions escalated (D37).
 
-**In progress (v0.2, docs/EXPERIMENTS.md):** E15, the Ettin-1B backbone (1B, same architecture); bar ≥ 0.629 never-seen, set before the run.
-Also shipped for v0.2: the fine-tuning kit (demo 75.8% → 98.3% on a user's own labels).
+**v0.2 so far (docs/EXPERIMENTS.md):** the 1B backbone (E15) cleared its pre-set bar on three seeds (0.659 vs 0.629) and is published as XL
+(D47, D48); averaging the three 1B runs (E16) gave the best calibration yet but missed its "can't tell" precision target. Also shipped: the
+fine-tuning kit (demo 75.8% → 98.3% on a user's own labels). Open v0.2 targets: "can't tell" precision ≥ 0.90 for XL (via training, not the
+threshold), the wording trap (simulator data, D43-D44), longer documents, and a public benchmark.
 
 ### History (superseded results, kept for the record)
 
@@ -83,6 +87,7 @@ Also shipped for v0.2: the fine-tuning kit (demo 75.8% → 98.3% on a user's own
 - **2026-09-26:** eval v0.2 built (D30); large v2 met criterion 1 (D33); 3-run ensemble found (D34).
 - **2026-09-27:** Qwen3-8B comparison and cascade (D37); speed bar set at ≥ 50× (D38).
 - **2026-09-28:** accuracy mode published with a validation threshold rule (D45).
+- **2026-09-29:** Ettin-1B confirmed on 3 seeds (D47); published as XL; XL accuracy mode missed its precision target (D48).
 
 <details><summary>Eval v0.1 table (2026-09-25/26)</summary>
 
@@ -149,13 +154,13 @@ beats both systems while making a fraction of the LLM calls. (reports/v02-cascad
 
 Third-party inference providers (the "Inference Providers" panel on Hugging Face) serve standard architectures at scale, mostly LLMs; a
 custom model like Kodiak only gets picked up once demand is visible. Kodiak doesn't depend on them: it runs at ~80 ms per request on CPU,
-so it is cheap to host anywhere. Four ways to run it, from free to product:
+so it is cheap to host anywhere (XL: a few hundred milliseconds). Four ways to run it, from free to product:
 
 | Channel | Who it's for | Status |
 |---|---|---|
-| **Demo Space** (Gradio, free CPU) | Try it in a browser | Built: `spaces/kodiak-demo/`; deploy at release |
+| **Demo Space** (Gradio, free CPU) | Try it in a browser | **Live** (comgen42/kodiak-demo): XL default, accuracy mode and small; Decide, Categorize a list, the Returns Desk game, a feedback form. ~3 s per XL answer on free CPU; ~$22/month hardware would cut it below 1 s |
 | **Hugging Face Inference Endpoints** (Deploy button; `handler.py` in the model repo) | "Host it for me", billed hourly by Hugging Face | Built: `release/handler.py`, copied into every export |
-| **Self-host** (`pip install kodiak-s1[infer]`, or the ONNX + Node/Express server in `server/`, with a Docker image) | Run it on your own laptop, VPS or cloud, no GPU needed | Both built (D35); `model.onnx` ships in the small-v2 and large-v2 preview repos |
+| **Self-host** (`pip install kodiak-s1[infer]`, or the ONNX + Node/Express server in `server/`, with a Docker image) | Run it on your own laptop, VPS or cloud, no GPU needed | Both built (D35); `model.onnx` ships in the small-v2 and large-v2 repos (not yet XL or the ensembles) |
 | **Kodiak hosted API by Cortex Agent** | Teams that want an API key and an SLA, not infrastructure | **The productization path** (Shane, 2026-09-25); designed after the public release |
 
 The hosted API is the business model: open weights build trust and adoption, and the hosted service (plus, later, fine-tuning on a
@@ -179,6 +184,11 @@ categories, get a table with each row's category, confidence and a "needs a huma
 and a CSV download. It shows speed, zero-shot labels and the System 1 / System 2 hand-off in one screen. Idea for a post: a preset built from
 Shane's own job listings or article titles (only with content he chooses).
 
+**Also in the demo (2026-09-27/28):** the **Returns Desk game** ("you vs. the Bear": a wizard shop's rules are code, so answers are exact) and a
+**"Did Kodiak get something wrong?"** form that feeds a private, hand-reviewed dataset (the first user-found flaw, the wording trap, came from a
+demo user). **Public leaderboard found (2026-09-29):** the "Decision Index" Space (multimodalart/jev-decision-index) ranks ~70 open decision
+models against Jev on 43 benchmarks; a candidate for the public benchmark (criterion 1's second half). Entry rules to be checked before submitting.
+
 **Post-launch demo backlog, ranked (2026-09-26):**
 
 1. **Kodiak-as-a-judge** (Shane's pick for the next demo). The state holds a prompt and one or two responses; questions: "Which response is
@@ -191,7 +201,7 @@ Shane's own job listings or article titles (only with content he chooses).
    tokens, candidate models with prices and speeds; questions: which model, which reasoning effort, task difficulty (score); abstain = use the
    strong model. The open, self-hostable counterpart to `jev-router`. Hard part: outcome labels (which model would have succeeded), from running
    candidate models on real prompts and grading, or from public router datasets with verified licenses.
-3. **Kodiak plays Zork** (see below): the fun, viral one. **Shipped 2026-09-26** (github.com/grizzlypeaksoftware/kodiak-plays-zork; article
+3. **Kodiak plays Zork** (see below; **parked 2026-09-27, D40**): the fun, viral one. **Shipped 2026-09-26** (github.com/grizzlypeaksoftware/kodiak-plays-zork; article
    "Jev vs. Kodiak"): Jev won; see D32. Previously in progress: being built by a separate agent from the brief in this
    conversation, running evals with the public v2 preview; likely the first demo to ship.
 
@@ -216,19 +226,21 @@ Kodiak v0.1 is called frontier-class only if all of these hold on the frozen eva
 
 If a criterion fails, the release says so plainly. Criteria may be tightened later, never loosened after seeing results.
 
-## 7. The levers, in expected order of impact
+## 7. The levers, and what the evidence says (updated 2026-09-29)
 
-| # | Lever | Status | Evidence so far |
+| # | Lever | Status | Evidence |
 |---|---|---|---|
-| 1 | **Better synthetic data** (Generator v2: taxonomy, real text, inference questions, critics) | v2.0 batch running | More v1-style data didn't help held-out (D24); v2 targets the diagnosed failure (over-abstention on inference) |
-| 2 | **Training recipe** (repeat cap, full schedule, tuned threshold) | Done | Held-out 62.5% → 66.4% (D25) |
-| 3 | **Bigger backbone** (ModernBERT-large, ~400M) | Planned after the v2 A/B | Larger encoders usually generalize better; costs ~3× latency (still ~25 ms) |
-| 4 | **Hard-example mining + minimal pairs** (Generator v2.1, v2.2) | Designed | Targets Kodiak's own mistakes and the "which fact matters" skill |
-| 5 | **Longer states** (stage S2, up to 8k tokens) | Planned | Real documents are often longer than 512 tokens |
-| 6 | **Fine-tuning kit** for users' own labels | Planned for release | The main path to production accuracy on a specific task |
-| 7 | **Custom encoder** (Track A) | Deferred (D19) | Only if Kodiak earns revenue or the backbone becomes the bottleneck |
+| 1 | **Bigger backbone** | **Biggest lever.** 400M (D33), 1B (D47) done | 150M → 400M: +5.6 never-seen; 400M → 1B: +5.0 (3 seeds each). Next size up (e.g. EuroBERT-2.1B) needs an architecture port |
+| 2 | **Ensembles** ("accuracy mode") | Done (D34, D45); XL version tested (D48) | +1.4 never-seen and much better calibration, at 3× compute; "can't tell" precision only reaches 0.90 for large |
+| 3 | **Better data kind** (Generator v2: real text, inference questions, critics) | Done (D29) | Cut wrong refusals ~60%; no never-seen gain at equal size |
+| 4 | **Training recipe** (repeat cap, full schedule, tuned threshold) | Done (D25) | never-seen 62.5% → 66.4% (eval v0.1) |
+| 5 | **Fine-tuning kit** for users' own labels | **Built** (v0.2) | Demo 75.8% → 98.3% on 120 held-back rows; the main path to production accuracy |
+| 6 | **Computed-label simulators** (Returns Desk) | Parked for v0.2 (D43, D44) | The only targeted data gains since v2.0 (word-trap probe 3 → 5 of 8), with a ~1-point general cost |
+| 7 | **Longer states** (up to 8k tokens) | Planned (v0.2) | Real documents are often longer than 512 tokens |
+| 8 | **Custom encoder** (Track A) | Deferred (D19) | Only if Kodiak earns revenue or backbones become the bottleneck |
+| – | **Dead:** small-model data tweaks at ~10k scale, hard-example mining, distillation on training data, int8 | Killed (D24, D36, D39, D41, D42, D35) | Flat on three seeds each; see docs/EXPERIMENTS.md "Dead families" |
 
-Two sizes are the likely release: a fast one (small) and a quality one (large). Public names are still open (D23).
+Current tiers: **small** (fastest), **large** (fast and balanced), **large accuracy mode** (most trustworthy "can't tell"), **XL** (most accurate).
 
 ## 8. Guardrails
 
@@ -237,11 +249,19 @@ Two sizes are the likely release: a fast one (small) and a quality one (large). 
 - **Clean licensing:** permissive open-weight teachers only (gpt-oss, DeepSeek, Qwen), never closed models (D20); every data source
   is listed in data/LICENSES.md.
 - **Measure before building:** each lever ships only if it beats the previous best on the eval plan (GENERATOR_V2.md §5).
+- **Experiment discipline (2026-09-28):** the goal, metrics and budgets are frozen in docs/GOAL.md (Shane's); every experiment is in the
+  append-only docs/EXPERIMENTS.md; a proposal needs a pre-set kill line, one variable and two cited killed ideas (`scripts/gate.py`), a smoke
+  test before a full run, and Shane's approval for any full run.
 
 ## 9. Open questions and risks
 
-- **The size ceiling.** A 150M encoder may plateau below the bar on never-seen tasks; ModernBERT-large is the planned answer.
+- **The size ceiling.** Size keeps paying (150M → 400M → 1B: +5.6, +5.0), but each step costs speed (7 → 16 → 38 ms GPU) and the 1B already
+  misses the ≥ 50× speed bar. Past 1B, the compatible backbones run out (a port would be needed), and the desk GPU's memory becomes a limit.
 - **Teacher ceiling.** Synthetic labels are only as good as writer + checker + critics (human review: 92.7% for v2.0). Label noise
   caps what the student can learn.
-- **Which public benchmark?** To choose: permissively licensed zero-shot classification sets, disjoint from our training sources.
-- **The LLM comparison point.** Measured (D37): Qwen3-8B leads by 7.9 points on never-seen tasks, all from world-knowledge-heavy tasks.
+- **Which public benchmark?** Candidate: the "Decision Index" leaderboard (43 benchmarks, ~70 open models, 2026-09-29). Check its entry rules and
+  whether its benchmarks overlap our training sources before submitting.
+- **The LLM comparison point.** Measured (D37): Qwen3-8B led large by 7.9 points on never-seen tasks, from world-knowledge-heavy tasks; XL cuts
+  that to 2.9 (D47).
+- **"Can't tell" precision on unfamiliar questions.** Validation-tuned thresholds don't transfer to the eval set's unanswerable questions for the
+  bigger models (D48); fixing it likely needs training data or objective changes.
