@@ -30,7 +30,7 @@ worth it now), **running**.
 | E12 | 09-28 | Computed-label simulator fixes the wording trap | +5.1k Returns Desk cases (small, 3 seeds) | $2 | probe up, guards hold | probe 3 → 5 of 8; never-seen −1.0 | park (D43) |
 | E13 | 09-28 | Same, with 3 worlds and split intent | +3.2k Returns Desk v2 (small, 3 seeds) | $1.2 | probe up, guards hold | probe 3 → 4.7 of 8 (spread 3-7); never-seen −0.9 | park (D44) |
 | E14 | 09-28 | Validation threshold rule keeps abstain precision ≥ 0.90 | threshold rule (accuracy mode) | free | precision ≥ 0.90 | 0.81 → 0.94, other metrics equal | **keep** (D45) |
-| E15 | 09-28 | Bigger backbone again: Ettin-1B | backbone 400M → 1B (1 seed; lr 3e-5 vs 5e-5) | free, ~5 GPU-h | **≥ 0.629** | *pending* | running (D45) |
+| E15 | 09-28 | Bigger backbone again: Ettin-1B | backbone 400M → 1B (1 seed; lr 3e-5 vs 5e-5) | free, ~5 GPU-h | **≥ 0.629** | **0.609 → 0.666**; familiar 0.878; never-seen ECE 0.116; guard miss: abstain precision 0.86 (< 0.90); speed 38 ms (~40× vs Qwen3-8B) | **keep, confirming** (2 seeds running, D46) |
 
 **Lesson from E8-E13 (written 2026-09-28):** after the large model shipped, work drifted into local data tweaks on the small model without
 pre-set bars. The only big wins came from changing the search space (data *kind* E3, backbone E5, ensembling E6). From E15 on, every

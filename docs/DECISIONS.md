@@ -50,6 +50,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D43 | 2026-09-28 | Computed-label simulator data moves the word-matching shortcut, at a small cost | active |
 | D44 | 2026-09-28 | Returns Desk v2 matches v1: real but unreliable probe gain, same small cost; not in v0.1 | active |
 | D45 | 2026-09-28 | v0.2 starts with the big levers: Ettin-1B backbone test; accuracy mode as the main large model | active |
+| D46 | 2026-09-28 | Ettin-1B clears its pre-set bar (0.666 vs 0.629; one seed), confirming with 2 seeds | active |
 
 ---
 
@@ -454,3 +455,15 @@ close overall (0.059), not met on never-seen tasks (0.098). Published as `cortex
 
 **D45 note (2026-09-28).** Accuracy mode runs three large models: ~48 ms GPU vs Qwen3-8B's 1,530 ms is ~32×, below criterion 2's ≥ 50× speed
 bar; the single large model (96×) still meets it. STRATEGY §4 now leads with the current eval v0.2 scoreboard and per-criterion status.
+
+### D46: Ettin-1B clears its pre-set bar by a wide margin (one seed; confirming)
+**Evidence (E15; reports/v02-xl.md).** One seed, same data and steps as large v2, lr 3e-5. Never-seen forced **0.666** (bar ≥ 0.629; large v2
+0.609 ± 0.008; accuracy mode 0.623; Qwen3-8B 0.688), new v0.2 tasks 0.622 (0.570), familiar 0.878 (0.855), overall 0.716 (0.674), ECE 0.077
+(0.087), never-seen ECE 0.116 (0.128). Biggest gains on knowledge-heavy tasks: jailbreak +19.5, poem sentiment +16.2, Bias in Bios +3.6.
+**Pre-set guards:** familiar passes; **"can't tell" precision 0.86 misses the ≥ 0.90 guard** (large 0.84); ratings error slightly worse (0.276 vs
+0.257); financial sentiment −4; label-overlap probe 4/8 (large run 5/8). **Speed:** 38 ms GPU batch-1 (large 16 ms): ~40× faster than Qwen3-8B,
+below the ≥ 50× bar that large meets. **Confound:** lr also changed (3e-5 vs 5e-5); the margin (+5.7, ~7 sd) is far too large to be the lr.
+**Decisions.** (1) Per the approved plan, two confirming seeds run now (scripts/xl_confirm.sh). (2) If they hold (mean ≥ 0.629), the 1B becomes the
+v0.2 flagship candidate; its abstain-precision miss is then the next target (a 1B accuracy mode, or a precision-constrained threshold), and the
+speed trade (40×) is reported, with large kept as the fast-and-honest tier.
+

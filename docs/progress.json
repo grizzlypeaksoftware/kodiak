@@ -655,6 +655,10 @@
     {
       "date": "2026-09-28",
       "text": "Accuracy mode published (3-run large ensemble, threshold from a validation rule fixed in advance): never-seen 0.623, abstain precision 0.94, ECE 0.059 (D45). Fine-tuning kit built: demo 75.8% \u2192 98.3%"
+    },
+    {
+      "date": "2026-09-28",
+      "text": "Ettin-1B (E15) clears its pre-set bar: never-seen 0.666 vs 0.629 bar (large 0.609, Qwen3-8B 0.688); guard miss on 'can't tell' precision (0.86); 2 confirming seeds running (D46)"
     }
   ],
   "published": [
@@ -713,13 +717,13 @@
   ],
   "queue": [
     {
-      "name": "v0.2 backbone test: Ettin-1B (one run)",
-      "script": "scripts/xl_test.sh",
-      "log": "runs/xl-test.log",
-      "done_marker": "xl test complete",
-      "why": "A bigger model was the biggest proven lever (+5.6 small \u2192 large). Pass bar set before the run: never-seen forced \u2265 0.629 \u2192 confirm with 2 more seeds.",
-      "report": "v02-xl",
-      "eta": "~23:30 tonight",
+      "name": "E15 confirmation: Ettin-1B seeds 0 and 2",
+      "script": "scripts/xl_confirm.sh",
+      "log": "runs/xl-confirm.log",
+      "done_marker": "xl confirm complete",
+      "why": "Seed 1 scored 0.666 never-seen (bar 0.629). Two more seeds confirm it isn't luck before it becomes the v0.2 flagship.",
+      "report": "v02-xl-3seeds",
+      "eta": "~08:30 tomorrow",
       "cost": "free (local GPU)"
     },
     {
@@ -745,7 +749,7 @@
       "name": "v0.2 backbone: Ettin-1B",
       "why": "Bigger reader (1B, ModernBERT architecture)",
       "report": "v02-xl",
-      "decision": "(pending; bar \u2265 0.629)"
+      "decision": "D46: seed 1 = 0.666 (bar 0.629); confirming"
     },
     {
       "match": "simret2-",
