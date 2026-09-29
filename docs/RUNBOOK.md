@@ -181,6 +181,18 @@ KODIAK_MODEL=../dist/kodiak-small-v2 npm start                     # or: docker 
 - Exporting on CPU (`CUDA_VISIBLE_DEVICES=""`) is safe while a training run uses the GPU.
 - Don't quantize to int8 without re-running calibration checks: dynamic int8 broke calibration (D35).
 
+### Fine-tuning kit (v0.2): Kodiak on a team's own labels
+
+```bash
+uv run python -m kodiak_s1.finetune --csv tickets.csv --text-column text --label-column team \
+  --question "Which team should handle this ticket?" --base cortex-agent-llc/kodiak-small-v2-preview --out my-kodiak
+```
+
+Holds back 20% of rows as a test set, reports before/after (forced accuracy, accuracy when answering, share answered, ECE) in
+`my-kodiak/finetune_report.json`, recalibrates on a 10% slice of the rest, and saves a normal model folder. Demo (2026-09-28): 600 Returns Desk
+letters (6 intents), small v2: 75.8% → 98.3% on 120 held-back rows, ECE 0.042 → 0.021, 63 s on the Spark. Simulator letters are cleaner than real
+tickets, so expect smaller gains on real data.
+
 ## 6. Track A pretraining corpus (deferred)
 
 Track A is deferred (DECISIONS.md D19). A partial FineWeb-Edu `sample/10BT` download (19 of 28.5 GB, ODC-By) remains in
