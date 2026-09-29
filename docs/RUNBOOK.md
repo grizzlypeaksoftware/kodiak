@@ -200,7 +200,8 @@ tickets, so expect smaller gains on real data.
   Bump the sha (after pushing) whenever the demo needs new package code.
 - **`ssr_mode=False`**: Gradio's SSR Node proxy returned 502s for the page's CSS. Intermittent 502s on every Space (including a control Space)
   also happen when Hugging Face's Spaces proxy is degraded; test the app through `gradio_client` before assuming our code is broken.
-- Default model = the first entry of the Space variable `KODIAK_MODELS` (now accuracy mode, then small, then single large).
+- Default model = the first entry of the Space variable `KODIAK_MODELS` (accuracy mode, then small). The single large model is left out: it is
+  one of the three accuracy-mode members, so loading it again only cost memory. "Categorize a list" always runs on small (bulk jobs).
 
 ## 6. Track A pretraining corpus (deferred)
 

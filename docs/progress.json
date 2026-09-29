@@ -701,7 +701,7 @@
       "kind": "demo",
       "link": "https://huggingface.co/spaces/comgen42/kodiak-demo",
       "date": "2026-09-25",
-      "notes": "Decide (with 'Did Kodiak get something wrong?' feedback form), 'Categorize a list', and the 'Returns Desk: you vs. the Bear' game; small/large picker."
+      "notes": "Decide (accuracy mode by default, or small) with a feedback form; 'Categorize a list' (always small, for speed); 'Returns Desk: you vs. the Bear' game."
     },
     {
       "name": "Source code",

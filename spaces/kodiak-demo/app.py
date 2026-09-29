@@ -15,6 +15,8 @@ MODELS = [m.strip() for m in os.environ.get("KODIAK_MODELS", os.environ.get("KOD
 LOADED = {m: Kodiak.from_pretrained(m, token=os.environ.get("HF_TOKEN")) for m in MODELS}
 MODEL = MODELS[0]
 kodiak = LOADED[MODEL]
+# Bulk jobs (Categorize a list) always use the fast small model, so a 500-row batch doesn't tie up the CPU in accuracy mode.
+FAST = next((m for m in MODELS if "small" in m), MODEL)
 
 # ---- Feedback: "Kodiak got this wrong" ---------------------------------------------------------------------------------
 # Submissions go to a PRIVATE dataset (reviewed by hand before any training use). Needs a Space secret FEEDBACK_TOKEN: a fine-grained
@@ -201,7 +203,8 @@ def categorize(rows_text: str, file, cats_text: str, question: str, review_below
         return "**Add at least one row and two categories.**", [], None
     rows = rows[:MAX_ROWS]
     q = {"type": "choice", "id": "category", "text": question.strip() or "Which category fits best?", "labels": cats}
-    k = LOADED.get(model, kodiak)
+    model = FAST
+    k = LOADED[model]
     t = time.perf_counter()
     out = k.answer([{"state": r, "questions": [q]} for r in rows])
     secs = time.perf_counter() - t
@@ -308,8 +311,8 @@ with gr.Blocks(title="Kodiak") as demo:
                 "[open an issue](https://github.com/grizzlypeaksoftware/kodiak/issues) · "
                 "[How it works](https://github.com/grizzlypeaksoftware/kodiak) · "
                 "Models: " + " · ".join(f"[{m.split('/')[-1]}](https://huggingface.co/{m})" for m in MODELS))
-    model = gr.Dropdown(MODELS, value=MODEL, label="Model (large-v2-ensemble = accuracy mode: most accurate and best calibrated, slowest; "
-                                                 "small: fastest; large: one large model)",
+    model = gr.Dropdown(MODELS, value=MODEL, label="Model for Decide and the game (large-v2-ensemble = accuracy mode: most accurate and best calibrated; "
+                                                 "small: fastest)",
                         visible=len(MODELS) > 1)
     with gr.Tab("Decide"):
         example = gr.Dropdown(list(EXAMPLES), value="Support ticket", label="Example")
@@ -339,7 +342,8 @@ with gr.Blocks(title="Kodiak") as demo:
         fb_go.click(submit_feedback, [state, questions, threshold, model, fb_q, fb_correct, fb_note, fb_consent], fb_msg)
     with gr.Tab("Categorize a list"):
         gr.Markdown("Paste one item per line (or upload a CSV with a `text` column), type **your own** categories, and Kodiak sorts "
-                    "every row in one batch. Rows it isn't sure about are flagged for a human instead of guessed.")
+                    "every row in one batch. Rows it isn't sure about are flagged for a human instead of guessed. "
+                    "Lists always run on the fast small model, so big batches stay quick.")
         with gr.Row():
             preset = gr.Dropdown(list(CAT_PRESETS), value="Support tickets", label="Example")
             review_below = gr.Slider(0.3, 0.95, value=0.6, step=0.05, label="Flag for review when confidence is below")
