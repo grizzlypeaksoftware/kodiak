@@ -53,6 +53,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D46 | 2026-09-28 | Ettin-1B clears its pre-set bar (0.666 vs 0.629; one seed), confirming with 2 seeds | superseded by D47 |
 | D47 | 2026-09-29 | Ettin-1B confirmed on 3 seeds (0.659 ± 0.013); v0.2 flagship candidate | active |
 | D48 | 2026-09-29 | 1B accuracy mode misses its precision target (0.879); single 1B published as Kodiak XL | active |
+| D49 | 2026-09-29 | Enter the public Decision Index with Kodiak XL (expectation 15-25, set before the run) | active |
 
 ---
 
@@ -485,4 +486,19 @@ validation rule, validation precision 0.92): never-seen forced 0.673, familiar 0
 unanswerable questions, for either size. Verdict: kill as a precision fix; park as a possible slower top tier (~115 ms GPU).
 **B.** The single 1B, seed 1 (lowest validation loss; eval never-seen 0.666), is published as `cortex-agent-llc/kodiak-xl-v2-preview`, with the
 precision miss stated on its card. Next target for "can't tell" precision is the training data or objective, not the threshold.
+
+### D49: Enter the public Decision Index with Kodiak XL (expectation set before the run)
+**Context (Shane, 2026-09-29).** The "Decision Index" (multimodalart/jev-decision-index; kit github.com/apolinario/decision-index, MIT) ranks
+~70 open decision models against Jev on 38 benchmarks in five areas (120k + 30k requests, chance-corrected, abstentions and unsupported
+requests count as wrong). A public, independent ranking is the missing half of release criterion 1, and "a place on the map".
+**How.** A native in-process engine (`kodiak_s1.decision_index_engine:KodiakEngine`): all questions of a request in one forward pass;
+`allow_null=false` on every question ("must answer", declared in provenance; the index scores abstentions as wrong); calibrated option
+probabilities; noul = p(yes). **No truncation:** requests beyond the backbone's position limit (Ettin 7,999) or 12,288 packed tokens are
+refused as unsupported. Our API's 32-option cap is bypassed (the kit has up to 255 options). Training overlap to disclose: Kodiak trained on the
+*training* splits of CLINC150 (clinc_oos), WinoGrande and MultiNLI (related to ANLI); none of the kit's test rows.
+**Expectation, written before the run:** XL lands around **15-25** on the 0.2.1 index (top: 57.4, 26-27B LLMs; best entrant ≤ 2B: Bosun v3.1 1.7B,
+20.1). Knowledge exams (MMLU-Pro, GPQA, HLE), math (GSM8K), chess and multi-field tool calls should score near chance; classification, NLI
+and language understanding should be strong. A "best model under 2B" claim needs > 20.1 and only counts if the run is complete and untouched.
+**Learning plan.** The per-benchmark report card is the input for the next synthetic data: the decision *types* where Kodiak is near chance
+become the next generator targets (Shane, 2026-09-29), each still through the experiment gate.
 
