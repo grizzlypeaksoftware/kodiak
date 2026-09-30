@@ -55,6 +55,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D48 | 2026-09-29 | 1B accuracy mode misses its precision target (0.879); single 1B published as Kodiak XL | active |
 | D49 | 2026-09-29 | Enter the public Decision Index with Kodiak XL (expectation 15-25, set before the run) | active |
 | D50 | 2026-09-29 | Run 1 scored 12.75: empty-state format mismatch; one generic rule, validated on our data; fresh full run | active |
+| D51 | 2026-09-30 | Decision Index run 2: 17.19, rank #48 of 71; report card sets the next data targets | active |
 
 ---
 
@@ -518,4 +519,22 @@ texts are also given as the state; questions and options are unchanged. Declared
 **Next.** A fresh complete run with the fixed engine (runs/kodiak-xl-r2); both runs are kept and reported. Submission only with Shane's OK.
 **Lesson.** A benchmark's input conventions are part of the test. Check a handful of rows per benchmark for format *before* the full run,
 on our own data first; we checked coverage (unsupported) but not shape.
+
+### D51: Decision Index run 2: 17.19, rank #48 of 71 (inside the pre-set 15-25); the report card sets the next data targets
+**Run 2 (fixed engine, complete, untouched; runs/kodiak-xl-r2; 150,182 answered, 577 unsupported, 3.3 h).** Index **17.19** (raw 35.7), up
+from 12.75: retrieval & classification 0.09 → 0.33 (CLINC150 0.00 → 0.76, BANKING77 0.05 → 0.60); other areas unchanged within ~0.01
+(WinoGrande 0.63 → 0.58: the empty-state rule costs a little there). Board position: **#48 of 71**; among models of 2B parameters or less,
+5th, behind Bosun v3.1 1.7B (20.10), Intern-Decision-2B (19.38), JPT-0.8B (19.22) and Decision 1.0 Eos (18.41); ahead of Kev 0.8B (14.60),
+GLiNER2.5-Decide (11.21) and the other small entrants. Top of the board: 26-27B models at ~57; Jev 57.89. Not "best under 2B".
+**Report card (chance-corrected skill).** Strong: CLINC150 0.76, BANKING77 0.60, WinoGrande 0.58, FinEntity 0.58, BPoMP 0.47, HellaSwag 0.44,
+PhishNChips 0.38. Near zero, and **inside Kodiak's purpose** (decisions about text): RAGTruth (is this answer hallucinated?) 0.00, API-Bank
+(which API call?) 0.02, ANLI (adversarial NLI) 0.02, ACOS (aspect-sentiment pairs) 0.02, Amazon ESCI (product relevance) 0.04, HoVer
+(multi-hop claim verification) 0.04, BRIGHT (reasoning-heavy retrieval) 0.07, ForecastBench (calibrated probabilities of future events) 0.00,
+iSarcasmEval 0.00; middling tool decisions: BFCL 0.19, When2Call 0.17, ToolRet 0.15. Near zero and **outside** Kodiak's purpose: GSM8K,
+GPQA, HLE, ChessBench, CRUXEval, POP909 (math, expert science, chess, code execution, music).
+**Decisions.** (1) Next synthetic data targets the in-purpose gaps as *skills*, never the benchmark's rows: grounding/hallucination checks
+(RAGTruth-style), tool/API selection with full specs (API-Bank, BFCL, When2Call, ToolRet), claim verification and adversarial NLI (HoVer, ANLI),
+relevance judgments (ESCI), aspect-level sentiment (ACOS). Each goes through the experiment gate with our own eval + probes as the metric; the
+Decision Index is re-run only as a final check. (2) Engine fix for the next run: sparse attention for long multi-option requests. (3) Submitting
+run 2 to the board needs Shane's OK.
 

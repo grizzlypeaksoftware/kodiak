@@ -259,8 +259,9 @@ Current tiers: **small** (fastest), **large** (fast and balanced), **large accur
   misses the ≥ 50× speed bar. Past 1B, the compatible backbones run out (a port would be needed), and the desk GPU's memory becomes a limit.
 - **Teacher ceiling.** Synthetic labels are only as good as writer + checker + critics (human review: 92.7% for v2.0). Label noise
   caps what the student can learn.
-- **Which public benchmark?** Candidate: the "Decision Index" leaderboard (43 benchmarks, ~70 open models, 2026-09-29). Check its entry rules and
-  whether its benchmarks overlap our training sources before submitting.
+- **Public benchmark: the Decision Index (D49-D51).** Kodiak XL scores 17.19 (rank #48 of 71; 5th among ≤ 2B models; top ~57, Jev 57.9).
+  Strong on classification and language understanding; near zero on hallucination detection, API selection, claim verification and relevance,
+  which become the next data targets. Submission pending Shane's OK.
 - **The LLM comparison point.** Measured (D37): Qwen3-8B led large by 7.9 points on never-seen tasks, from world-knowledge-heavy tasks; XL cuts
   that to 2.9 (D47).
 - **"Can't tell" precision on unfamiliar questions.** Validation-tuned thresholds don't transfer to the eval set's unanswerable questions for the

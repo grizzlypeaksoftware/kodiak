@@ -671,6 +671,10 @@
     {
       "date": "2026-09-29",
       "text": "Decision Index run 1: 12.75 (below the pre-set 15-25); diagnosed an empty-state format mismatch (35% of requests); fixed with one declared rule, validated on our data; run 2 launched (D50)"
+    },
+    {
+      "date": "2026-09-30",
+      "text": "Decision Index run 2: Kodiak XL 17.19, rank #48 of 71, 5th among \u22642B models (pre-set expectation 15-25); report card sets the next data targets (D51)"
     }
   ],
   "published": [
@@ -737,14 +741,14 @@
   ],
   "queue": [
     {
-      "name": "Decision Index run 2: Kodiak XL with the empty-state fix (D50)",
-      "why": "Run 1 scored 12.75 but 35% of requests put the content in the question with an empty state, which Kodiak doesn't read. One generic rule fixes it (validated on our own data: Banking77 0.64 \u2192 0.82).",
-      "log": "../decision-index/runs-kodiak-xl-r2.log",
-      "after": "suite rebuilt (byte-identical), sample passed",
-      "eta": "~01:30 (\u22483.3 h)",
-      "cost": "free (local GPU)",
-      "script": "decision_index pipeline",
-      "done_marker": "\"complete\": true"
+      "name": "Decide: submit Kodiak XL to the Decision Index (17.19, #48 of 71)?",
+      "why": "Complete, untouched run 2 with the declared engine rules. Needs Shane's OK (public).",
+      "after": "Shane"
+    },
+    {
+      "name": "Next data targets from the Decision Index report card",
+      "why": "Hallucination checks, API/tool selection with full specs, claim verification, relevance, aspect sentiment: in-purpose skills near zero on the index (D51). Each through the gate.",
+      "after": "Shane's OK on the plan"
     },
     {
       "name": "Stage 3 retry: ratings as low / medium / high bands",

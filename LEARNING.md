@@ -714,3 +714,18 @@ is?" became a "product question", because in the wizard shop, customers who only
 **Concept: models learn exactly what the data rewards, including accidents.** Every simulator teaches its own shortcuts. The fix is variety (more
 domains, more policy templates) and probes that check the lesson transferred, not just the score on the new data.
 
+## Our first public benchmark: a 12, then a 17 (2026-09-29/30)
+
+The Decision Index runs ~150,000 decisions across 38 benchmarks and puts every open decision model on one scale (0 = random guessing,
+100 = perfect). Kodiak XL's first run scored 12.75. Before believing it, we looked for results that made no sense: Banking77 near zero, when
+Kodiak scores ~80% on it in our own tests. The cause was the benchmark's format: a third of its questions arrive with an empty "state" and the
+text tucked inside the question, and Kodiak reads its state. One generic fix (copy the question into the state when the state is empty),
+checked on our own data rather than the benchmark's, took the score to 17.19: rank 48 of 71, fifth among models of 2B or less.
+
+**Concept: a benchmark tests your plumbing too.** A score can measure an input mismatch instead of the model. Check a few rows of every
+benchmark for *shape* before the full run.
+
+**Concept: a report card beats a single number.** Kodiak is strong at classification and language understanding, near zero on math, chess and
+expert exams (not its job), and near zero on some things that *are* its job: spotting hallucinated answers, picking the right API call,
+verifying claims. Those become the next training targets, as skills, never as the benchmark's own questions.
+
