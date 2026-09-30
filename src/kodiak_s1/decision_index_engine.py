@@ -44,7 +44,8 @@ class KodiakEngine(Engine):
             "packed_token_limit": self.max_tokens,
             "policy": "All questions of a request are answered in one forward pass (structured attention: state, then each question with its "
                       "options). Every question is sent with allow_null=false (Kodiak's 'must answer' setting; its 'can't tell' output is "
-                      "not used). Choice probabilities are Kodiak's calibrated softmax over the supplied options; noul = p(yes) of a "
+                      "not used). When the state is empty, the question text is also given as the state (Kodiak reads its state; same rule for every "
+                      "benchmark). Choice probabilities are Kodiak's calibrated softmax over the supplied options; noul = p(yes) of a "
                       "yes/no choice. Nothing is truncated: requests beyond the position limit or the packed-token limit are refused as "
                       "unsupported. No prompt tuning; option texts are the kit's criteria verbatim (the key when a description is null).",
         }
@@ -71,7 +72,13 @@ class KodiakEngine(Engine):
                 raise Unsupported("unsupported question type " + str(q["type"]))
             qs.append({"type": "choice", "id": f"q{i}", "text": instr, "labels": labels, "allow_null": False})
             keys.append(key)
-        st = state if state not in (None, "", {}, []) else "(empty)"
+        if state in (None, "", {}, []):
+            # Kodiak reads the *state*; its questions are short instructions (every training example has this shape). About a third of
+            # the suite sends an empty state and puts the content inside the question ("Classify this request:\n<text>"). Mechanical
+            # translation, the same for every benchmark (D50): the question texts become the state as well; the questions are unchanged.
+            st = "\n\n".join(q["text"] for q in qs)
+        else:
+            st = state
         return {"state": st, "questions": qs}, keys
 
     def __call__(self, state, questions):

@@ -667,6 +667,10 @@
     {
       "date": "2026-09-29",
       "text": "1B accuracy mode (E16) missed its precision target (0.879 < 0.90) despite the best calibration yet; single 1B published as kodiak-xl-v2-preview (D48). Demo redesigned: answer cards with confidence bars"
+    },
+    {
+      "date": "2026-09-29",
+      "text": "Decision Index run 1: 12.75 (below the pre-set 15-25); diagnosed an empty-state format mismatch (35% of requests); fixed with one declared rule, validated on our data; run 2 launched (D50)"
     }
   ],
   "published": [
@@ -733,11 +737,11 @@
   ],
   "queue": [
     {
-      "name": "Decision Index: Kodiak XL on the public benchmark (38 benchmarks, ~150k requests)",
-      "why": "A public, independent ranking against Jev and ~70 open decision models; the per-benchmark results steer the next synthetic data. Expectation set before the run: 15-25 (D49).",
-      "log": "../decision-index/runs-kodiak-xl.log",
+      "name": "Decision Index run 2: Kodiak XL with the empty-state fix (D50)",
+      "why": "Run 1 scored 12.75 but 35% of requests put the content in the question with an empty state, which Kodiak doesn't read. One generic rule fixes it (validated on our own data: Banking77 0.64 \u2192 0.82).",
+      "log": "../decision-index/runs-kodiak-xl-r2.log",
       "after": "suite rebuilt (byte-identical), sample passed",
-      "eta": "~02:00 (at ~6.6 requests/s)",
+      "eta": "~01:30 (\u22483.3 h)",
       "cost": "free (local GPU)",
       "script": "decision_index pipeline",
       "done_marker": "\"complete\": true"

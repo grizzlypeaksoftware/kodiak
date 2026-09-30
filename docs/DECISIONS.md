@@ -54,6 +54,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D47 | 2026-09-29 | Ettin-1B confirmed on 3 seeds (0.659 ± 0.013); v0.2 flagship candidate | active |
 | D48 | 2026-09-29 | 1B accuracy mode misses its precision target (0.879); single 1B published as Kodiak XL | active |
 | D49 | 2026-09-29 | Enter the public Decision Index with Kodiak XL (expectation 15-25, set before the run) | active |
+| D50 | 2026-09-29 | Run 1 scored 12.75: empty-state format mismatch; one generic rule, validated on our data; fresh full run | active |
 
 ---
 
@@ -501,4 +502,20 @@ refused as unsupported. Our API's 32-option cap is bypassed (the kit has up to 2
 and language understanding should be strong. A "best model under 2B" claim needs > 20.1 and only counts if the run is complete and untouched.
 **Learning plan.** The per-benchmark report card is the input for the next synthetic data: the decision *types* where Kodiak is near chance
 become the next generator targets (Shane, 2026-09-29), each still through the experiment gate.
+
+### D50: First Decision Index run (12.75) exposed an input-format mismatch; fixed by one generic rule, then a fresh full run
+**Run 1 (2026-09-29, complete, untouched; ~/development/decision-index/runs/kodiak-xl).** Index **12.75** (raw 31.0), below the pre-set
+15-25; 150,185 answered, 574 unsupported, 3.3 h. Areas (skill): language 0.23, arts 0.12, tools 0.10, retrieval 0.09, knowledge 0.08.
+Best: WinoGrande 0.63, HellaSwag 0.47, BPoMP 0.47. Suspicious: BANKING77 raw 0.06 and CLINC150 0.00 (Kodiak scores ~0.80 on Banking77 in our
+eval and trained on CLINC), ANLI below chance.
+**Cause.** 35% of the suite (53,190 requests, 16 benchmarks, incl. gold ones BANKING77, CLINC150, ANLI) sends an **empty state** with the
+content inside the question ("Classify the banking intent of this user request:\n<text>"). Kodiak reads its state; every training example has
+content in the state and a short instruction as the question, so it was reading an empty page.
+**Rule (set before any rerun; one rule for every benchmark; no benchmark data used to choose it):** when the state is empty, the question
+texts are also given as the state; questions and options are unchanged. Declared in the engine's provenance as a mechanical translation.
+**Validation on our own eval set only:** eval v0.2 Banking77 (250 examples) rewritten in the benchmark's format: old engine 0.640 → fixed
+0.816 (Kodiak's normal ~0.80).
+**Next.** A fresh complete run with the fixed engine (runs/kodiak-xl-r2); both runs are kept and reported. Submission only with Shane's OK.
+**Lesson.** A benchmark's input conventions are part of the test. Check a handful of rows per benchmark for format *before* the full run,
+on our own data first; we checked coverage (unsupported) but not shape.
 
