@@ -735,15 +735,12 @@
     {
       "name": "Decision Index: Kodiak XL on the public benchmark (38 benchmarks, ~150k requests)",
       "why": "A public, independent ranking against Jev and ~70 open decision models; the per-benchmark results steer the next synthetic data. Expectation set before the run: 15-25 (D49).",
-      "log": "../decision-index/rebuild.log",
-      "after": "suite rebuild (~7 GB, running), then compatibility pass, then full run",
-      "eta": "tonight / tomorrow",
-      "cost": "free (local GPU)"
-    },
-    {
-      "name": "Fine-tuning kit (v0.2 feature)",
-      "why": "Teach Kodiak a team's own decisions from their labeled examples: the main path to production accuracy.",
-      "after": "now, alongside training"
+      "log": "../decision-index/runs-kodiak-xl.log",
+      "after": "suite rebuilt (byte-identical), sample passed",
+      "eta": "~02:00 (at ~6.6 requests/s)",
+      "cost": "free (local GPU)",
+      "script": "decision_index pipeline",
+      "done_marker": "\"complete\": true"
     },
     {
       "name": "Stage 3 retry: ratings as low / medium / high bands",
