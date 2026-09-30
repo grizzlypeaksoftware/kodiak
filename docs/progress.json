@@ -741,11 +741,6 @@
   ],
   "queue": [
     {
-      "name": "Decide: submit Kodiak XL to the Decision Index (17.19, #48 of 71)?",
-      "why": "Complete, untouched run 2 with the declared engine rules. Needs Shane's OK (public).",
-      "after": "Shane"
-    },
-    {
       "name": "Next data targets from the Decision Index report card",
       "why": "Hallucination checks, API/tool selection with full specs, claim verification, relevance, aspect sentiment: in-purpose skills near zero on the index (D51). Each through the gate.",
       "after": "Shane's OK on the plan"

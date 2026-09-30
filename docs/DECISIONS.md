@@ -537,4 +537,5 @@ GPQA, HLE, ChessBench, CRUXEval, POP909 (math, expert science, chess, code execu
 relevance judgments (ESCI), aspect-level sentiment (ACOS). Each goes through the experiment gate with our own eval + probes as the metric; the
 Decision Index is re-run only as a final check. (2) Engine fix for the next run: sparse attention for long multi-option requests. (3) Submitting
 run 2 to the board needs Shane's OK.
+**D51 addendum (Shane, 2026-09-30).** Don't submit run 2 yet: build a better model first, then re-run the Decision Index and submit that.
 
