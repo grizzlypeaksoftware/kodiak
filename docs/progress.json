@@ -788,6 +788,10 @@
   {
    "date": "2026-10-03",
    "text": "Skills roadmap: 12 candidate decision kinds screened on v0.2 ($0.35). Clear gaps: pairwise judge, sarcasm, policy violation. Decision-kinds tracker added to the Research tab."
+  },
+  {
+   "date": "2026-10-03",
+   "text": "Decision Index, v0.2 accuracy mode: 18.69 (from 17.19); 4th among ≤2B models on the last board seen. Not submitted (D61)."
   }
  ],
  "published": [
@@ -883,13 +887,9 @@
  ],
  "queue": [
   {
-   "name": "Decision Index: Kodiak-v0.2-1B accuracy mode",
-   "why": "The v0.2 leaderboard entry (3 models averaged; less seed luck, D56). Same frozen suite and engine rules as runs 1-2. Submission is a separate OK from Shane.",
-   "after": "running: 84,650 of ~151k at 4:56 PM (~4 requests/s); done ~9:30 PM; submission is a separate OK from Shane",
-   "script": "runs/kodiak-v02-accuracy",
-   "log": "../decision-index/runs-kodiak-v02-accuracy.log",
-   "done_marker": "\"complete\": true",
-   "cost": "free (GPU)"
+   "name": "Decision Index: v0.2 accuracy mode = 18.69 (submit?)",
+   "why": "Up from 17.19 (XL v2) and 17.57 (E17). Gains: ESCI, HoVer, BFCL, ToolRet, CLINC; drops: FinEntity, PhishNChips (E20's target). 4th among ≤2B models on the 09-28 board (recheck). D61.",
+   "after": "Shane decides whether to submit (and whether the book chapter may show a rank)"
   },
   {
    "name": "Hugging Face post linking to the announcement",
@@ -905,7 +905,7 @@
   {
    "name": "E20: wording-consistency loss (proposal, v0.3 main goal)",
    "why": "Pair each example with a reworded twin in the same batch and penalize disagreeing answers. Bar: consistency ≥ 0.75 (v0.2: 0.678), reworded accuracy ≥ 0.712; guards incl. never-seen ≥ 0.679.",
-   "after": "code + tests done; starts when the Decision Index run frees the GPU (~9:30 PM); smoke at step 500 needs no approval; the full run continues only with Shane's approval (otherwise it pauses at step 500)",
+   "after": "running: smoke started 8:36 PM (step 500 ~9:00 PM); the full run continues only with Shane's approval, otherwise it pauses at step 500",
    "cost": "free (GPU)",
    "script": "e20_run.sh",
    "log": "runs/e20-run.log",
@@ -1080,8 +1080,8 @@
     },
     {
      "name": "Decision Index run (accuracy mode) and submission",
-     "status": "in_progress",
-     "note": "accuracy mode running (Shane OK'd the run); submission is a separate OK"
+     "status": "done",
+     "note": "18.69 (D61); submission waits for Shane"
     },
     {
      "name": "Announcement post",
@@ -1094,7 +1094,7 @@
   "ideas": [
    {
     "name": "E20: wording-consistency loss",
-    "why": "v0.3 main goal; v0.2 consistency 0.678 across wordings (D58).",
+    "why": "v0.3 main goal (the wording trap, GOAL.md); v0.2 consistency 0.678 across wordings (D58).",
     "status": "proposal: gate OK; code ready; smoke runs after the Decision Index run; needs Shane's approval for the full run"
    },
    {
@@ -1123,14 +1123,9 @@
     "status": "idea (no proposal yet)"
    },
    {
-    "name": "Wording-trap fix without a general cost",
-    "why": "Open in GOAL.md: Returns Desk data moved the probe (E12/E13) but cost ~1 point never-seen.",
-    "status": "open goal; parked"
-   },
-   {
-    "name": "Abstain precision ≥ 0.90 for XL",
-    "why": "Open in GOAL.md: XL is 0.87; averaging three XL runs (E16) reached only 0.88.",
-    "status": "open goal"
+    "name": "Abstain precision ≥ 0.90 for the single model",
+    "why": "Accuracy mode reached it (0.905, v0.2); the single Kodiak-v0.2-1B is at 0.88. Open v0.3 goal (GOAL.md).",
+    "status": "half done: accuracy mode ✓, single model open"
    },
    {
     "name": "Ratings as low / medium / high bands (Stage 3 retry)",
@@ -1140,7 +1135,7 @@
    {
     "name": "Decision Index engine: sparse attention for long multi-option requests",
     "why": "Engineering, not training: lets the long ToolRet requests run instead of being refused.",
-    "status": "before the next Decision Index run"
+    "status": "idea: the v0.2 runs still refuse ~573 long requests; needed before chasing ToolRet"
    },
    {
     "name": "'Trick the Bear' game mode",

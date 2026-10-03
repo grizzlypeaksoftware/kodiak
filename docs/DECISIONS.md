@@ -65,6 +65,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D58 | 2026-10-02 | E19 confirms it (3 seeds): reworded options raise never-seen 0.662 → 0.689 and cut never-seen ECE 0.109 → 0.085; keep: joins the v0.2 recipe | active |
 | D59 | 2026-10-02 | v0.2 released: Kodiak-v0.2-1B (+ accuracy mode); demo Space moved to ZeroGPU | active |
 | D60 | 2026-10-03 | Ranking (aurc_gap_closed) becomes a tracked metric and a guard; model card leads with it, calibration comparison footnoted as raw | active |
+| D61 | 2026-10-03 | Decision Index, Kodiak-v0.2-1B accuracy mode: 18.69 (was 17.19); not submitted (Shane's call) | active |
 
 ---
 
@@ -659,4 +660,14 @@ tasks: Qwen3-8B 0.293 → 0.178; Kodiak-v0.2-1B 0.044-0.058. The gap survives bu
 **Decision.** `aurc_gap_closed` is added to every eval report (metrics.py) and becomes a guard in GOAL.md (no more than 2 points below the
 best). Both model cards add a ranking row and footnote the calibration comparison as raw. No training change: log loss (a proper scoring
 rule) already rewards good ranking.
+
+### D61: Decision Index with v0.2 accuracy mode: 18.69 (XL v2 run 2: 17.19); submission is Shane's call
+**Run** (`decision-index/runs/kodiak-v02-accuracy`; same frozen suite and engine rules; 150,759 requests, 577 unsupported as before; 9.9 h
+with three models per request). Index **18.69** (raw 37.96). Areas: retrieval 0.329 → 0.362, tools 0.104 → 0.151, knowledge 0.070 → 0.084,
+arts 0.127 → 0.132, language 0.218 → 0.200.
+**Gains** (vs run 2): Amazon ESCI 0.04 → 0.24, HoVer 0.04 → 0.20, BFCL 0.19 → 0.33, ToolRet 0.15 → 0.28, CLINC150 0.76 → 0.92, ANLI 0.02 → 0.11,
+MuSR 0.27 → 0.34, ARC-Challenge 0.54 → 0.60. **Drops:** FinEntity 0.58 → 0.06 (single v0.2 seeds already spanned 0.00-0.36 on the sample, D56
+method), PhishNChips 0.38 → 0.00 (the long-option wording fragility; E20's target), When2Call 0.17 → 0.10.
+**Board position (from the 2026-09-28 board, recheck before any submission):** among models of 2B or less, above Decision 1.0 Eos (18.41),
+below JPT-0.8B (19.22), Intern-Decision-2B (19.38) and Bosun v3.1 1.7B (20.10): 4th. Overall rank not computed. Not submitted.
 
