@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import gzip
+import copy
 import json
 import math
 import random
@@ -29,8 +30,8 @@ import torch
 
 from kodiak_s1.data.augment import gold_removed, mismatch
 from kodiak_s1.data.sources import SOURCES, hash_split
-from kodiak_s1.data.wordings import reword
-from kodiak_s1.model import PRESETS, HeadConfig, KodiakModel, ModelConfig, decision_loss, distill_loss
+from kodiak_s1.data.wordings import STYLES, reword
+from kodiak_s1.model import PRESETS, HeadConfig, KodiakModel, ModelConfig, consistency_loss, decision_loss, distill_loss
 from kodiak_s1.schema import render_state
 from kodiak_s1.model.encoder import load_modernbert
 from kodiak_s1.packing import Limits, Packed, collate, pack_example
@@ -65,6 +66,10 @@ class TrainConfig:
     # E18: swap answer options for checker-verified rewordings (same meaning, same answer) on this share of training examples.
     option_wordings: str = ""  # data/wordings/train.json; "" = off
     p_option_wording: float = 0.5
+    # E20: wording-consistency loss. With this probability a sampled example gets a reworded twin in the same batch, and the loss adds
+    # consistency_weight x symmetric KL between the twins' answer distributions. 0 = off.
+    consistency_p: float = 0.0
+    consistency_weight: float = 1.0
     eval_every: int = 250
     val_per_source: int = 300
     # Stop after this many evals without a new best validation loss (0 = never). Off by default (D25): in every run so far,
@@ -196,9 +201,25 @@ class Mixture:
             ex = gold_removed(ex, self.family[src], rng) or ex
         elif u < self.p_gold_removed + self.p_mismatch and self.donors:
             ex = mismatch(ex, json.loads(rng.choice(self.donors)), rng) or ex
+        self.last = (src, copy.deepcopy(ex) if self.wordings.get(src) else None, "original")
         if self.wordings.get(src) and rng.random() < self.p_wording:
-            ex = reword(ex, self.wordings[src], rng)
+            style = rng.choice(STYLES)
+            ex = reword(ex, self.wordings[src], rng, style=style)
+            self.last = (self.last[0], self.last[1], style)
         return ex
+
+    def twin(self, rng: random.Random) -> dict | None:
+        """The last sampled example in a different option wording (E20), or None if its options can't be reworded."""
+        src, base, style = getattr(self, "last", (None, None, None))
+        if base is None:
+            return None
+        other = rng.choice([s for s in ("original",) + STYLES if s != style])
+        t = copy.deepcopy(base)
+        if other != "original":
+            t = reword(t, self.wordings[src], rng, style=other)
+        if style == "original" and t["questions"] == base["questions"]:
+            return None  # nothing was reworded: the twin would be identical
+        return t
 
 
 def make_batch(mix: Mixture, cfg: TrainConfig, step: int, limits: Limits):
@@ -212,6 +233,8 @@ def make_batch(mix: Mixture, cfg: TrainConfig, step: int, limits: Limits):
             packed.append(pack_example(json.loads(line), limits))
         return collate(packed, cfg.max_len), 0
     tries = 0
+    twins: list[tuple[int, int]] = []
+    trng = random.Random(cfg.seed * 7_000_003 + step)  # twin decisions (E20); the main sampling stream is unchanged when off
     while used < 0.97 * budget and tries < 10 * cfg.rows * 64:
         tries += 1
         p = pack_example(mix.sample(rng), limits)
@@ -220,10 +243,19 @@ def make_batch(mix: Mixture, cfg: TrainConfig, step: int, limits: Limits):
             continue
         packed.append(p)
         used += len(p)
+        if cfg.consistency_p > 0 and trng.random() < cfg.consistency_p:
+            t = mix.twin(trng)
+            if t is not None:
+                pt = pack_example(t, limits)
+                if len(pt) <= cfg.max_len and used + len(pt) <= budget:
+                    packed.append(pt)
+                    used += len(pt)
+                    twins.append((len(packed) - 2, len(packed) - 1))
     b = collate(packed, cfg.max_len, pad_to=cfg.max_len)
     while b.input_ids.shape[0] > cfg.rows:  # greedy packing overflowed: drop the last example and retry
         packed.pop()
         b = collate(packed, cfg.max_len, pad_to=cfg.max_len)
+    b.twins = [(i, j) for i, j in twins if j < len(packed)]
     return b, skipped
 
 
@@ -437,6 +469,10 @@ def train(cfg: TrainConfig) -> dict:
         with torch.autocast("cuda", dtype=torch.bfloat16):
             out = fwd(batch)
         loss, stats = decision_loss(out, batch)
+        if cfg.consistency_p > 0:
+            c_loss, n_pairs = consistency_loss(out, batch)
+            loss = loss + cfg.consistency_weight * c_loss
+            stats.update(consistency=c_loss.item(), twin_questions=n_pairs, loss=loss.item())
         if teachers:
             with torch.no_grad(), torch.autocast("cuda", dtype=torch.bfloat16):
                 t_outs = [t(batch) for t in teachers]

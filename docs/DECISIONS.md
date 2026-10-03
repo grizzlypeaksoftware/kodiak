@@ -64,6 +64,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D57 | 2026-10-01 | E18 (reworded options) misses its bar as a wording fix (consistency 0.621 → 0.678, needed 0.721); side effect on never-seen (+1.6) and calibration noted, unconfirmed | active |
 | D58 | 2026-10-02 | E19 confirms it (3 seeds): reworded options raise never-seen 0.662 → 0.689 and cut never-seen ECE 0.109 → 0.085; keep: joins the v0.2 recipe | active |
 | D59 | 2026-10-02 | v0.2 released: Kodiak-v0.2-1B (+ accuracy mode); demo Space moved to ZeroGPU | active |
+| D60 | 2026-10-03 | Ranking (aurc_gap_closed) becomes a tracked metric and a guard; model card leads with it, calibration comparison footnoted as raw | active |
 
 ---
 
@@ -648,4 +649,14 @@ decision, 20 s per table) because visitors' daily ZeroGPU quota is charged the *
 **Upload lesson.** The Xet transfer stalled at 48 MB with no traffic for 8 minutes; plain LFS (`HF_HUB_DISABLE_XET=1`) at ~1-2 MB/s worked.
 Upload small files first so a public repo never shows a card without weights for long (it did here for ~40 min). Pin the Space
 builder's gradio (`sdk_version` in the Space README) to the version in requirements.txt: the builder's default moved to 6.29.1 and broke the build.
+
+### D60: ranking becomes a guard; the calibration comparison is footnoted as raw (from a Hugging Face reviewer)
+**Context.** dipankarsarkar (Hugging Face) pointed out that Qwen3-8B's never-seen ECE (0.293) is almost a pure offset (mean confidence 0.944
+vs accuracy 0.651), so a fitted recalibration would remove much of it, and that the larger, recalibration-proof gap is *ranking*: how much of
+the gap between a random and a perfect confidence order a model closes (Qwen3-8B 14.7%, large v2 49.6%). Both numbers reproduced exactly.
+**Measured.** Kodiak-v0.2-1B ranking 0.548 / 0.561 / 0.559 (3 seeds), accuracy mode 0.566. Isotonic recalibration fit on the other never-seen
+tasks: Qwen3-8B 0.293 → 0.178; Kodiak-v0.2-1B 0.044-0.058. The gap survives but is smaller than the raw numbers say.
+**Decision.** `aurc_gap_closed` is added to every eval report (metrics.py) and becomes a guard in GOAL.md (no more than 2 points below the
+best). Both model cards add a ranking row and footnote the calibration comparison as raw. No training change: log loss (a proper scoring
+rule) already rewards good ranking.
 

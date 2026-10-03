@@ -216,10 +216,10 @@ if __name__ == "__main__":
     main()
 
 
-def reword(ex: dict, table: dict[str, dict[str, str]], rng: random.Random) -> dict:
+def reword(ex: dict, table: dict[str, dict[str, str]], rng: random.Random, style: str | None = None) -> dict:
     """Training-time augmentation (E18): swap every option of each choice question for one rewording style (the same style for the whole
     question), when every option has it. Option ids and answers are unchanged, so the gold answer is the same by construction."""
-    style = rng.choice(STYLES)
+    style = style or rng.choice(STYLES)
     for q in ex["questions"]:
         if q.get("type") != "choice" or not q.get("labels"):
             continue

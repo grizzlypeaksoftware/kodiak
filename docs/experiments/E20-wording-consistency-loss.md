@@ -23,7 +23,7 @@ rather than hoping it emerges from more varied data.
 - Smoke test (≤ 500 steps): kill if validation choice accuracy is more than 0.02 behind the E18 seed-1 run at step 500
 - Full run: keep only if consistency ≥ 0.75 (+7 points; the 3 seeds of the baseline span only 0.676-0.679) and reworded accuracy ≥ 0.712;
   guards: never-seen forced (eval v0.2) ≥ 0.679 (baseline mean minus one seed SD), familiar ≥ 0.87, "can't tell" precision ≥ 0.86,
-  skills score ≥ 0.95, label-overlap probe ≥ 5 of 8. Then 2 confirming seeds.
+  skills score ≥ 0.95, label-overlap probe ≥ 5 of 8, never-seen ranking (`aurc_gap_closed`) ≥ 0.541 (seed-1 baseline 0.561 − 2). Then 2 confirming seeds.
 
 ## 4. How is this different from killed ideas?
 - Not E18 (reworded options as a wording fix, killed: consistency 0.678 < 0.721) because E18 only added varied wordings as separate

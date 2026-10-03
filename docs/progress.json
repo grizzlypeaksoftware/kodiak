@@ -772,6 +772,10 @@
   {
    "date": "2026-10-02",
    "text": "v0.2 announcement published on cortexagent.com (the site's first post)."
+  },
+  {
+   "date": "2026-10-03",
+   "text": "Ranking (aurc_gap_closed) added as a metric and guard after a Hugging Face reviewer's analysis; model cards updated (D60). E20 code ready."
   }
  ],
  "published": [
@@ -883,8 +887,11 @@
   {
    "name": "E20: wording-consistency loss (proposal, v0.3 main goal)",
    "why": "Pair each example with a reworded twin in the same batch and penalize disagreeing answers. Bar: consistency ≥ 0.75 (v0.2: 0.678), reworded accuracy ≥ 0.712; guards incl. never-seen ≥ 0.679.",
-   "after": "Shane's approval; code + smoke while the Decision Index run finishes; full run when the GPU is free (~midnight)",
-   "cost": "free (GPU)"
+   "after": "code + tests done; queued to start when the Decision Index run frees the GPU (~8:30 PM); smoke at step 500 runs without approval, the full run continues only with Shane's approval (otherwise it pauses and resumes from step 500)",
+   "cost": "free (GPU)",
+   "script": "e20_run.sh",
+   "log": "runs/e20-run.log",
+   "done_marker": "E20 COMPLETE"
   },
   {
    "name": "Stage 3 retry: ratings as low / medium / high bands",
@@ -1070,7 +1077,7 @@
    {
     "name": "E20: wording-consistency loss",
     "why": "v0.3 main goal; v0.2 consistency 0.678 across wordings (D58).",
-    "status": "proposal: gate OK; waiting for Shane"
+    "status": "proposal: gate OK; code ready; smoke queued; waiting for Shane's approval of the full run"
    },
    {
     "name": "E19: confirm the never-seen side effect of reworded options",

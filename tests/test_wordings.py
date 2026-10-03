@@ -31,3 +31,41 @@ def test_vocab_groups_fixed_sets_and_skips_one_off_options():
     assert sorted(map(sorted, groups)) == [["false", "true"], ["no", "yes"]]
     one_off = [ex([f"a{i}", f"b{i}"]) for i in range(50)]
     assert vocab(one_off, min_count=5) is None
+
+
+def _twin_batch(model_impl="eager"):
+    import copy
+
+    import torch
+
+    from kodiak_s1.model import EncoderConfig, HeadConfig, KodiakModel, ModelConfig, consistency_loss
+    from kodiak_s1.packing import Limits, collate, pack_example
+
+    micro = EncoderConfig(hidden_size=64, num_layers=3, num_heads=4, intermediate_size=96, local_window=4)
+    torch.manual_seed(0)
+    m = KodiakModel(ModelConfig(micro, HeadConfig()))
+    a = ex(["positive", "negative"])
+    b = reword(copy.deepcopy(a), TABLE, random.Random(0), style="paraphrase")
+    batch = collate([pack_example(a, Limits()), pack_example(b, Limits()), pack_example(copy.deepcopy(a), Limits())], 512)
+    return m, batch, consistency_loss
+
+
+def test_consistency_loss_zero_for_identical_twins_positive_for_reworded():
+    m, batch, consistency_loss = _twin_batch()
+    out = m(batch, impl="eager")
+    batch.twins = [(0, 2)]  # the same example twice: identical answers
+    same, n = consistency_loss(out, batch)
+    assert n == 1 and abs(same.item()) < 1e-5
+    batch.twins = [(0, 1)]  # original vs paraphrased options
+    diff, n = consistency_loss(out, batch)
+    assert n == 1 and diff.item() > 0
+    diff.backward()
+    assert any(p.grad is not None and p.grad.abs().sum() > 0 for p in m.parameters())
+
+
+def test_reword_with_fixed_style_uses_the_same_rng_as_before():
+    a, b = random.Random(5), random.Random(5)
+    e1 = reword(ex(["positive", "negative"]), TABLE, a)
+    from kodiak_s1.data.wordings import STYLES
+    e2 = reword(ex(["positive", "negative"]), TABLE, b, style=b.choice(STYLES))
+    assert e1 == e2 and a.random() == b.random()

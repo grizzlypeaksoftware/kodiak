@@ -118,6 +118,45 @@ def decision_loss(out: dict[str, torch.Tensor], b: Batch) -> tuple[torch.Tensor,
     return loss, stats
 
 
+def consistency_loss(out: dict[str, torch.Tensor], b: Batch) -> tuple[torch.Tensor, int]:
+    """E20: symmetric KL between the answer distributions of each example and its reworded twin (b.twins: pairs of example indices).
+
+    Twins have the same questions in the same order and the same option ids in the same order, only the option texts differ, so question i
+    of one matches question i of the other, label by label. Per question pair: KL over the choice labels (choice questions) plus the
+    Bernoulli KL of "can't tell" (when allowed). Returns the mean over matched question pairs and their count."""
+    pairs = getattr(b, "twins", [])
+    zero = out["z_null"].sum() * 0.0
+    if not pairs:
+        return zero, 0
+    Q = b.q_type.shape[0]
+    logq = group_log_softmax(out["z_choice"], b.l_q, Q)
+    by_ex: dict[int, list[int]] = {}
+    for qi, e in enumerate(b.q_example):
+        by_ex.setdefault(e, []).append(qi)
+    labels: dict[int, list[int]] = {}
+    for li, qi in enumerate(b.l_q.tolist()):
+        labels.setdefault(qi, []).append(li)
+    q_type, allow = b.q_type.tolist(), b.q_allow_null.tolist()
+    terms = []
+    for e1, e2 in pairs:
+        q1s, q2s = by_ex.get(e1, []), by_ex.get(e2, [])
+        if len(q1s) != len(q2s):
+            continue
+        for a, c in zip(q1s, q2s):
+            kl = zero
+            if q_type[a] == CHOICE and len(labels.get(a, [])) == len(labels.get(c, [])) and labels.get(a):
+                la, lc = logq[labels[a]], logq[labels[c]]
+                kl = kl + ((la.exp() - lc.exp()) * (la - lc)).sum()
+            if allow[a]:
+                za, zc = out["z_null"][a], out["z_null"][c]
+                pa, pc = torch.sigmoid(za), torch.sigmoid(zc)
+                kl = kl + (pa - pc) * (F.logsigmoid(za) - F.logsigmoid(zc)) + (pc - pa) * (F.logsigmoid(-za) - F.logsigmoid(-zc))
+            terms.append(kl)
+    if not terms:
+        return zero, 0
+    return torch.stack(terms).mean(), len(terms)
+
+
 def distill_loss(out: dict[str, torch.Tensor], teachers: list[dict[str, torch.Tensor]], b: Batch
                  ) -> tuple[torch.Tensor, dict[str, float]]:
     """Cross-entropy against the *averaged* distribution of calibrated teacher models (knowledge distillation, D34).

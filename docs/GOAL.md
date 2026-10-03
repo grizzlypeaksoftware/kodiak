@@ -23,6 +23,9 @@ Kodiak is an open decision model that lets teams automate routine "read this and
 - **Guards (must not get worse beyond noise):** familiar tasks accuracy (XL 0.878), never-seen calibration error (XL 0.116 single / 0.088
   XL accuracy mode), abstain precision (target ≥ 0.90 at the default threshold; XL is at 0.87, so for now it must not fall below 0.86),
   speed (report the multiple vs the current model; XL ~38 ms on GPU).
+- **Ranking guard (Shane, 2026-10-03; from a Hugging Face reviewer):** never-seen `aurc_gap_closed` (how well confidence puts the model's own
+  mistakes last; unchanged by any recalibration, and what the cascade relies on) must not fall more than 2 points below the current best
+  (Kodiak-v0.2-1B 0.548 / 0.561 / 0.559 over 3 seeds).
 - **Targeted fixes** (e.g. a wording trap) may use a named probe as their metric, but must still pass the guards.
 - Never trained or tuned on the eval set; thresholds and model selection use validation data only.
 
