@@ -66,6 +66,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D59 | 2026-10-02 | v0.2 released: Kodiak-v0.2-1B (+ accuracy mode); demo Space moved to ZeroGPU | active |
 | D60 | 2026-10-03 | Ranking (aurc_gap_closed) becomes a tracked metric and a guard; model card leads with it, calibration comparison footnoted as raw | active |
 | D61 | 2026-10-03 | Decision Index, Kodiak-v0.2-1B accuracy mode: 18.69 (was 17.19); not submitted (Shane's call) | active |
+| D62 | 2026-10-03 | E20 (wording-consistency loss) killed: consistency 0.678 → 0.684 (needed 0.75); familiar and ranking guards fail | active |
 
 ---
 
@@ -670,4 +671,15 @@ MuSR 0.27 → 0.34, ARC-Challenge 0.54 → 0.60. **Drops:** FinEntity 0.58 → 0
 method), PhishNChips 0.38 → 0.00 (the long-option wording fragility; E20's target), When2Call 0.17 → 0.10.
 **Board position (from the 2026-09-28 board, recheck before any submission):** among models of 2B or less, above Decision 1.0 Eos (18.41),
 below JPT-0.8B (19.22), Intern-Decision-2B (19.38) and Bosun v3.1 1.7B (20.10): 4th. Overall rank not computed. Not submitted.
+
+### D62: E20 (wording-consistency loss) is killed: the model learned to agree on the training wordings, not on new ones
+**Result (seed 1, reports/e20-xl-consistency.md) vs Kodiak-v0.2-1B seed 1.** Wording consistency 0.678 → **0.684** (needed ≥ 0.75), reworded
+accuracy 0.679 → 0.691 (needed ≥ 0.712): both missed. Guards: familiar 0.877 → **0.863** (fails ≥ 0.87), ranking (aurc_gap_closed) 0.561 →
+**0.510** (fails ≥ 0.541); never-seen 0.678, abstain precision 0.890, skills 0.982, probe 6/8 hold. **Verdict: kill**; no confirming seeds.
+**What happened.** The training consistency term fell from 0.033 to 0.0003: the model learned to answer the same under the *training*
+rewordings (~290 labels from 9 tasks + the skills sets) and that agreement did not transfer to new label sets in new tasks, which is what the
+wording eval and real users test. It also cost familiar accuracy and ranking (the penalty pulls paired answers together, flattening confidence).
+**Lesson.** Wording robustness needs *variety of label sets*, not a stronger penalty on a few: the invariance is learned per vocabulary. A
+future attempt should reword many more, diverse label sets (e.g. the skills-roadmap kinds and synthetic tasks with sentence-style options)
+before adding any loss. Wording consistency stays the open v0.3 goal; v0.2 remains the best model.
 

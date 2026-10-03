@@ -792,6 +792,18 @@
   {
    "date": "2026-10-03",
    "text": "Decision Index, v0.2 accuracy mode: 18.69 (from 17.19); 4th among ≤2B models on the last board seen. Not submitted (D61)."
+  },
+  {
+   "date": "2026-10-03",
+   "text": "Submitted Kodiak-v0.2-1B accuracy mode (18.69) to the Decision Index: PR #49."
+  },
+  {
+   "date": "2026-10-03",
+   "text": "E20 (wording-consistency loss) approved; full run resumed from step 517."
+  },
+  {
+   "date": "2026-10-03",
+   "text": "E20 (wording-consistency loss) killed: agreement learned on training wordings didn't transfer (D62). v0.2 stays the best model."
   }
  ],
  "published": [
@@ -821,6 +833,13 @@
    "link": "https://cortexagent.com/blog/kodiak-v0-2-an-open-1b-decision-model-you-can-download-today",
    "date": "2026-10-02",
    "notes": "first cortexagent.com post"
+  },
+  {
+   "name": "Decision Index submission (PR #49)",
+   "kind": "benchmark entry",
+   "link": "https://github.com/apolinario/decision-index/pull/49",
+   "date": "2026-10-03",
+   "notes": "v0.2 accuracy mode, 18.69; awaiting review"
   },
   {
    "name": "kodiak-xl-v2-preview",
@@ -887,9 +906,9 @@
  ],
  "queue": [
   {
-   "name": "Decision Index: v0.2 accuracy mode = 18.69 (submit?)",
-   "why": "Up from 17.19 (XL v2) and 17.57 (E17). Gains: ESCI, HoVer, BFCL, ToolRet, CLINC; drops: FinEntity, PhishNChips (E20's target). 4th among ≤2B models on the 09-28 board (recheck). D61.",
-   "after": "Shane decides whether to submit (and whether the book chapter may show a rank)"
+   "name": "Decision Index submission: PR #49 (18.69)",
+   "why": "https://github.com/apolinario/decision-index/pull/49 · results: huggingface.co/datasets/cortex-agent-llc/decision-index-results (compact, re-scored 18.69). Maintainers re-score and measure latency on their hardware.",
+   "after": "waiting for maintainer review"
   },
   {
    "name": "Hugging Face post linking to the announcement",
@@ -903,9 +922,9 @@
    "cost": "~$0.5 (cap $2)"
   },
   {
-   "name": "E20: wording-consistency loss (proposal, v0.3 main goal)",
-   "why": "Pair each example with a reworded twin in the same batch and penalize disagreeing answers. Bar: consistency ≥ 0.75 (v0.2: 0.678), reworded accuracy ≥ 0.712; guards incl. never-seen ≥ 0.679.",
-   "after": "running: smoke started 8:36 PM (step 500 ~9:00 PM); the full run continues only with Shane's approval, otherwise it pauses at step 500",
+   "name": "E20 done: killed (D62)",
+   "why": "Consistency 0.678 → 0.684 (needed 0.75); familiar and ranking guards failed. v0.2 stays the best model.",
+   "after": "done 1:46 PM",
    "cost": "free (GPU)",
    "script": "e20_run.sh",
    "log": "runs/e20-run.log",
@@ -919,6 +938,13 @@
   }
  ],
  "experiments": [
+  {
+   "match": "-e20-",
+   "name": "E20: wording-consistency loss",
+   "why": "Twins in the same batch + agreement penalty",
+   "report": "e20-xl-consistency",
+   "decision": "D62: kill (consistency 0.684 < 0.75; familiar and ranking guards fail)"
+  },
   {
    "match": "-e18-s[02]$",
    "name": "E19: confirm E18's never-seen gain (seeds 0 and 2 of the E18 recipe)",
@@ -1044,58 +1070,102 @@
  },
  "research": {
   "active": {
-   "id": "v0.2",
-   "proposal": null,
-   "title": "Release: Kodiak-v0.2-1B",
+   "id": "E20",
+   "proposal": "E20-wording-consistency-loss",
+   "title": "Wording-consistency loss (v0.3 main goal)",
    "steps": [
     {
-     "name": "Shane: ship v0.2 (wording trap → v0.3)",
+     "name": "Proposal passes the gate",
      "status": "done",
-     "note": "2026-10-02; recorded in GOAL.md"
+     "note": "2026-10-02"
     },
     {
-     "name": "Pick the model on validation",
+     "name": "Code + tests (twins, consistency loss; off = identical batches)",
      "status": "done",
-     "note": "seed 1 (val loss 0.026 vs 0.041 / 0.043)"
+     "note": ""
     },
     {
-     "name": "Build release folders (single + accuracy mode)",
+     "name": "Smoke check at step 500",
      "status": "done",
-     "note": "dist/kodiak-v0.2-1b (seed 1) and -accuracy (3 models; threshold 0.6 on validation): never-seen 0.706, ECE 0.062, abstain precision 0.905"
+     "note": "0.833 vs 0.850 (pass; limit −0.02)"
     },
     {
-     "name": "Model card with honest numbers and limits",
+     "name": "Approved by Shane",
      "status": "done",
-     "note": "Shane approved; v0.2's own benchmark numbers and limits"
+     "note": "2026-10-03"
     },
     {
-     "name": "Publish to Hugging Face (cortex-agent-llc/kodiak-v0.2-1b, -accuracy)",
+     "name": "Full run (6,000 steps)",
      "status": "done",
-     "note": "both repos public; all weights SHA-verified (11:17)"
+     "note": "done 1:40 PM"
     },
     {
-     "name": "Demo Space: v0.2 default + move to ZeroGPU (Pro)",
+     "name": "Result vs the keep line",
      "status": "done",
-     "note": "live on ZeroGPU: v0.2 default + accuracy mode; tested through the live Space"
+     "note": "kill (D62): consistency 0.684 < 0.75; familiar and ranking guards fail"
     },
     {
-     "name": "Decision Index run (accuracy mode) and submission",
-     "status": "done",
-     "note": "18.69 (D61); submission waits for Shane"
-    },
-    {
-     "name": "Announcement post",
-     "status": "done",
-     "note": "published on cortexagent.com 2026-10-02 (blog/kodiak-v0-2-...); HF post pending (Shane)"
+     "name": "Two confirming seeds (only if it passes)",
+     "status": "pending",
+     "note": "not run: the bar was missed"
     }
    ],
-   "bar": null
+   "bar": [
+    {
+     "metric": "Wording consistency",
+     "baseline": "0.678",
+     "target": "≥ 0.75",
+     "result": "0.684 (miss)"
+    },
+    {
+     "metric": "Accuracy with reworded options",
+     "baseline": "0.692",
+     "target": "≥ 0.712",
+     "result": "0.691 (miss)"
+    },
+    {
+     "metric": "Never-seen forced (eval v0.2)",
+     "baseline": "0.689",
+     "target": "≥ 0.679",
+     "result": "0.678"
+    },
+    {
+     "metric": "Familiar tasks",
+     "baseline": "0.877",
+     "target": "≥ 0.87",
+     "result": "0.863 (fail)"
+    },
+    {
+     "metric": "Abstain precision",
+     "baseline": "0.880",
+     "target": "≥ 0.86",
+     "result": "0.890"
+    },
+    {
+     "metric": "Skills score",
+     "baseline": "0.98",
+     "target": "≥ 0.95",
+     "result": "0.982"
+    },
+    {
+     "metric": "Label-overlap probe",
+     "baseline": "6 of 8 (seed 1)",
+     "target": "≥ 5 of 8",
+     "result": "6 of 8"
+    },
+    {
+     "metric": "Ranking (aurc_gap_closed)",
+     "baseline": "0.561 (seed 1)",
+     "target": "≥ 0.541",
+     "result": "0.510 (fail)"
+    }
+   ]
   },
   "ideas": [
    {
-    "name": "E20: wording-consistency loss",
-    "why": "v0.3 main goal (the wording trap, GOAL.md); v0.2 consistency 0.678 across wordings (D58).",
-    "status": "proposal: gate OK; code ready; smoke runs after the Decision Index run; needs Shane's approval for the full run"
+    "name": "Wording robustness, next attempt: many more reworded label sets",
+    "why": "E20 killed (D62): agreement learned on ~290 training labels didn't transfer. Reword many diverse label sets (skills-roadmap kinds, sentence-style options) before any loss term. v0.3 goal.",
+    "status": "idea: needs a proposal"
    },
    {
     "name": "Next skills batch: pairwise judge, sarcasm, policy violation",
@@ -1164,7 +1234,8 @@
    "E17": "d55-di-diagnosis",
    "E18": "e18-xl-wording",
    "E19": "e19-rewording-3seeds",
-   "roadmap": "skills-roadmap-screening"
+   "roadmap": "skills-roadmap-screening",
+   "E20": "e20-xl-consistency"
   }
  },
  "decision_kinds": [

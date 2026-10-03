@@ -42,4 +42,4 @@ budget share, so slightly fewer distinct examples per step; that is part of the 
 - Cloud: $0 (wordings already made) · GPU: ~6 h (1 run), +12 h only if it clears the bar · Runs: smoke → 1 full → 2 confirm
 
 ## Approval
-Approved: <Shane writes "Approved: Shane" here before any full run>
+Approved: Shane (2026-10-03, "approved")
