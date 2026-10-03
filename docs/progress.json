@@ -1089,38 +1089,38 @@
      "note": "published on cortexagent.com 2026-10-02 (blog/kodiak-v0-2-...); HF post pending (Shane)"
     }
    ],
-   "bar": []
+   "bar": null
   },
   "ideas": [
    {
     "name": "E20: wording-consistency loss",
     "why": "v0.3 main goal; v0.2 consistency 0.678 across wordings (D58).",
-    "status": "proposal: gate OK; code ready; smoke queued; waiting for Shane's approval of the full run"
+    "status": "proposal: gate OK; code ready; smoke runs after the Decision Index run; needs Shane's approval for the full run"
    },
    {
-    "name": "E19: confirm the never-seen side effect of reworded options",
-    "why": "One-seed +1.6 never-seen and better calibration from E18 (D57); 3-seed test with a pre-set bar.",
-    "status": "done: keep (D58)"
+    "name": "Next skills batch: pairwise judge, sarcasm, policy violation",
+    "why": "Clear gaps in skills-roadmap screening 1 (v0.2 skill −0.04 / +0.24 / +0.65). E17 recipe: checked synthetic data + a real-data anchor in the test.",
+    "status": "roadmap: proposal after E20"
    },
    {
-    "name": "Option-wording robustness",
-    "why": "PhishNChips 'verdict' flips to one answer with long option descriptions while other wordings disagree (D56); same family as the wording trap. Data with paraphrased/long option texts and consistency across wordings.",
-    "status": "E18 killed as a wording fix (D57); a consistency-objective version is untested"
+    "name": "Real-data probes: long-answer hallucination, aspect sentiment, stance",
+    "why": "Synthetic probes score high (0.89-0.96) but the Decision Index says near zero (RAGTruth 0.00, ACOS 0.02, VAST ~0.07); a real-data probe decides if they're gaps.",
+    "status": "roadmap: next screening step (permissive datasets)"
    },
    {
-    "name": "Submit accuracy mode (3 E17 models averaged)",
-    "why": "Single-seed Decision Index scores swing by up to 0.36 per benchmark (D56); averaging 3 models cuts that noise and is a stronger entrant; ~3 × 38 ms is far under the 1,000 ms limit.",
-    "status": "needs Shane's OK (~3.5-10 h GPU)"
+    "name": "Screening 2: 20 more decision kinds",
+    "why": "Unscreened candidates on the Decision kinds card (contract clauses, urgency, language, refusal, intent of a query, etc.).",
+    "status": "roadmap: ~$0.60 when ready"
+   },
+   {
+    "name": "Use the banked skills data (~11.5k)",
+    "why": "Test whether 20k skills examples beat 10k, or fold into the next skills batch.",
+    "status": "idea"
    },
    {
     "name": "Longer inputs within 8k tokens",
     "why": "577 Decision Index requests were unsupported (mostly ToolRet's long documents); train on longer states so XL uses its full window.",
     "status": "idea (no proposal yet)"
-   },
-   {
-    "name": "Use the banked skills data (~11.5k)",
-    "why": "If E17 passes, test whether 20k skills examples beat 10k (a scale ablation), or which skill sets earn their keep.",
-    "status": "waits on E17"
    },
    {
     "name": "Wording-trap fix without a general cost",
@@ -1396,6 +1396,166 @@
    "since": "",
    "source": "screened 2026-10-03 (50 synthetic probes)",
    "evidence": "v0.2 skill +1.00 (0 = chance)"
+  },
+  {
+   "kind": "Urgency / priority level",
+   "group": "triage",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Ticket category for an unseen taxonomy (100+ labels)",
+   "group": "routing",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Language or locale of the text",
+   "group": "routing",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Which team or person should own this",
+   "group": "routing",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Refund / return eligibility under a stated policy",
+   "group": "guardrails",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Contract clause type",
+   "group": "documents",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Does the document contain a required element (signature, date, amount)",
+   "group": "documents",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Invoice / receipt field checks (amount matches total?)",
+   "group": "documents",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Did the assistant refuse, and was the refusal appropriate",
+   "group": "judging",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Is the answer on-topic for the question",
+   "group": "judging",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Is this answer complete (covers every part of the question)",
+   "group": "judging",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Persuasion / manipulation tactics",
+   "group": "guardrails",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Scam or fraud message type",
+   "group": "guardrails",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Medical / legal / financial advice risk level",
+   "group": "guardrails",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Customer lifecycle stage (lead, active, churning)",
+   "group": "sales",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Lead quality / buying intent",
+   "group": "sales",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Meeting or email: action required?",
+   "group": "productivity",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Is this message a question, request, or FYI",
+   "group": "productivity",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Code review: is this change risky",
+   "group": "agents",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
+  },
+  {
+   "kind": "Agent plan: is the next step safe to auto-run",
+   "group": "agents",
+   "status": "candidate: not screened",
+   "since": "",
+   "source": "",
+   "evidence": ""
   }
  ]
 }
