@@ -77,7 +77,7 @@ def synth_status(procs: list[str], cfg: dict) -> dict:
     for run in cfg.get("runs", []):
         path = ROOT / run["file"]
         # Only a generator process writing this file counts (a shell whose command text merely mentions the file doesn't).
-        running = any(("kodiak_s1.data.synth" in c or "kodiak_s1.data.gen2" in c) and f"--out {run['file']}" in c
+        running = any(("kodiak_s1.data.synth" in c or "kodiak_s1.data.gen2" in c or "kodiak_s1.data.sim" in c) and f"--out {run['file']}" in c
                       and not c.lstrip().startswith(("/bin/bash", "bash")) for c in procs)
         r = {"name": run["name"], "pilot": run.get("pilot", False), "writer": run.get("writer"),
              "verifier": run.get("verifier"), "target_jobs": run.get("target_jobs"), "running": running}
@@ -102,7 +102,8 @@ def synth_status(procs: list[str], cfg: dict) -> dict:
                 ok_by_file[run["file"]] = c["ok"]
             log = ROOT / run["log"] if run.get("log") else None
             if log and log.exists():
-                rates = re.findall(r"~(\d+) jobs/h", log.read_text()[-4000:])
+                tail = log.read_text(errors="replace")[-4000:]
+                rates = [int(x) for x in re.findall(r"~(\d+) jobs/h", tail)] or _progress_rate(tail)
                 if rates:
                     rate = int(rates[-1])
                     r["jobs_per_hour"] = rate
@@ -168,6 +169,18 @@ def training_runs(procs: list[str]) -> list[dict]:
     return runs
 
 
+def _progress_rate(text: str) -> list[int]:
+    """Jobs/hour from '[HH:MM:SS] n/total' progress lines (the sim generators), over the last few lines of the current pass."""
+    pts = [(int(h) * 3600 + int(m) * 60 + int(sec), int(n)) for h, m, sec, n in re.findall(r"\[(\d\d):(\d\d):(\d\d)\] (\d+)/\d+", text)]
+    pts = pts[-10:]
+    while len(pts) > 1 and pts[-1][1] < pts[0][1]:  # a restart resets the counter: keep only the latest pass
+        pts = pts[1:]
+    if len(pts) < 2:
+        return []
+    dt = (pts[-1][0] - pts[0][0]) % 86400
+    return [round(3600 * (pts[-1][1] - pts[0][1]) / dt)] if dt else []
+
+
 def queue_status(queue: list[dict], procs: list[str]) -> list[dict]:
     """Upcoming work from docs/progress.json → queue. A scripted item is running while its script process lives and its log shows
     work, waiting while the script only waits for its turn, and done once the log has its completion marker."""
@@ -211,7 +224,7 @@ def finance(synth: dict, runs: list[dict], cfg: dict) -> dict:
     """Money in one place: cloud API spend (logged tokens × list prices), fixed subscriptions, and the free local compute."""
     def category(r: dict) -> str:
         n = r["name"].lower()
-        return "pilots" if r.get("pilot") else "eval data" if "eval candidates" in n else "side batches" if n.startswith(("side batch", "calibration")) \
+        return "eval data" if "eval candidates" in n else "pilots" if r.get("pilot") else "side batches" if n.startswith(("side batch", "calibration")) \
             else "training data"
     items = []
     for r in synth["runs"]:
@@ -281,6 +294,38 @@ def machine() -> dict:
     return m
 
 
+def research(cfg: dict) -> dict:
+    """The Research tab: docs/EXPERIMENTS.md (log, dead families, lessons), docs/experiments/E*.md (proposals + gate status) and
+    progress.json → research (the active experiment's steps, the idea backlog, report links)."""
+    log_md = (ROOT / "docs/EXPERIMENTS.md").read_text()
+    cols = ["id", "date", "hypothesis", "change", "budget", "bar", "result", "verdict"]
+    log = []
+    for line in log_md.splitlines():
+        if re.match(r"^\| E\d+ \|", line):
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            log.append(dict(zip(cols, cells + [""] * (len(cols) - len(cells)))))
+    dead = re.findall(r"^- \*\*(.+?)\*\*:?\s*(.*)$", log_md.split("## Log")[0], re.M)
+    lessons = re.findall(r"^\*\*(Lesson[^*]*)\*\*\s*(.*)$", log_md, re.M)
+    try:
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("gate", ROOT / "scripts/gate.py")
+        gate = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(gate)
+    except Exception:
+        gate = None
+    proposals = []
+    for f in sorted((ROOT / "docs/experiments").glob("E*.md"), key=lambda f: int(re.match(r"E(\d+)", f.name).group(1))):
+        text = f.read_text()
+        title = (re.search(r"^# (.+)$", text, re.M) or [None, f.stem])[1]
+        approved = re.search(r"^Approved: Shane.*$", text, re.M)
+        problems = gate.check(f, False) if gate else ["gate unavailable"]
+        proposals.append({"id": f.name.split("-")[0], "name": f.stem, "title": title, "approved": approved.group(0) if approved else None,
+                          "gate_ok": not problems, "problems": problems})
+    r = cfg.get("research", {})
+    return {"log": log, "dead": [{"name": n, "why": w} for n, w in dead], "lessons": [{"title": t, "text": x} for t, x in lessons],
+            "proposals": proposals, "active": r.get("active"), "ideas": r.get("ideas", []), "reports": r.get("reports", {})}
+
+
 def collect() -> dict:
     procs = _processes()
     progress = json.loads((ROOT / "docs/progress.json").read_text())
@@ -290,7 +335,7 @@ def collect() -> dict:
             "synth": synth, "milestones": progress.get("milestones", []), "finance": finance(synth, runs, progress),
             "runs": group_runs(runs, progress.get("experiments", []), published), "reports": eval_reports(),
             "report_list": report_list(), "queue": queue_status(progress.get("queue", []), procs), "published": published,
-            "experiments": progress.get("experiments", []), "machine": machine()}
+            "experiments": progress.get("experiments", []), "research": research(progress), "machine": machine()}
 
 
 def print_summary(s: dict) -> None:
@@ -324,6 +369,13 @@ class Handler(BaseHTTPRequestHandler):
             name = urllib.parse.unquote(self.path.split("/api/report/", 1)[1])
             path = ROOT / "reports" / f"{name}.md"
             if not re.fullmatch(r"[\w.\-]+", name) or not path.is_file():  # report names only, no paths
+                self.send_error(404)
+                return
+            body, ctype = path.read_bytes(), "text/markdown; charset=utf-8"
+        elif self.path.startswith("/api/proposal/"):
+            name = urllib.parse.unquote(self.path.split("/api/proposal/", 1)[1])
+            path = ROOT / "docs/experiments" / f"{name}.md"
+            if not re.fullmatch(r"[\w.\-]+", name) or not path.is_file():
                 self.send_error(404)
                 return
             body, ctype = path.read_bytes(), "text/markdown; charset=utf-8"

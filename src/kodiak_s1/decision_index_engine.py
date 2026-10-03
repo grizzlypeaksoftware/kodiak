@@ -33,6 +33,8 @@ class KodiakEngine(Engine):
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         self.kodiak = Kodiak.from_pretrained(model, device=self.device)
         self.model = self.kodiak.model
+        # Accuracy mode (an ensemble folder): every member answers; their calibrated outputs are averaged (combine_raw, D34).
+        self.models = [m.model for m in getattr(self.kodiak, "members", [])] or [self.model]
         self.max_tokens = int(max_tokens)
         self.max_position = 7999 if self.model.cfg.encoder.hidden_size == 1792 else 8191  # Ettin-1B / ModernBERT
         self.model_id = model
@@ -42,9 +44,10 @@ class KodiakEngine(Engine):
             "device": self.device,
             "context_limit_positions": self.max_position,
             "packed_token_limit": self.max_tokens,
+            "members": len(self.models),
             "policy": "All questions of a request are answered in one forward pass (structured attention: state, then each question with its "
                       "options). Every question is sent with allow_null=false (Kodiak's 'must answer' setting; its 'can't tell' output is "
-                      "not used). When the state is empty, the question text is also given as the state (Kodiak reads its state; same rule for every "
+                      "not used). In accuracy mode (an ensemble folder) the members' calibrated outputs are averaged. When the state is empty, the question text is also given as the state (Kodiak reads its state; same rule for every "
                       "benchmark). Choice probabilities are Kodiak's calibrated softmax over the supplied options; noul = p(yes) of a "
                       "yes/no choice. Nothing is truncated: requests beyond the position limit or the packed-token limit are refused as "
                       "unsupported. No prompt tuning; option texts are the kit's criteria verbatim (the key when a description is null).",
@@ -82,7 +85,7 @@ class KodiakEngine(Engine):
         return {"state": st, "questions": qs}, keys
 
     def __call__(self, state, questions):
-        from kodiak_s1.infer import raw_outputs
+        from kodiak_s1.infer import combine_raw, raw_outputs
         from kodiak_s1.packing import Limits, pack_example
 
         req, keys = self._request(state, questions)
@@ -95,7 +98,8 @@ class KodiakEngine(Engine):
         if len(packed) > self.max_tokens:
             raise Unsupported(f"packed length {len(packed)} tokens > limit {self.max_tokens}")
         try:
-            raws = raw_outputs(self.model, [req], max_len=max(len(packed), 16), rows_per_batch=1, limits=big)[0]
+            outs = [raw_outputs(m, [req], max_len=max(len(packed), 16), rows_per_batch=1, limits=big) for m in self.models]
+            raws = (combine_raw(outs) if len(outs) > 1 else outs[0])[0]
         except self.torch.cuda.OutOfMemoryError as e:
             self.torch.cuda.empty_cache()
             raise Unsupported("out of GPU memory for this request") from e

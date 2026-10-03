@@ -3,6 +3,16 @@
 Set the Space variable KODIAK_MODEL to the model repo; while the model is private, add an HF_TOKEN secret with read access.
 """
 
+# ZeroGPU: `spaces` must be imported before anything initializes CUDA (torch, kodiak). A GPU is attached only while a @spaces.GPU
+# function runs; off ZeroGPU (local runs) the decorator does nothing.
+try:
+    import spaces
+
+    gpu = spaces.GPU
+except ImportError:
+    def gpu(fn=None, **_):
+        return fn if fn else (lambda f: f)
+
 import json
 import os
 
@@ -13,6 +23,15 @@ from kodiak_s1.hub import Kodiak
 # KODIAK_MODELS: comma-separated repo ids (first = default). KODIAK_MODEL still works for a single model.
 MODELS = [m.strip() for m in os.environ.get("KODIAK_MODELS", os.environ.get("KODIAK_MODEL", "cortex-agent-llc/kodiak-small-v2-preview")).split(",") if m.strip()]
 LOADED = {m: Kodiak.from_pretrained(m, token=os.environ.get("HF_TOKEN")) for m in MODELS}
+
+@gpu(duration=5)  # visitors' daily ZeroGPU quota is charged the reserved time; a decision takes < 1 s
+def _decide(model: str, state, questions, **opts):
+    return LOADED.get(model, kodiak).decide(state, questions, **opts)
+
+
+@gpu(duration=20)  # a categorize table (up to MAX_ROWS rows) takes a few seconds
+def _answer(model: str, requests: list[dict]):
+    return LOADED.get(model, kodiak).answer(requests)
 MODEL = MODELS[0]
 kodiak = LOADED[MODEL]
 # Bulk jobs (Categorize a list) always use the fast small model, so a 500-row batch doesn't tie up the CPU in accuracy mode.
@@ -126,7 +145,7 @@ def render_answers(answers: dict, questions: list, threshold: float) -> str:
 
 
 HERO = """<div class="k-hero">
-  <div class="k-kicker">Open decision model · research preview</div>
+  <div class="k-kicker">Open decision model · Kodiak-v0.2-1B</div>
   <h1>Kodiak</h1>
   <p class="k-pitch">Ask questions about any text and get an answer from <em>your</em> options, a confidence you can trust, or an honest
   "can't tell", in one fast pass. The fast first step before a person or an LLM.</p>
@@ -192,7 +211,7 @@ def run(state_text: str, questions_json: str, threshold: float, model: str = MOD
     try:
         state = json.loads(state_text) if state_text.strip()[:1] in "[{" else state_text
         questions = json.loads(questions_json)
-        answers = LOADED.get(model, kodiak).decide(state, questions, null_threshold=threshold)
+        answers = _decide(model, state, questions, null_threshold=threshold)
     except Exception as e:  # show errors in the UI instead of a stack trace
         return f'<div class="k-err"><b>Couldn\'t run that:</b> {_esc(e)}</div>', {}, None, gr.update(choices=[], value=None)
     last = {"model": model, "state": state, "questions": questions, "threshold": threshold, "answers": answers}
@@ -325,10 +344,9 @@ def categorize(rows_text: str, file, cats_text: str, question: str, review_below
         return "**Add at least one row and two categories.**", [], None
     rows = rows[:MAX_ROWS]
     q = {"type": "choice", "id": "category", "text": question.strip() or "Which category fits best?", "labels": cats}
-    model = FAST
-    k = LOADED[model]
+    model = MODEL  # on ZeroGPU the default model is fast enough for a table
     t = time.perf_counter()
-    out = k.answer([{"state": r, "questions": [q]} for r in rows])
+    out = _answer(model, [{"state": r, "questions": [q]} for r in rows])
     secs = time.perf_counter() - t
     table, n_review = [], 0
     for r, resp in zip(rows, out):
@@ -393,7 +411,7 @@ def game_answer(g: dict | None, want_txt: str, next_txt: str):
         return g, gr.update(), gr.update(), gr.update(), "Pick an answer for both questions.", "", gr.update()
     case = GAME_CASES[g["picks"][g["i"]]]
     qs = [q for q in case["questions"] if q["id"] in GAME_QS]
-    k = LOADED.get(g["model"], kodiak).decide(case["state"], qs, null_threshold=1.0)
+    k = _decide(g["model"], case["state"], qs, null_threshold=1.0)
     rows, you_pts, bear_pts = [], 0, 0
     for qid, mine in (("want", want_txt), ("next", next_txt)):
         labels = _labels(case, qid)
@@ -426,8 +444,8 @@ def game_answer(g: dict | None, want_txt: str, next_txt: str):
 
 with gr.Blocks(title="Kodiak · open decision model") as demo:
     gr.HTML(HERO.replace("MODELS_LINKS", " · ".join(f'<a href="https://huggingface.co/{m}" target="_blank">{m.split("/")[-1]}</a>' for m in MODELS)))
-    model = gr.Dropdown(MODELS, value=MODEL, label="Model for Decide and the game (xl-v2: most accurate; large-v2-ensemble = accuracy mode: most trustworthy "
-                                                 "\"can't tell\"; small: fastest)",
+    model = gr.Dropdown(MODELS, value=MODEL, label="Model for Decide and the game (v0.2-1b: the default; v0.2-1b-accuracy = accuracy mode: three models "
+                                                 "averaged, most accurate and most trustworthy \"can't tell\", about 3× the compute)",
                         visible=len(MODELS) > 1)
     with gr.Tab("Decide"):
         example = gr.Dropdown(list(EXAMPLES), value="Support ticket", label="Example")

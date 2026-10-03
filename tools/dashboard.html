@@ -39,6 +39,7 @@
     <li class="nav-item"><a class="nav-link" href="#data">Data</a></li>
     <li class="nav-item"><a class="nav-link" href="#training">Training runs</a></li>
     <li class="nav-item"><a class="nav-link" href="#evals">Evals</a></li>
+    <li class="nav-item"><a class="nav-link" href="#research">Research</a></li>
     <li class="nav-item"><a class="nav-link" href="#finance">Finance</a></li>
   </ul>
 
@@ -84,6 +85,24 @@
       <div class="col-lg-9"><div class="card"><div class="card-body"><div id="report-view" class="report"><span class="muted">Pick a report.</span></div></div></div></div>
     </div>
   </section>
+  <section data-tab="research">
+    <div class="row g-3">
+      <div class="col-xl-5 d-flex flex-column gap-3">
+        <div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Active experiment</h2><div id="res-active"></div></div></div>
+        <div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Idea backlog</h2><div id="res-ideas"></div></div></div>
+        <div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Dead ends (don't repeat without a new reason)</h2><div id="res-dead"></div></div></div>
+      </div>
+      <div class="col-xl-7 d-flex flex-column gap-3">
+        <div class="card d-none" id="res-proposal-card"><div class="card-body">
+          <div class="d-flex"><h2 class="h6 text-uppercase muted me-auto">Proposal</h2><a href="#research" class="small">close</a></div>
+          <div id="res-proposal" class="report"></div></div></div>
+        <div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Experiment log (newest first)</h2>
+          <div class="muted small mb-2">Every experiment, with the bar set <em>before</em> it ran. Source: <code>docs/EXPERIMENTS.md</code> (append-only).</div>
+          <div id="res-log"></div></div></div>
+      </div>
+    </div>
+  </section>
+
   <section data-tab="finance">
     <div class="row g-2 mb-3" id="fin-tiles"></div>
     <div class="row g-3">
@@ -153,9 +172,59 @@ async function openReport(name) {
                           : `<span class="text-danger">Couldn't load ${esc(name)}.</span>`;
 }
 
+async function openProposal(name) {
+  const card = document.getElementById("res-proposal-card"), view = document.getElementById("res-proposal");
+  if (!name) { card.classList.add("d-none"); return; }
+  const res = await fetch(`/api/proposal/${encodeURIComponent(name)}`, {cache: "no-store"});
+  view.innerHTML = res.ok ? `<div class="small muted mb-2"><code>docs/experiments/${esc(name)}.md</code></div>` + marked.parse(await res.text())
+                          : `<span class="text-danger">Couldn't load ${esc(name)}.</span>`;
+  card.classList.remove("d-none");
+  card.scrollIntoView({behavior: "smooth", block: "start"});
+}
+
+function verdictBadge(v) {
+  const t = v.replace(/\*\*/g, "").toLowerCase();
+  const cls = t.startsWith("keep") ? "success" : t.startsWith("kill") ? "danger" : t.startsWith("park") ? "warning" : t.startsWith("running") ? "primary" : "secondary";
+  const word = t.match(/^(keep|kill|park|running)/)?.[1] || "?";
+  return `<span class="badge text-bg-${cls}">${word}</span>`;
+}
+const md = s => marked.parseInline(String(s ?? ""));
+function research(r) {
+  const props = Object.fromEntries(r.proposals.map(p => [p.id, p]));
+  const a = r.active;
+  const icon = {done: "✓", in_progress: "…", pending: "·"};
+  const cls = {done: "text-success", in_progress: "text-primary fw-semibold", pending: "muted"};
+  set2("res-active", !a ? `<span class="muted">No experiment running.</span>` : `
+    <div class="mb-2"><span class="badge text-bg-primary me-1">${esc(a.id)}</span><strong>${esc(a.title)}</strong>
+      ${a.proposal ? ` · <a href="#research/${esc(a.proposal)}" class="small">proposal</a>` : ""}
+      ${props[a.id] ? ` · <span class="small ${props[a.id].gate_ok ? "text-success" : "text-danger"}">gate ${props[a.id].gate_ok ? "OK" : "refused"}</span>` : ""}
+      ${props[a.id]?.approved ? ` · <span class="small text-success">approved</span>` : ""}</div>
+    <ol class="list-unstyled small mb-3">${a.steps.map(st => `<li class="${cls[st.status] || ""}"><span style="display:inline-block;width:1.2em">${icon[st.status] || "·"}</span>${esc(st.name)}${st.note ? ` <span class="muted">— ${esc(st.note)}</span>` : ""}</li>`).join("")}</ol>
+    <div class="small muted mb-1">The bar (set before the run)</div>
+    <table class="table table-sm small mb-0"><thead><tr><th>Measure</th><th>Before</th><th>Needs</th><th>Result</th></tr></thead><tbody>
+    ${a.bar.map(b => `<tr><td>${esc(b.metric)}</td><td>${esc(b.baseline)}</td><td>${esc(b.target)}</td><td>${b.result ? `<strong>${esc(b.result)}</strong>` : `<span class="muted">pending</span>`}</td></tr>`).join("")}
+    </tbody></table>`);
+  set2("res-ideas", r.ideas.map(i => `<div class="border-bottom py-1"><div class="d-flex gap-2"><strong class="small me-auto">${esc(i.name)}</strong>
+    <span class="badge text-bg-light border text-wrap" style="max-width:45%">${esc(i.status)}</span></div><div class="small muted">${esc(i.why)}</div></div>`).join(""));
+  set2("res-dead", r.dead.map(d => `<div class="small py-1"><strong>${esc(d.name)}</strong> <span class="muted">${md(d.why)}</span></div>`).join("")
+    + r.lessons.map(l => `<div class="small py-1 mt-2 border-top"><strong>${esc(l.title)}</strong> <span class="muted">${md(l.text)}</span></div>`).join(""));
+  set2("res-log", [...r.log].reverse().map(e => {
+    const p = props[e.id], rep = r.reports[e.id];
+    return `<div class="border rounded p-2 mb-2">
+      <div class="d-flex flex-wrap gap-2 align-items-baseline mb-1">${verdictBadge(e.verdict)}<strong>${esc(e.id)}</strong>
+        <span class="me-auto">${md(e.hypothesis)}</span><span class="muted small">${esc(e.date)}</span></div>
+      <div class="small"><span class="muted">Change:</span> ${md(e.change)} <span class="muted">· Budget:</span> ${md(e.budget)}</div>
+      <div class="small"><span class="muted">Bar:</span> ${md(e.bar)}</div>
+      <div class="small"><span class="muted">Result:</span> ${md(e.result)}</div>
+      <div class="small"><span class="muted">Verdict:</span> ${md(e.verdict)}
+        ${p ? ` · <a href="#research/${esc(p.name)}">proposal</a>` : ""}${rep ? ` · <a href="#evals/${esc(rep)}">report</a>` : ""}</div></div>`;
+  }).join(""));
+}
+
 function showTab() {
   const [t, report] = (location.hash || "#overview").slice(1).split("/");
   if (t === "evals" && report) openReport(decodeURIComponent(report));
+  if (t === "research") openProposal(report ? decodeURIComponent(report) : null);
   document.querySelectorAll("section[data-tab]").forEach(x => x.classList.toggle("active", x.dataset.tab === t));
   document.querySelectorAll("#tabs .nav-link").forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + t));
 }
@@ -324,6 +393,7 @@ async function refresh() {
     set("machine", machine(s.machine));
     set("runs", runs(s.runs, s.experiments));
     set("report-list", reportList(s.report_list));
+    research(s.research);
     finance(s.finance);
   } catch (e) {
     document.getElementById("updated").textContent = "status server not reachable: is `python -m kodiak_s1.status --serve` running?";

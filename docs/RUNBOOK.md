@@ -263,3 +263,12 @@ Synthetic data (~$56 of cloud spend, not reproducible exactly), reports and pred
 runs are copied to Shane's Samsung T9 at `/media/larsonst/T9/backups/kodiak-<date>/` (`GIT_COMMIT.txt` records the code version). Eval sets,
 docs and code are in git; published models on Hugging Face; public datasets are re-downloadable; other checkpoints can be retrained for free.
 Refresh after each new batch: rerun the same `rsync -a` (it only adds or updates files).
+
+## Disk: trimming finished runs (2026-10-01)
+A finished 1B run with its last three checkpoints is ~39 GB (each checkpoint holds weights plus optimizer state, ~3× the model). After a run's
+experiment is decided:
+- **Abandoned or superseded runs:** `scripts/cleanup_checkpoints.sh` (dry run; `--delete` to apply) removes `checkpoints/` and `best.pt`,
+  keeping the record (config, metrics, logs, calibration). Retraining from the recorded recipe is the way back.
+- **Kept runs:** `uv run python scripts/extract_final_weights.py runs/<run>` saves the last step's weights as `final.pt` (verified identical),
+  then `scripts/trim_kept_runs.sh` removes `checkpoints/`. Evaluate or export with `--model runs/<run>/final.pt` (or the run folder for
+  `best.pt`); the loader accepts a plain weights file. Resuming training from a trimmed run is not possible (no optimizer state).

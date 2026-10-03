@@ -63,6 +63,16 @@ def aurc(conf: np.ndarray, correct: np.ndarray) -> float:
     return float(np.mean(np.cumsum(errors) / np.arange(1, len(errors) + 1)))
 
 
+def aurc_gap_closed(conf: np.ndarray, correct: np.ndarray) -> float:
+    """Ranking skill: the share of the gap between a random answer order (AURC = error rate) and the perfect order (all errors last) that
+    the confidence order closes. Unchanged by any monotone recalibration; what a confidence-gated cascade relies on."""
+    if len(conf) == 0 or correct.all() or not correct.any():
+        return float("nan")
+    rand = 1 - correct.mean()
+    best = aurc(correct.astype(float), correct)
+    return float((rand - aurc(conf, correct)) / (rand - best))
+
+
 def macro_f1(golds: list, preds: list) -> float:
     classes = set(golds) | set(preds)
     f1s = []
@@ -111,6 +121,7 @@ def summarize(records: list[dict]) -> dict:
             "brier": float(np.mean(briers)),
             "nll": float(np.mean(nlls)),
             "aurc": aurc(conf, correct),
+            "aurc_gap_closed": aurc_gap_closed(conf, correct),
             "mean_confidence": float(conf.mean()),
         })
     # Abstention across both question types.

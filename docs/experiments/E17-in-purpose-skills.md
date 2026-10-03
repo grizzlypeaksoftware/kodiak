@@ -30,4 +30,10 @@ Training data: public + v2.0 (as XL v2) **plus** the four new skill sets (~10k e
 ## Budget
 - Cloud: $30 (pilots ~$1, then ~$27 for ~10k kept at ~$2.7 per 1,000; the runner's cap stops it) · GPU: ~5 h (1 run), +10 h only if it clears the bar · Runs: pilots → skills eval → smoke → 1 full → 2 confirm
 
+**Budget change (2026-09-30, Shane):** batch cap raised to $35 ("its a big run, that's ok"); E17 total cap ~$36. Batch size raised to 30k jobs (~20k kept) to bank data while paying for a run; E17 itself still trains on ~10k (sampled evenly across the four skills), so the one variable is unchanged.
+
+**Baseline measured (2026-09-30, before training):** skills score = mean forced accuracy of the four main questions = **0.518** (grounding 0.45, tools 0.46, claims 0.81, relevance 0.35); keep line **≥ 0.618**. Details: reports/e17-skills-baseline.md.
+
 ## Approval
+
+Approved: Shane (2026-09-30, "approved!")

@@ -29,6 +29,7 @@ import torch
 
 from kodiak_s1.data.augment import gold_removed, mismatch
 from kodiak_s1.data.sources import SOURCES, hash_split
+from kodiak_s1.data.wordings import reword
 from kodiak_s1.model import PRESETS, HeadConfig, KodiakModel, ModelConfig, decision_loss, distill_loss
 from kodiak_s1.schema import render_state
 from kodiak_s1.model.encoder import load_modernbert
@@ -61,6 +62,9 @@ class TrainConfig:
     # sources (~25% of samples), so its rate is higher to land near ~4% of all examples.
     p_gold_removed: float = 0.15
     p_mismatch: float = 0.04
+    # E18: swap answer options for checker-verified rewordings (same meaning, same answer) on this share of training examples.
+    option_wordings: str = ""  # data/wordings/train.json; "" = off
+    p_option_wording: float = 0.5
     eval_every: int = 250
     val_per_source: int = 300
     # Stop after this many evals without a new best validation loss (0 = never). Off by default (D25): in every run so far,
@@ -135,6 +139,8 @@ class Mixture:
         self.family = {n: (SOURCES[n].family if n in SOURCES else "synthetic") for n in self.names}
         self.donors = [line for n in ("mnli", "scitail") for line in self.lines.get(n, []) if '"id": "yes"' in line]
         self.p_gold_removed, self.p_mismatch = cfg.p_gold_removed, cfg.p_mismatch
+        self.wordings = json.loads(Path(cfg.option_wordings).read_text())["table"] if cfg.option_wordings else {}
+        self.p_wording = cfg.p_option_wording
         self.fixed: list[str] | None = None
         if cfg.overfit:
             rng = random.Random(cfg.seed)
@@ -190,6 +196,8 @@ class Mixture:
             ex = gold_removed(ex, self.family[src], rng) or ex
         elif u < self.p_gold_removed + self.p_mismatch and self.donors:
             ex = mismatch(ex, json.loads(rng.choice(self.donors)), rng) or ex
+        if self.wordings.get(src) and rng.random() < self.p_wording:
+            ex = reword(ex, self.wordings[src], rng)
         return ex
 
 

@@ -1,863 +1,1149 @@
 {
-  "updated": "2026-09-27",
-  "phases": [
-    {
-      "id": "0",
-      "name": "Environment check",
-      "status": "done"
-    },
-    {
-      "id": "1",
-      "name": "Scaffold, schema, architecture",
-      "status": "done"
-    },
-    {
-      "id": "2",
-      "name": "Data pipeline and eval set",
-      "status": "done"
-    },
-    {
-      "id": "3",
-      "name": "Tiny model end to end",
-      "status": "done"
-    },
-    {
-      "id": "4",
-      "name": "Track B training",
-      "status": "in_progress",
-      "steps": [
-        {
-          "name": "First run (b-small-s1-v0)",
-          "status": "done"
-        },
-        {
-          "name": "Synthetic data, local run (3,290 examples; stopped for cloud)",
-          "status": "done"
-        },
-        {
-          "name": "Cloud teacher: DigitalOcean backend + pilots",
-          "status": "done"
-        },
-        {
-          "name": "Verifier bake-off vs. human review",
-          "status": "done"
-        },
-        {
-          "name": "Synthetic data: finish in the cloud (9,702 examples total)",
-          "status": "done"
-        },
-        {
-          "name": "Data scaling test: 0 vs 3k vs 10k synthetic",
-          "status": "done"
-        },
-        {
-          "name": "Generator v2 design (docs/GENERATOR_V2.md)",
-          "status": "done"
-        },
-        {
-          "name": "Recipe fixes: repeat cap, full schedule, tuned abstain threshold",
-          "status": "done"
-        },
-        {
-          "name": "Generator v2.0: build + taxonomy + pilots (done 2026-09-25)",
-          "status": "done"
-        },
-        {
-          "name": "Generator v2.0: Shane reviewed 55 eval candidates (92.7%; fixes + critics added)",
-          "status": "done"
-        },
-        {
-          "name": "Generator v2.0: 11.8k-job batch + A/B vs v1 (3 seeds): fixes over-refusal, no never-seen gain",
-          "status": "done"
-        },
-        {
-          "name": "ModernBERT-large backbone test (3 seeds): beats all open classifiers on never-seen tasks (D33)",
-          "status": "done"
-        },
-        {
-          "name": "Eval set v0.2 built and frozen: 12 never-seen tasks / 4,200 examples (was 4 / 1,000)",
-          "status": "done"
-        },
-        {
-          "name": "Re-scored every model on eval v0.2 (reports/v02-*.md)",
-          "status": "done"
-        },
-        {
-          "name": "Publish Kodiak large v2 research preview (seed 1, chosen on validation; honest abstention caveat)",
-          "status": "done"
-        },
-        {
-          "name": "Calibration off-distribution (D32/D34/D36/D42): 3-run ensemble helps; distillation and 'can't tell' data didn't",
-          "status": "in_progress"
-        },
-        {
-          "name": "Stage 3 data (judgment scores): PAUSED after 5 pilots ($0.54); raters disagree; next try low/medium/high bands",
-          "status": "pending"
-        },
-        {
-          "name": "Mixed / neutral sentiment batch (3,894 examples, $9.78): no real gain, 3 seeds (D39)",
-          "status": "done"
-        },
-        {
-          "name": "Generator v2.1 (student screen + hard-example selection): tied random selection, 3 seeds (D41)",
-          "status": "done"
-        },
-        {
-          "name": "Generator v2.2 (minimal pairs, planner)",
-          "status": "pending"
-        },
-        {
-          "name": "v0.2: Ettin-1B backbone test (bar \u2265 0.629 never-seen, set before the run) and accuracy mode as main large model (D45)",
-          "status": "in_progress"
-        },
-        {
-          "name": "Final run with full synthetic data",
-          "status": "pending"
-        },
-        {
-          "name": "Track A (from-scratch encoder)",
-          "status": "deferred"
-        }
-      ]
-    },
-    {
-      "id": "5",
-      "name": "Eval report vs. Qwen baseline",
-      "status": "in_progress",
-      "steps": [
-        {
-          "name": "Harness: calibration, metrics, LLM baseline",
-          "status": "done"
-        },
-        {
-          "name": "Preliminary comparison (200 examples)",
-          "status": "done"
-        },
-        {
-          "name": "Qwen3-8B on all of eval v0.2 + cascade simulation: criterion 2 met, Kodiak+LLM beats both (D37/D38)",
-          "status": "done"
-        },
-        {
-          "name": "Full comparison on the final model",
-          "status": "pending"
-        }
-      ]
-    },
-    {
-      "id": "6",
-      "name": "ONNX export + Node.js server + demo page",
-      "status": "done",
-      "steps": [
-        {
-          "name": "ONNX export with parity check (D35)",
-          "status": "done"
-        },
-        {
-          "name": "Node.js server + Docker image, JS/Python parity tests",
-          "status": "done"
-        },
-        {
-          "name": "model.onnx published in both preview repos",
-          "status": "done"
-        },
-        {
-          "name": "Demo page: Hugging Face Space (small/large picker, categorizer)",
-          "status": "done"
-        },
-        {
-          "name": "int8 quantization: rejected (breaks calibration)",
-          "status": "done"
-        }
-      ]
-    },
-    {
-      "id": "later",
-      "name": "Model card + Hugging Face release; scaling plan",
-      "status": "pending"
-    }
-  ],
-  "synthetic": {
-    "goal_examples": 10000,
-    "prices_per_million": {
-      "do:openai-gpt-oss-120b": [
-        0.1,
-        0.7
-      ],
-      "do:deepseek-3.2": [
-        0.5,
-        1.6
-      ]
-    },
-    "runs": [
-      {
-        "name": "Local: Qwen 35B writer + Qwen 27B checker (stopped at 3,921 jobs)",
-        "file": "data/synthetic/synth_v1.jsonl",
-        "log": "data/synthetic/synth_v1.log",
-        "target_jobs": 3921,
-        "writer": "qwen3.6:35b-a3b",
-        "verifier": "qwen3.8:27b"
-      },
-      {
-        "name": "Cloud pilot #1: gpt-oss writer",
-        "file": "data/synthetic/pilot_do.jsonl",
-        "log": "data/synthetic/pilot_do.log",
-        "target_jobs": 50,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "qwen3.8:27b",
-        "pilot": true
-      },
-      {
-        "name": "Cloud pilot #2: gpt-oss writer (fixed checks)",
-        "file": "data/synthetic/pilot_do_v2.jsonl",
-        "target_jobs": 50,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "qwen3.8:27b",
-        "pilot": true
-      },
-      {
-        "name": "Cloud: gpt-oss-120b writer + DeepSeek V3.2 checker",
-        "file": "data/synthetic/synth_v1_cloud.jsonl",
-        "log": "data/synthetic/synth_v1_cloud.log",
-        "target_jobs": 7700,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2"
-      },
-      {
-        "name": "Generator v2.0 pilot (50 jobs, seed 8)",
-        "file": "data/synthetic/pilot_gen2.jsonl",
-        "log": "data/synthetic/pilot_gen2.log",
-        "target_jobs": 50,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2",
-        "pilot": true
-      },
-      {
-        "name": "Generator v2.0 pilot #2 (no 'unknown' options, reader-style grounded questions)",
-        "file": "data/synthetic/pilot_gen2b.jsonl",
-        "log": "data/synthetic/pilot_gen2b.log",
-        "target_jobs": 60,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2",
-        "pilot": true
-      },
-      {
-        "name": "Generator v2.0 eval candidates (seed 7; Shane's human review, never trained on)",
-        "file": "data/synthetic/eval_gen2_v20.jsonl",
-        "log": "data/synthetic/eval_gen2_v20.log",
-        "target_jobs": 70,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2",
-        "pilot": true
-      },
-      {
-        "name": "Generator v2.0c training batch (seed 6; new rules + 2 critics; cap $30; +800-job top-up)",
-        "file": "data/synthetic/gen2_v20.jsonl",
-        "log": "data/synthetic/gen2_v20.log",
-        "target_jobs": 11800,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2"
-      },
-      {
-        "name": "Stage 3 pilot: judgment scores + contrast twins (50 jobs, seed 8)",
-        "file": "data/synthetic/pilot_gen2_scores.jsonl",
-        "log": "data/synthetic/pilot_gen2_scores.log",
-        "target_jobs": 50,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2",
-        "pilot": true
-      },
-      {
-        "name": "Stage 3 pilot #2: anchors in question text, fragment evidence (50 jobs)",
-        "file": "data/synthetic/pilot_gen2_scores_b.jsonl",
-        "log": "data/synthetic/pilot_gen2_scores_b.log",
-        "target_jobs": 50,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2",
-        "pilot": true
-      },
-      {
-        "name": "Stage 3 pilot #3: score evidence exempt, one-step tolerance (50 jobs)",
-        "file": "data/synthetic/pilot_gen2_scores_c.jsonl",
-        "log": "data/synthetic/pilot_gen2_scores_c.log",
-        "target_jobs": 50,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2",
-        "pilot": true
-      },
-      {
-        "name": "Stage 3 pilot #4: writer picks fitting scales, synthetic only (50 jobs)",
-        "file": "data/synthetic/pilot_gen2_scores_d.jsonl",
-        "log": "data/synthetic/pilot_gen2_scores_d.log",
-        "target_jobs": 50,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2",
-        "pilot": true
-      },
-      {
-        "name": "Stage 3 pilot #5: two blind raters grade scores (50 jobs)",
-        "file": "data/synthetic/pilot_gen2_scores_e.jsonl",
-        "log": "data/synthetic/pilot_gen2_scores_e.log",
-        "target_jobs": 50,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2",
-        "pilot": true
-      },
-      {
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2",
-        "name": "Side batch: mixed / neutral tone (ended at its $9.75 cap)",
-        "file": "data/synthetic/gen2_v21_polarity.jsonl",
-        "log": "data/synthetic/gen2_v21_polarity.log",
-        "target_jobs": 5740
-      },
-      {
-        "name": "Pilot: polarity focus (4 rounds, prompt fixes)",
-        "file": "data/synthetic/pilot_gen2_polarity.jsonl",
-        "target_jobs": 130,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2",
-        "pilot": true
-      },
-      {
-        "name": "Side batch: calibration, unfamiliar inputs with tempting 'can't tell' questions (D32; ended at its $9.50 cap)",
-        "file": "data/synthetic/gen2_cal_unfamiliar.jsonl",
-        "log": "data/synthetic/gen2_cal_unfamiliar.log",
-        "target_jobs": 4290,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2"
-      },
-      {
-        "name": "Pilot: unfamiliar focus",
-        "file": "data/synthetic/pilot_gen2_unfamiliar.jsonl",
-        "target_jobs": 30,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2",
-        "pilot": true
-      },
-      {
-        "name": "Pilot: Enchanted Returns Desk simulator (computed labels)",
-        "file": "data/synthetic/pilot_sim_returns.jsonl",
-        "target_jobs": 40,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2",
-        "pilot": true
-      },
-      {
-        "name": "Side batch: Enchanted Returns Desk simulator (computed labels), $2 cap",
-        "file": "data/synthetic/sim_returns_v1.jsonl",
-        "log": "data/synthetic/sim_returns_v1.log",
-        "target_jobs": 6800,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2"
-      },
-      {
-        "name": "Game cases: Returns Desk (seed 9, for the demo game; never trained on)",
-        "file": "data/synthetic/game_sim_returns.jsonl",
-        "target_jobs": 250,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2",
-        "pilot": true
-      },
-      {
-        "name": "Pilot: Returns Desk v2 (three worlds)",
-        "file": "data/synthetic/pilot_sim_returns_v2.jsonl",
-        "target_jobs": 30,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2",
-        "pilot": true
-      },
-      {
-        "name": "Side batch: Returns Desk v2 (wizard, home goods, outdoor co-op; $1.40 cap)",
-        "file": "data/synthetic/sim_returns_v2.jsonl",
-        "log": "data/synthetic/sim_returns_v2.log",
-        "target_jobs": 3400,
-        "writer": "do:openai-gpt-oss-120b",
-        "verifier": "do:deepseek-3.2"
-      }
-    ],
-    "stages": [
-      {
-        "name": "Stage 1 \u00b7 Generator v1: the first 10k",
-        "why": "Prove the data factory works; run the data-scaling test (closed at 9,702, 97%)",
-        "goal": 10000,
-        "files": [
-          "data/synthetic/synth_v1.jsonl",
-          "data/synthetic/synth_v1_cloud.jsonl"
-        ],
-        "done": true
-      },
-      {
-        "name": "Stage 2 \u00b7 Generator v2.0: better data, same size",
-        "why": "Head-to-head with v1 at equal size: fixed over-refusal, no never-seen gain (D29); 9,428 kept",
-        "goal": 9400,
-        "files": [
-          "data/synthetic/gen2_v20.jsonl"
-        ],
-        "done": true
-      },
-      {
-        "name": "Stage 3 \u00b7 Generator v2.0s: judgment scores",
-        "why": "Paused (D31): blind AI raters disagree on most ratings, so labels are too noisy; next: try low/medium/high bands",
-        "goal": 10000,
-        "files": [
-          "data/synthetic/gen2_s3_scores.jsonl"
-        ],
-        "state": "paused"
-      },
-      {
-        "name": "Side batch \u00b7 Mixed / neutral tone",
-        "why": "Gap from the categorizer demo; no real gain on 3 seeds (D39)",
-        "goal": 3894,
-        "files": [
-          "data/synthetic/gen2_v21_polarity.jsonl"
-        ],
-        "done": true
-      },
-      {
-        "name": "Side batch \u00b7 Calibration: unfamiliar inputs",
-        "why": "Unusual documents with tempting 'can't tell' questions (D32); no effect on calibration, 3 seeds (D42)",
-        "goal": 3520,
-        "files": [
-          "data/synthetic/gen2_cal_unfamiliar.jsonl"
-        ],
-        "done": true
-      },
-      {
-        "name": "Stage 4 \u00b7 Generator v2.1: hard examples",
-        "why": "Tested: mined (all hard + 30% easy) tied random at the same size, 3 seeds each (D41); not added to the pipeline",
-        "goal": 6215,
-        "files": [],
-        "done": true
-      },
-      {
-        "name": "Stage 5 \u00b7 Generator v2.2: minimal pairs + planner",
-        "why": "Twins that isolate the key fact; batches aimed at validation weak spots",
-        "goal": 10000,
-        "files": []
-      },
-      {
-        "name": "Stage 6 \u00b7 Scale the winner to 30k",
-        "why": "The 10k \u2192 30k scaling curve decides whether a 100k batch is worth buying",
-        "goal": 30000,
-        "files": []
-      }
-    ],
-    "budget": {
-      "total_usd": 535,
-      "note": "$500 preloaded on DigitalOcean 2026-09-26 (plus the ~$35 already spent). Plan: Stage 3 ~$30, Stage 4 ~$40, Stage 5 ~$40, scale-up ~$100 only if a 3-seed test justifies it, ~$250 reserve. Every batch: pilot first, --max-usd cap, measured with 3 seeds on eval v0.2 before the next spend."
-    }
+ "updated": "2026-09-30",
+ "phases": [
+  {
+   "id": "0",
+   "name": "Environment check",
+   "status": "done"
   },
-  "milestones": [
+  {
+   "id": "1",
+   "name": "Scaffold, schema, architecture",
+   "status": "done"
+  },
+  {
+   "id": "2",
+   "name": "Data pipeline and eval set",
+   "status": "done"
+  },
+  {
+   "id": "3",
+   "name": "Tiny model end to end",
+   "status": "done"
+  },
+  {
+   "id": "4",
+   "name": "Track B training",
+   "status": "in_progress",
+   "steps": [
     {
-      "date": "2026-09-23",
-      "text": "Phase 0: environment checked; 'kodiak' taken everywhere, so kodiak-s1 under grizzlypeaksoftware"
+     "name": "First run (b-small-s1-v0)",
+     "status": "done"
     },
     {
-      "date": "2026-09-23",
-      "text": "Phase 1: architecture approved (packed sequence + structured attention mask)"
+     "name": "Synthetic data, local run (3,290 examples; stopped for cloud)",
+     "status": "done"
     },
     {
-      "date": "2026-09-23",
-      "text": "Phase 2: 20 datasets converted; eval set v0.1 with 24 human-reviewed synthetic examples"
+     "name": "Cloud teacher: DigitalOcean backend + pilots",
+     "status": "done"
     },
     {
-      "date": "2026-09-23",
-      "text": "Phase 3: bit-identical ModernBERT parity; both overfit tests pass; torch.compile 2x"
+     "name": "Verifier bake-off vs. human review",
+     "status": "done"
     },
     {
-      "date": "2026-09-23",
-      "text": "Track A deferred: Track B trains in an hour, pretraining would take days"
+     "name": "Synthetic data: finish in the cloud (9,702 examples total)",
+     "status": "done"
     },
     {
-      "date": "2026-09-23",
-      "text": "First Track B run: early stopping misfired on a 7-example group (fixed)"
+     "name": "Data scaling test: 0 vs 3k vs 10k synthetic",
+     "status": "done"
     },
     {
-      "date": "2026-09-23",
-      "text": "Preliminary eval: Kodiak ties Qwen 27B in-domain, 400x faster, better calibrated; weaker on new tasks"
+     "name": "Generator v2 design (docs/GENERATOR_V2.md)",
+     "status": "done"
     },
     {
-      "date": "2026-09-23",
-      "text": "Local status dashboard added"
+     "name": "Recipe fixes: repeat cap, full schedule, tuned abstain threshold",
+     "status": "done"
     },
     {
-      "date": "2026-09-24",
-      "text": "DigitalOcean inference: key was clipped (68 vs 71 chars), then a billing gate cleared at 10:33"
+     "name": "Generator v2.0: build + taxonomy + pilots (done 2026-09-25)",
+     "status": "done"
     },
     {
-      "date": "2026-09-24",
-      "text": "Cloud pilot #1: 26% kept (gpt-oss paraphrased its evidence)"
+     "name": "Generator v2.0: Shane reviewed 55 eval candidates (92.7%; fixes + critics added)",
+     "status": "done"
     },
     {
-      "date": "2026-09-24",
-      "text": "Cloud pilot #2: 88% kept after fixes; $0.73 per 1,000 jobs"
+     "name": "Generator v2.0: 11.8k-job batch + A/B vs v1 (3 seeds): fixes over-refusal, no never-seen gain",
+     "status": "done"
     },
     {
-      "date": "2026-09-24",
-      "text": "Verifier bake-off: DeepSeek V3.2 wins (97% agreement with human review, 0 failures, 10x faster than gpt-oss)"
+     "name": "ModernBERT-large backbone test (3 seeds): beats all open classifiers on never-seen tasks (D33)",
+     "status": "done"
     },
     {
-      "date": "2026-09-24",
-      "text": "Switched synthetic generation to the cloud: gpt-oss writes, DeepSeek checks (7,700 jobs, ~$8)"
+     "name": "Eval set v0.2 built and frozen: 12 never-seen tasks / 4,200 examples (was 4 / 1,000)",
+     "status": "done"
     },
     {
-      "date": "2026-09-24",
-      "text": "Generator v2 design drafted: taxonomy, real-document grounding, hard-example mining, minimal pairs"
+     "name": "Re-scored every model on eval v0.2 (reports/v02-*.md)",
+     "status": "done"
     },
     {
-      "date": "2026-09-24",
-      "text": "Generator v2 design approved"
+     "name": "Publish Kodiak large v2 research preview (seed 1, chosen on validation; honest abstention caveat)",
+     "status": "done"
     },
     {
-      "date": "2026-09-24",
-      "text": "Synthetic batch complete: 9,702 examples (3,290 local + 6,412 cloud); cloud cost ~$5.50 + checker"
+     "name": "Calibration off-distribution (D32/D34/D36/D42): 3-run ensemble helps; distillation and 'can't tell' data didn't",
+     "status": "in_progress"
     },
     {
-      "date": "2026-09-24",
-      "text": "Data scaling test started: 0 vs 3,300 vs 9,411 synthetic examples (same pool)"
+     "name": "Stage 3 data (judgment scores): PAUSED after 5 pilots ($0.54); raters disagree; next try low/medium/high bands",
+     "status": "pending"
     },
     {
-      "date": "2026-09-24",
-      "text": "Scaling test: synthetic data helps overall (+1.2 pts), calibration, and synthetic-style tasks, but NOT held-out tasks (flat), so build better data, not more of the same"
+     "name": "Mixed / neutral sentiment batch (3,894 examples, $9.78): no real gain, 3 seeds (D39)",
+     "status": "done"
     },
     {
-      "date": "2026-09-24",
-      "text": "Recipe test started: repeat cap (Qasper was seen 23x, prompt-injections 29x), full LR schedule, tuned abstain threshold"
+     "name": "Generator v2.1 (student screen + hard-example selection): tied random selection, 3 seeds (D41)",
+     "status": "done"
     },
     {
-      "date": "2026-09-24",
-      "text": "Recipe test: repeat cap lifts held-out accuracy 62.5% -> 66.4% (jailbreak +8.8) for -1.6 in-domain; cap + full schedule become defaults"
+     "name": "Generator v2.2 (minimal pairs, planner)",
+     "status": "pending"
     },
     {
-      "date": "2026-09-25",
-      "text": "Generator v2.0 built: taxonomy of 16 sectors / 320 domains / 971 document types, ~45% real FineWeb passages, inference questions, MinHash dedupe, budget cap (11 tests)"
+     "name": "v0.2: Ettin-1B backbone test (bar ≥ 0.629 never-seen, set before the run) and accuracy mode as main large model (D45)",
+     "status": "in_progress"
     },
     {
-      "date": "2026-09-25",
-      "text": "v2 pilots ($0.15): removing 'unknown' options + reader-style questions on real text cut checker disagreement (inferred 37% -> 20%, stated 8% -> 2%)"
+     "name": "Final run with full synthetic data",
+     "status": "pending"
     },
     {
-      "date": "2026-09-25",
-      "text": "55 v2 eval candidates (165 questions) ready for Shane's review in tools/review.html"
-    },
-    {
-      "date": "2026-09-25",
-      "text": "Shane's review of v2 eval candidates: 92.7% (unanswerable 100%); added one-defensible-answer rules + two critics; 11k-job batch launched (cap $30)"
-    },
-    {
-      "date": "2026-09-25",
-      "text": "Strategy adopted (D27, docs/STRATEGY.md): frontier-class open-weights decision model, with a release bar written before measuring; open zero-shot classifiers added as baselines"
-    },
-    {
-      "date": "2026-09-25",
-      "text": "Open-classifier baselines: Kodiak far ahead overall (+23 pts acc), best calibration, fastest; but GLiClass-instruct-large edges it on held-out (0.705 vs 0.691 forced). Best-in-class bar not met yet"
-    },
-    {
-      "date": "2026-09-25",
-      "text": "First upload: best model (R1) as a PRIVATE preview at huggingface.co/cortex-agent-llc/kodiak-small-r1-preview (weights verified by SHA-256); public release after the v2 A/B + release kit"
-    },
-    {
-      "date": "2026-09-25",
-      "text": "Release kit: Kodiak.from_pretrained loader, export/push CLI, [infer] install extra, model card draft, quickstart; calibration-bug fix re-pushed to the private preview; CPU ~80 ms"
-    },
-    {
-      "date": "2026-09-25",
-      "text": "Distribution plan: demo Space + Inference Endpoints handler built and tested; hosted Kodiak API by Cortex Agent chosen as the productization path"
-    },
-    {
-      "date": "2026-09-25",
-      "text": "GitHub repo made public (building in public); weights stay private until the v2 A/B picks the launch model"
-    },
-    {
-      "date": "2026-09-25",
-      "text": "Demo Space running (private): comgen42/kodiak-demo loads the private model from cortex-agent-llc; ~0.85 s round trip; transfer to the org and go public at launch"
-    },
-    {
-      "date": "2026-09-25",
-      "text": "Research preview public: cortex-agent-llc/kodiak-small-r1-preview (weights, handler, preview model card); demo Space gets a preview banner"
-    },
-    {
-      "date": "2026-09-25",
-      "text": "v2.0 batch done: 9,428 kept examples for $25.38 (Stage 2 goal met)"
-    },
-    {
-      "date": "2026-09-26",
-      "text": "A/B with 3 seeds each: v2.0 cuts wrong refusals ~60%, abstain precision 0.84\u21920.92, better calibration; never-seen forced accuracy unchanged (0.72 vs 0.72). The single-run '+5\u20137 pts' was noise"
-    },
-    {
-      "date": "2026-09-26",
-      "text": "Research preview v2 public: cortex-agent-llc/kodiak-small-v2-preview (seed chosen on validation); demo switched to v2; r1 card points to v2. Honest note: the crushed-box fix is fragile"
-    },
-    {
-      "date": "2026-09-26",
-      "text": "Eval set v0.2 frozen: +8 never-seen sources (legal, moral, finance, science, clickbait score, poetry); held-out 4 \u2192 12 tasks, 1,000 \u2192 4,200 examples"
-    },
-    {
-      "date": "2026-09-26",
-      "text": "Stage 3 paused after 5 pilots ($0.54): blind AI raters disagree on most judgment ratings (58\u201382%), so the labels are too noisy to teach; next: large-model results, then try low/medium/high bands"
-    },
-    {
-      "date": "2026-09-26",
-      "text": "Outside validation: CMU 'JEV-as-a-Judge' (arXiv:2609.26550) confirms the accept-confident/escalate-unsure cascade; OpenRouter launches jev-router. Backlog ranked: Kodiak-as-a-judge demo (+ public benchmark), Kodiak Router, Zork"
-    },
-    {
-      "date": "2026-09-26",
-      "text": "Zork showdown published (Shane): 0 invalid moves in ~20k, but Jev beat Kodiak, and v2 was confidently wrong on game states. Calibration doesn't survive distribution shift (D32)"
-    },
-    {
-      "date": "2026-09-26",
-      "text": "ModernBERT-large (3 seeds) beats every open zero-shot classifier on eval v0.2 never-seen tasks: 60.9% vs 57.9% best clean rival. Release criterion 1 met by large (D33); ratings and off-distribution calibration still weak"
-    },
-    {
-      "date": "2026-09-26",
-      "text": "Ensemble of 3 large runs: never-seen forced 62.3%, calibration error 0.099 (from ~0.128), abstain precision 93% (D34). Next: distill the ensemble into one model"
-    },
-    {
-      "date": "2026-09-26",
-      "text": "Kodiak large v2 research preview public (cortex-agent-llc/kodiak-large-v2-preview, weights verified); demo gets a small/large picker and a 'Categorize a list' tab"
-    },
-    {
-      "date": "2026-09-26",
-      "text": "Phase 6: ONNX export + Node.js/Docker server (D35); model.onnx published in both preview repos"
-    },
-    {
-      "date": "2026-09-27",
-      "text": "Distillation of the large ensemble into small: no gain, calibration slightly worse (D36, negative result)"
-    },
-    {
-      "date": "2026-09-27",
-      "text": "Polarity batch (mixed/neutral tone): 3,894 examples for $9.78; 3-seed test queued"
-    },
-    {
-      "date": "2026-09-27",
-      "text": "Release criterion 2 met narrowly: Qwen3-8B leads by 7.9 on never-seen tasks (world knowledge); Kodiak\u2192LLM cascade beats both (0.740 vs 0.709 with 43% escalated) (D37)"
-    },
-    {
-      "date": "2026-09-27",
-      "text": "Generator v2.1 hard-example mining tied random selection (3 seeds each): not adopted (D41). A demo user found a label-word overlap shortcut (0.97 \u2192 0.48 on a reworded ticket): v2.2's first target"
-    },
-    {
-      "date": "2026-09-27",
-      "text": "Calibration batch (unfamiliar inputs) had no effect, 3 seeds (D42): the fourth flat data tweak in a row; small-model data tweaks stop here. Demo gets a 'Did Kodiak get something wrong?' form"
-    },
-    {
-      "date": "2026-09-28",
-      "text": "Demo: 'Returns Desk: you vs. the Bear' game (233 computed-answer cases) and a live feedback form feeding a private review dataset"
-    },
-    {
-      "date": "2026-09-28",
-      "text": "Returns Desk simulator data (computed labels, $2.01): word-trap probe 3 \u2192 5 of 8, the first targeted data gain since v2.0; costs ~1 pt and teaches a new shortcut (D43)"
-    },
-    {
-      "date": "2026-09-28",
-      "text": "Returns Desk v2 (three worlds, $1.21) matched v1: probe gain real but unreliable across seeds, same ~1-pt cost; simulators move to v0.2 (D44). Book proposal drafted"
-    },
-    {
-      "date": "2026-09-28",
-      "text": "Accuracy mode published (3-run large ensemble, threshold from a validation rule fixed in advance): never-seen 0.623, abstain precision 0.94, ECE 0.059 (D45). Fine-tuning kit built: demo 75.8% \u2192 98.3%"
-    },
-    {
-      "date": "2026-09-28",
-      "text": "Ettin-1B (E15) clears its pre-set bar: never-seen 0.666 vs 0.629 bar (large 0.609, Qwen3-8B 0.688); guard miss on 'can't tell' precision (0.86); 2 confirming seeds running (D46)"
-    },
-    {
-      "date": "2026-09-29",
-      "text": "Ettin-1B confirmed on 3 seeds: never-seen 0.659 \u00b1 0.013 vs large 0.609 (+5.0); gap to Qwen3-8B now ~3 points; 'can't tell' precision 0.87 still below 0.90 (D47)"
-    },
-    {
-      "date": "2026-09-29",
-      "text": "1B accuracy mode (E16) missed its precision target (0.879 < 0.90) despite the best calibration yet; single 1B published as kodiak-xl-v2-preview (D48). Demo redesigned: answer cards with confidence bars"
-    },
-    {
-      "date": "2026-09-29",
-      "text": "Decision Index run 1: 12.75 (below the pre-set 15-25); diagnosed an empty-state format mismatch (35% of requests); fixed with one declared rule, validated on our data; run 2 launched (D50)"
-    },
-    {
-      "date": "2026-09-30",
-      "text": "Decision Index run 2: Kodiak XL 17.19, rank #48 of 71, 5th among \u22642B models (pre-set expectation 15-25); report card sets the next data targets (D51)"
+     "name": "Track A (from-scratch encoder)",
+     "status": "deferred"
     }
-  ],
-  "published": [
+   ]
+  },
+  {
+   "id": "5",
+   "name": "Eval report vs. Qwen baseline",
+   "status": "in_progress",
+   "steps": [
     {
-      "name": "kodiak-xl-v2-preview",
-      "kind": "model",
-      "link": "https://huggingface.co/cortex-agent-llc/kodiak-xl-v2-preview",
-      "run": "b-xl-s1-v2-s1",
-      "date": "2026-09-29",
-      "notes": "Ettin-1B backbone, the most accurate single Kodiak: never-seen 0.666 (3-run mean 0.659). 'Can't tell' precision 0.86 (below 0.90). 38 ms GPU."
+     "name": "Harness: calibration, metrics, LLM baseline",
+     "status": "done"
     },
     {
-      "name": "kodiak-large-v2-ensemble-preview",
-      "kind": "model",
-      "link": "https://huggingface.co/cortex-agent-llc/kodiak-large-v2-ensemble-preview",
-      "run": [
-        "b-base-s1-v2-s0",
-        "b-base-s1-v2-s1",
-        "b-base-s1-v2-s2"
-      ],
-      "date": "2026-09-28",
-      "notes": "Accuracy mode: the 3 large v2 runs averaged; the recommended large model. Never-seen 0.623, abstain precision 0.94, ECE 0.059.",
-      "badge": "accuracy mode"
+     "name": "Preliminary comparison (200 examples)",
+     "status": "done"
     },
     {
-      "name": "kodiak-large-v2-preview",
-      "kind": "model",
-      "link": "https://huggingface.co/cortex-agent-llc/kodiak-large-v2-preview",
-      "run": "b-base-s1-v2-s1",
-      "date": "2026-09-26",
-      "notes": "Quality tier (ModernBERT-large, ~400M). Seed 1 of 3, chosen on validation. Includes model.onnx."
+     "name": "Qwen3-8B on all of eval v0.2 + cascade simulation: criterion 2 met, Kodiak+LLM beats both (D37/D38)",
+     "status": "done"
     },
     {
-      "name": "kodiak-small-v2-preview",
-      "kind": "model",
-      "link": "https://huggingface.co/cortex-agent-llc/kodiak-small-v2-preview",
-      "run": "b-small-s1-B-v2",
-      "date": "2026-09-26",
-      "notes": "Fast tier (ModernBERT-base, 152M). Includes model.onnx."
-    },
-    {
-      "name": "kodiak-small-r1-preview",
-      "kind": "model",
-      "link": "https://huggingface.co/cortex-agent-llc/kodiak-small-r1-preview",
-      "run": "b-small-s1-R1-cap3",
-      "date": "2026-09-25",
-      "notes": "First preview; superseded by small v2.",
-      "superseded": true
-    },
-    {
-      "name": "Demo Space",
-      "kind": "demo",
-      "link": "https://huggingface.co/spaces/comgen42/kodiak-demo",
-      "date": "2026-09-25",
-      "notes": "Decide (accuracy mode by default, or small) with a feedback form; 'Categorize a list' (always small, for speed); 'Returns Desk: you vs. the Bear' game."
-    },
-    {
-      "name": "Source code",
-      "kind": "code",
-      "link": "https://github.com/grizzlypeaksoftware/kodiak",
-      "date": "2026-09-25",
-      "notes": "Code, docs, decisions, reports; Node/Docker server in server/."
+     "name": "Full comparison on the final model",
+     "status": "pending"
     }
-  ],
-  "queue": [
+   ]
+  },
+  {
+   "id": "6",
+   "name": "ONNX export + Node.js server + demo page",
+   "status": "done",
+   "steps": [
     {
-      "name": "Next data targets from the Decision Index report card",
-      "why": "Hallucination checks, API/tool selection with full specs, claim verification, relevance, aspect sentiment: in-purpose skills near zero on the index (D51). Each through the gate.",
-      "after": "Shane's OK on the plan"
+     "name": "ONNX export with parity check (D35)",
+     "status": "done"
     },
     {
-      "name": "Stage 3 retry: ratings as low / medium / high bands",
-      "why": "Ratings are the weakest answer type and a bigger model didn't fix them (D33). Raters disagreed on exact numbers (D31); test whether they agree on bands. If \u226580%: ~$10 batch + 3 seeds; if not, ratings ship as 'experimental' in v0.1.",
-      "after": "v2.2 (or alongside it)",
-      "cost": "pilot ~$0.15; batch ~$10 only if the pilot passes (ask first)"
+     "name": "Node.js server + Docker image, JS/Python parity tests",
+     "status": "done"
     },
     {
-      "name": "Final run with the full synthetic data",
-      "why": "Train the release candidates (small + large) on everything that passed its test.",
-      "after": "v2.2 result"
+     "name": "model.onnx published in both preview repos",
+     "status": "done"
+    },
+    {
+     "name": "Demo page: Hugging Face Space (small/large picker, categorizer)",
+     "status": "done"
+    },
+    {
+     "name": "int8 quantization: rejected (breaks calibration)",
+     "status": "done"
     }
-  ],
-  "experiments": [
-    {
-      "match": "b-xl-",
-      "name": "v0.2 backbone: Ettin-1B",
-      "why": "Bigger reader (1B, ModernBERT architecture)",
-      "report": "v02-xl",
-      "decision": "D47: confirmed, 0.659 \u00b1 0.013 (3 seeds); flagship candidate"
-    },
-    {
-      "match": "simret2-",
-      "name": "Returns Desk v2 (3 seeds)",
-      "why": "Three worlds + split info intent (D43 follow-up)",
-      "report": "v02-simret2",
-      "decision": "D44: like v1; not in v0.1"
-    },
-    {
-      "match": "simret-",
-      "name": "Returns Desk simulator (3 seeds)",
-      "why": "Computed-label data vs the word-matching shortcut",
-      "report": "v02-simret",
-      "decision": "D43: probe 3 \u2192 5 of 8; \u22121 pt never-seen; new shortcut"
-    },
-    {
-      "match": "unfam-",
-      "name": "Calibration batch: unfamiliar inputs (3 seeds)",
-      "why": "'Can't tell' data for unfamiliar inputs",
-      "report": "v02-unfamiliar",
-      "decision": "D42: no effect"
-    },
-    {
-      "match": "v21-",
-      "name": "Generator v2.1: mined vs random (3 seeds)",
-      "why": "Hard-example mining ablation",
-      "report": "v02-v21-mining",
-      "decision": "D41: tie, not adopted"
-    },
-    {
-      "match": "polarity-",
-      "name": "Mixed / neutral tone batch (3 seeds)",
-      "why": "Gap from the categorizer demo",
-      "report": "v02-polarity",
-      "decision": "D39: no real gain"
-    },
-    {
-      "match": "distill-",
-      "name": "Distillation of the large ensemble (3 seeds)",
-      "why": "Ensemble calibration at small-model cost",
-      "report": "v02-distill",
-      "decision": "D36: didn't help"
-    },
-    {
-      "match": "b-base-s1-v2",
-      "name": "ModernBERT-large backbone (3 seeds)",
-      "why": "Bigger reader",
-      "report": "v02-backbone",
-      "decision": "D33: beats every open classifier; all 3 runs together = accuracy mode (the recommended large model, D45); seed 1 also published alone"
-    },
-    {
-      "match": "-A-eq|-B-v2|-C-v1v2",
-      "name": "Generator v1 vs v2.0 A/B (3 seeds)",
-      "why": "Better data at equal size",
-      "report": "generator-ab-seeds",
-      "decision": "D29: fixes over-refusal, no never-seen gain; B-v2 published"
-    },
-    {
-      "match": "-R1-|-R2-",
-      "name": "Recipe test",
-      "why": "Repeat cap, full schedule, tuned threshold",
-      "report": "recipe-test",
-      "decision": "D25: new defaults; R1 published as r1"
-    },
-    {
-      "match": "-syn",
-      "name": "Data scaling test: 0 / 3k / 10k synthetic",
-      "why": "Does more v1 data help?",
-      "report": "scaling-test",
-      "decision": "D24: not on never-seen tasks"
-    },
-    {
-      "match": "-v0|p3-",
-      "name": "First runs and plumbing",
-      "why": "Phase 3-4 bring-up",
-      "report": "kodiak-v0-checkpoints",
-      "decision": ""
-    }
-  ],
-  "finance": {
-    "note": "Cloud spend is estimated from logged tokens \u00d7 DigitalOcean list prices (synthetic.prices_per_million); DigitalOcean's billing page is the source of truth. A few small unlogged calls (taxonomy generation, checker bake-offs, ~$1) aren't included. Training and evaluation run on the DGX Spark Shane already owns.",
-    "fixed": [
-      {
-        "item": "Hugging Face Pro",
-        "usd_per_month": 9,
-        "since": "2026-09-25",
-        "note": "Shane's personal account; hosts the demo Space (confirm price)"
-      },
-      {
-        "item": "DigitalOcean inference prepay",
-        "usd_once": 500,
-        "since": "2026-09-26",
-        "note": "Prepaid credit; spend is drawn from it (not an extra cost)"
-      }
-    ]
+   ]
+  },
+  {
+   "id": "later",
+   "name": "Model card + Hugging Face release; scaling plan",
+   "status": "pending"
   }
+ ],
+ "synthetic": {
+  "goal_examples": 10000,
+  "prices_per_million": {
+   "do:openai-gpt-oss-120b": [
+    0.1,
+    0.7
+   ],
+   "do:deepseek-3.2": [
+    0.5,
+    1.6
+   ]
+  },
+  "runs": [
+   {
+    "name": "Local: Qwen 35B writer + Qwen 27B checker (stopped at 3,921 jobs)",
+    "file": "data/synthetic/synth_v1.jsonl",
+    "log": "data/synthetic/synth_v1.log",
+    "target_jobs": 3921,
+    "writer": "qwen3.6:35b-a3b",
+    "verifier": "qwen3.8:27b"
+   },
+   {
+    "name": "Cloud pilot #1: gpt-oss writer",
+    "file": "data/synthetic/pilot_do.jsonl",
+    "log": "data/synthetic/pilot_do.log",
+    "target_jobs": 50,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "qwen3.8:27b",
+    "pilot": true
+   },
+   {
+    "name": "Cloud pilot #2: gpt-oss writer (fixed checks)",
+    "file": "data/synthetic/pilot_do_v2.jsonl",
+    "target_jobs": 50,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "qwen3.8:27b",
+    "pilot": true
+   },
+   {
+    "name": "Cloud: gpt-oss-120b writer + DeepSeek V3.2 checker",
+    "file": "data/synthetic/synth_v1_cloud.jsonl",
+    "log": "data/synthetic/synth_v1_cloud.log",
+    "target_jobs": 7700,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2"
+   },
+   {
+    "name": "Generator v2.0 pilot (50 jobs, seed 8)",
+    "file": "data/synthetic/pilot_gen2.jsonl",
+    "log": "data/synthetic/pilot_gen2.log",
+    "target_jobs": 50,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Generator v2.0 pilot #2 (no 'unknown' options, reader-style grounded questions)",
+    "file": "data/synthetic/pilot_gen2b.jsonl",
+    "log": "data/synthetic/pilot_gen2b.log",
+    "target_jobs": 60,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Generator v2.0 eval candidates (seed 7; Shane's human review, never trained on)",
+    "file": "data/synthetic/eval_gen2_v20.jsonl",
+    "log": "data/synthetic/eval_gen2_v20.log",
+    "target_jobs": 70,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Generator v2.0c training batch (seed 6; new rules + 2 critics; cap $30; +800-job top-up)",
+    "file": "data/synthetic/gen2_v20.jsonl",
+    "log": "data/synthetic/gen2_v20.log",
+    "target_jobs": 11800,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2"
+   },
+   {
+    "name": "Stage 3 pilot: judgment scores + contrast twins (50 jobs, seed 8)",
+    "file": "data/synthetic/pilot_gen2_scores.jsonl",
+    "log": "data/synthetic/pilot_gen2_scores.log",
+    "target_jobs": 50,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Stage 3 pilot #2: anchors in question text, fragment evidence (50 jobs)",
+    "file": "data/synthetic/pilot_gen2_scores_b.jsonl",
+    "log": "data/synthetic/pilot_gen2_scores_b.log",
+    "target_jobs": 50,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Stage 3 pilot #3: score evidence exempt, one-step tolerance (50 jobs)",
+    "file": "data/synthetic/pilot_gen2_scores_c.jsonl",
+    "log": "data/synthetic/pilot_gen2_scores_c.log",
+    "target_jobs": 50,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Stage 3 pilot #4: writer picks fitting scales, synthetic only (50 jobs)",
+    "file": "data/synthetic/pilot_gen2_scores_d.jsonl",
+    "log": "data/synthetic/pilot_gen2_scores_d.log",
+    "target_jobs": 50,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Stage 3 pilot #5: two blind raters grade scores (50 jobs)",
+    "file": "data/synthetic/pilot_gen2_scores_e.jsonl",
+    "log": "data/synthetic/pilot_gen2_scores_e.log",
+    "target_jobs": 50,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "name": "Side batch: mixed / neutral tone (ended at its $9.75 cap)",
+    "file": "data/synthetic/gen2_v21_polarity.jsonl",
+    "log": "data/synthetic/gen2_v21_polarity.log",
+    "target_jobs": 5740
+   },
+   {
+    "name": "Pilot: polarity focus (4 rounds, prompt fixes)",
+    "file": "data/synthetic/pilot_gen2_polarity.jsonl",
+    "target_jobs": 130,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Side batch: calibration, unfamiliar inputs with tempting 'can't tell' questions (D32; ended at its $9.50 cap)",
+    "file": "data/synthetic/gen2_cal_unfamiliar.jsonl",
+    "log": "data/synthetic/gen2_cal_unfamiliar.log",
+    "target_jobs": 4290,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2"
+   },
+   {
+    "name": "Pilot: unfamiliar focus",
+    "file": "data/synthetic/pilot_gen2_unfamiliar.jsonl",
+    "target_jobs": 30,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Pilot: Enchanted Returns Desk simulator (computed labels)",
+    "file": "data/synthetic/pilot_sim_returns.jsonl",
+    "target_jobs": 40,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Side batch: Enchanted Returns Desk simulator (computed labels), $2 cap",
+    "file": "data/synthetic/sim_returns_v1.jsonl",
+    "log": "data/synthetic/sim_returns_v1.log",
+    "target_jobs": 6800,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2"
+   },
+   {
+    "name": "Game cases: Returns Desk (seed 9, for the demo game; never trained on)",
+    "file": "data/synthetic/game_sim_returns.jsonl",
+    "target_jobs": 250,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Pilot: Returns Desk v2 (three worlds)",
+    "file": "data/synthetic/pilot_sim_returns_v2.jsonl",
+    "target_jobs": 30,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "Side batch: Returns Desk v2 (wizard, home goods, outdoor co-op; $1.40 cap)",
+    "file": "data/synthetic/sim_returns_v2.jsonl",
+    "log": "data/synthetic/sim_returns_v2.log",
+    "target_jobs": 3400,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2"
+   },
+   {
+    "name": "E17 pilots #1-2: skills generators (seed 8)",
+    "file": "data/synthetic/pilot_skills.jsonl",
+    "target_jobs": 100,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "E17 pilot #3: grounding + relevance, reworded choices (seed 8)",
+    "file": "data/synthetic/pilot_skills_r3.jsonl",
+    "target_jobs": 40,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "E17 skills eval candidates: grounding + claims (seed 7; Shane's spot-check, never trained on)",
+    "file": "data/synthetic/skills_eval_raw.jsonl",
+    "target_jobs": 760,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "E17 skills eval candidates: tools v1.1 (seed 7; never trained on)",
+    "file": "data/synthetic/skills_eval_raw_v11.jsonl",
+    "target_jobs": 340,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "E17 skills eval candidates: relevance v1.2 (seed 7; never trained on)",
+    "file": "data/synthetic/skills_eval_raw_v12.jsonl",
+    "target_jobs": 240,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "E17 batch: skills v1.2 (grounding, tools, claims, relevance; seed 6; 30k jobs, $35 cap)",
+    "file": "data/synthetic/skills_v1.jsonl",
+    "log": "data/synthetic/skills_v1.log",
+    "target_jobs": 30000,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2"
+   }
+  ],
+  "stages": [
+   {
+    "name": "Stage 1 · Generator v1: the first 10k",
+    "why": "Prove the data factory works; run the data-scaling test (closed at 9,702, 97%)",
+    "goal": 10000,
+    "files": [
+     "data/synthetic/synth_v1.jsonl",
+     "data/synthetic/synth_v1_cloud.jsonl"
+    ],
+    "done": true
+   },
+   {
+    "name": "Stage 2 · Generator v2.0: better data, same size",
+    "why": "Head-to-head with v1 at equal size: fixed over-refusal, no never-seen gain (D29); 9,428 kept",
+    "goal": 9400,
+    "files": [
+     "data/synthetic/gen2_v20.jsonl"
+    ],
+    "done": true
+   },
+   {
+    "name": "Stage 3 · Generator v2.0s: judgment scores",
+    "why": "Paused (D31): blind AI raters disagree on most ratings, so labels are too noisy; next: try low/medium/high bands",
+    "goal": 10000,
+    "files": [
+     "data/synthetic/gen2_s3_scores.jsonl"
+    ],
+    "state": "paused"
+   },
+   {
+    "name": "Side batch · Mixed / neutral tone",
+    "why": "Gap from the categorizer demo; no real gain on 3 seeds (D39)",
+    "goal": 3894,
+    "files": [
+     "data/synthetic/gen2_v21_polarity.jsonl"
+    ],
+    "done": true
+   },
+   {
+    "name": "Side batch · Calibration: unfamiliar inputs",
+    "why": "Unusual documents with tempting 'can't tell' questions (D32); no effect on calibration, 3 seeds (D42)",
+    "goal": 3520,
+    "files": [
+     "data/synthetic/gen2_cal_unfamiliar.jsonl"
+    ],
+    "done": true
+   },
+   {
+    "name": "Stage 4 · Generator v2.1: hard examples",
+    "why": "Tested: mined (all hard + 30% easy) tied random at the same size, 3 seeds each (D41); not added to the pipeline",
+    "goal": 6215,
+    "files": [],
+    "done": true
+   },
+   {
+    "name": "Stage 5 · Generator v2.2: minimal pairs + planner",
+    "why": "Twins that isolate the key fact; batches aimed at validation weak spots",
+    "goal": 10000,
+    "files": []
+   },
+   {
+    "name": "Stage 6 · Scale the winner to 30k",
+    "why": "The 10k → 30k scaling curve decides whether a 100k batch is worth buying",
+    "goal": 30000,
+    "files": []
+   }
+  ],
+  "budget": {
+   "total_usd": 535,
+   "note": "$500 preloaded on DigitalOcean 2026-09-26 (plus the ~$35 already spent). Plan: Stage 3 ~$30, Stage 4 ~$40, Stage 5 ~$40, scale-up ~$100 only if a 3-seed test justifies it, ~$250 reserve. Every batch: pilot first, --max-usd cap, measured with 3 seeds on eval v0.2 before the next spend."
+  },
+  "extra_costs": []
+ },
+ "milestones": [
+  {
+   "date": "2026-09-23",
+   "text": "Phase 0: environment checked; 'kodiak' taken everywhere, so kodiak-s1 under grizzlypeaksoftware"
+  },
+  {
+   "date": "2026-09-23",
+   "text": "Phase 1: architecture approved (packed sequence + structured attention mask)"
+  },
+  {
+   "date": "2026-09-23",
+   "text": "Phase 2: 20 datasets converted; eval set v0.1 with 24 human-reviewed synthetic examples"
+  },
+  {
+   "date": "2026-09-23",
+   "text": "Phase 3: bit-identical ModernBERT parity; both overfit tests pass; torch.compile 2x"
+  },
+  {
+   "date": "2026-09-23",
+   "text": "Track A deferred: Track B trains in an hour, pretraining would take days"
+  },
+  {
+   "date": "2026-09-23",
+   "text": "First Track B run: early stopping misfired on a 7-example group (fixed)"
+  },
+  {
+   "date": "2026-09-23",
+   "text": "Preliminary eval: Kodiak ties Qwen 27B in-domain, 400x faster, better calibrated; weaker on new tasks"
+  },
+  {
+   "date": "2026-09-23",
+   "text": "Local status dashboard added"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "DigitalOcean inference: key was clipped (68 vs 71 chars), then a billing gate cleared at 10:33"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Cloud pilot #1: 26% kept (gpt-oss paraphrased its evidence)"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Cloud pilot #2: 88% kept after fixes; $0.73 per 1,000 jobs"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Verifier bake-off: DeepSeek V3.2 wins (97% agreement with human review, 0 failures, 10x faster than gpt-oss)"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Switched synthetic generation to the cloud: gpt-oss writes, DeepSeek checks (7,700 jobs, ~$8)"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Generator v2 design drafted: taxonomy, real-document grounding, hard-example mining, minimal pairs"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Generator v2 design approved"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Synthetic batch complete: 9,702 examples (3,290 local + 6,412 cloud); cloud cost ~$5.50 + checker"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Data scaling test started: 0 vs 3,300 vs 9,411 synthetic examples (same pool)"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Scaling test: synthetic data helps overall (+1.2 pts), calibration, and synthetic-style tasks, but NOT held-out tasks (flat), so build better data, not more of the same"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Recipe test started: repeat cap (Qasper was seen 23x, prompt-injections 29x), full LR schedule, tuned abstain threshold"
+  },
+  {
+   "date": "2026-09-24",
+   "text": "Recipe test: repeat cap lifts held-out accuracy 62.5% -> 66.4% (jailbreak +8.8) for -1.6 in-domain; cap + full schedule become defaults"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "Generator v2.0 built: taxonomy of 16 sectors / 320 domains / 971 document types, ~45% real FineWeb passages, inference questions, MinHash dedupe, budget cap (11 tests)"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "v2 pilots ($0.15): removing 'unknown' options + reader-style questions on real text cut checker disagreement (inferred 37% -> 20%, stated 8% -> 2%)"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "55 v2 eval candidates (165 questions) ready for Shane's review in tools/review.html"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "Shane's review of v2 eval candidates: 92.7% (unanswerable 100%); added one-defensible-answer rules + two critics; 11k-job batch launched (cap $30)"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "Strategy adopted (D27, docs/STRATEGY.md): frontier-class open-weights decision model, with a release bar written before measuring; open zero-shot classifiers added as baselines"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "Open-classifier baselines: Kodiak far ahead overall (+23 pts acc), best calibration, fastest; but GLiClass-instruct-large edges it on held-out (0.705 vs 0.691 forced). Best-in-class bar not met yet"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "First upload: best model (R1) as a PRIVATE preview at huggingface.co/cortex-agent-llc/kodiak-small-r1-preview (weights verified by SHA-256); public release after the v2 A/B + release kit"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "Release kit: Kodiak.from_pretrained loader, export/push CLI, [infer] install extra, model card draft, quickstart; calibration-bug fix re-pushed to the private preview; CPU ~80 ms"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "Distribution plan: demo Space + Inference Endpoints handler built and tested; hosted Kodiak API by Cortex Agent chosen as the productization path"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "GitHub repo made public (building in public); weights stay private until the v2 A/B picks the launch model"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "Demo Space running (private): comgen42/kodiak-demo loads the private model from cortex-agent-llc; ~0.85 s round trip; transfer to the org and go public at launch"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "Research preview public: cortex-agent-llc/kodiak-small-r1-preview (weights, handler, preview model card); demo Space gets a preview banner"
+  },
+  {
+   "date": "2026-09-25",
+   "text": "v2.0 batch done: 9,428 kept examples for $25.38 (Stage 2 goal met)"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "A/B with 3 seeds each: v2.0 cuts wrong refusals ~60%, abstain precision 0.84→0.92, better calibration; never-seen forced accuracy unchanged (0.72 vs 0.72). The single-run '+5–7 pts' was noise"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "Research preview v2 public: cortex-agent-llc/kodiak-small-v2-preview (seed chosen on validation); demo switched to v2; r1 card points to v2. Honest note: the crushed-box fix is fragile"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "Eval set v0.2 frozen: +8 never-seen sources (legal, moral, finance, science, clickbait score, poetry); held-out 4 → 12 tasks, 1,000 → 4,200 examples"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "Stage 3 paused after 5 pilots ($0.54): blind AI raters disagree on most judgment ratings (58–82%), so the labels are too noisy to teach; next: large-model results, then try low/medium/high bands"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "Outside validation: CMU 'JEV-as-a-Judge' (arXiv:2609.26550) confirms the accept-confident/escalate-unsure cascade; OpenRouter launches jev-router. Backlog ranked: Kodiak-as-a-judge demo (+ public benchmark), Kodiak Router, Zork"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "Zork showdown published (Shane): 0 invalid moves in ~20k, but Jev beat Kodiak, and v2 was confidently wrong on game states. Calibration doesn't survive distribution shift (D32)"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "ModernBERT-large (3 seeds) beats every open zero-shot classifier on eval v0.2 never-seen tasks: 60.9% vs 57.9% best clean rival. Release criterion 1 met by large (D33); ratings and off-distribution calibration still weak"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "Ensemble of 3 large runs: never-seen forced 62.3%, calibration error 0.099 (from ~0.128), abstain precision 93% (D34). Next: distill the ensemble into one model"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "Kodiak large v2 research preview public (cortex-agent-llc/kodiak-large-v2-preview, weights verified); demo gets a small/large picker and a 'Categorize a list' tab"
+  },
+  {
+   "date": "2026-09-26",
+   "text": "Phase 6: ONNX export + Node.js/Docker server (D35); model.onnx published in both preview repos"
+  },
+  {
+   "date": "2026-09-27",
+   "text": "Distillation of the large ensemble into small: no gain, calibration slightly worse (D36, negative result)"
+  },
+  {
+   "date": "2026-09-27",
+   "text": "Polarity batch (mixed/neutral tone): 3,894 examples for $9.78; 3-seed test queued"
+  },
+  {
+   "date": "2026-09-27",
+   "text": "Release criterion 2 met narrowly: Qwen3-8B leads by 7.9 on never-seen tasks (world knowledge); Kodiak→LLM cascade beats both (0.740 vs 0.709 with 43% escalated) (D37)"
+  },
+  {
+   "date": "2026-09-27",
+   "text": "Generator v2.1 hard-example mining tied random selection (3 seeds each): not adopted (D41). A demo user found a label-word overlap shortcut (0.97 → 0.48 on a reworded ticket): v2.2's first target"
+  },
+  {
+   "date": "2026-09-27",
+   "text": "Calibration batch (unfamiliar inputs) had no effect, 3 seeds (D42): the fourth flat data tweak in a row; small-model data tweaks stop here. Demo gets a 'Did Kodiak get something wrong?' form"
+  },
+  {
+   "date": "2026-09-28",
+   "text": "Demo: 'Returns Desk: you vs. the Bear' game (233 computed-answer cases) and a live feedback form feeding a private review dataset"
+  },
+  {
+   "date": "2026-09-28",
+   "text": "Returns Desk simulator data (computed labels, $2.01): word-trap probe 3 → 5 of 8, the first targeted data gain since v2.0; costs ~1 pt and teaches a new shortcut (D43)"
+  },
+  {
+   "date": "2026-09-28",
+   "text": "Returns Desk v2 (three worlds, $1.21) matched v1: probe gain real but unreliable across seeds, same ~1-pt cost; simulators move to v0.2 (D44). Book proposal drafted"
+  },
+  {
+   "date": "2026-09-28",
+   "text": "Accuracy mode published (3-run large ensemble, threshold from a validation rule fixed in advance): never-seen 0.623, abstain precision 0.94, ECE 0.059 (D45). Fine-tuning kit built: demo 75.8% → 98.3%"
+  },
+  {
+   "date": "2026-09-28",
+   "text": "Ettin-1B (E15) clears its pre-set bar: never-seen 0.666 vs 0.629 bar (large 0.609, Qwen3-8B 0.688); guard miss on 'can't tell' precision (0.86); 2 confirming seeds running (D46)"
+  },
+  {
+   "date": "2026-09-29",
+   "text": "Ettin-1B confirmed on 3 seeds: never-seen 0.659 ± 0.013 vs large 0.609 (+5.0); gap to Qwen3-8B now ~3 points; 'can't tell' precision 0.87 still below 0.90 (D47)"
+  },
+  {
+   "date": "2026-09-29",
+   "text": "1B accuracy mode (E16) missed its precision target (0.879 < 0.90) despite the best calibration yet; single 1B published as kodiak-xl-v2-preview (D48). Demo redesigned: answer cards with confidence bars"
+  },
+  {
+   "date": "2026-09-29",
+   "text": "Decision Index run 1: 12.75 (below the pre-set 15-25); diagnosed an empty-state format mismatch (35% of requests); fixed with one declared rule, validated on our data; run 2 launched (D50)"
+  },
+  {
+   "date": "2026-09-30",
+   "text": "Decision Index run 2: Kodiak XL 17.19, rank #48 of 71, 5th among ≤2B models (pre-set expectation 15-25); report card sets the next data targets (D51)"
+  },
+  {
+   "date": "2026-09-30",
+   "text": "E17 seed 1: skills score 0.518 → 0.980 with every guard holding; abstain precision 0.891 and probe 6/8 (D52). Confirming seeds started."
+  },
+  {
+   "date": "2026-10-01",
+   "text": "E17 confirmed over 3 seeds: four new skills (0.518 → 0.981) at no general cost; kept (D53). Seed 1's precision/probe bonus was noise."
+  },
+  {
+   "date": "2026-10-01",
+   "text": "Release naming decided: Kodiak-v0.2-<size> (150M / 400M / 1B), no 'preview' (D54). Decision Index re-run with the E17 model started."
+  },
+  {
+   "date": "2026-10-01",
+   "text": "Decision Index with the E17 model: 17.57 (was 17.19). Skills transfer to real data (ESCI, HoVer, BFCL +12-18 pts); some classification regressions; not submitted (D55)."
+  },
+  {
+   "date": "2026-10-01",
+   "text": "Decision Index diagnosis (D56): E17's gains are real across 3 seeds; the 'regressions' were XL v2 seed-1 luck, except a phishing wording fragility."
+  },
+  {
+   "date": "2026-10-01",
+   "text": "E18 (option-wording robustness) approved; checker-verified rewordings for 279 training labels and 114 eval labels (~$0.05)."
+  },
+  {
+   "date": "2026-10-01",
+   "text": "E18 (reworded options) missed its bar: consistency 0.621 → 0.678 (needed 0.721). One-seed side effect: never-seen 0.680, better calibration (D57)."
+  },
+  {
+   "date": "2026-10-02",
+   "text": "E19: reworded options confirmed over 3 seeds: never-seen 0.662 → 0.689 and calibration error 0.109 → 0.085 (D58). Biggest gain since the 1B backbone; joins the v0.2 recipe."
+  },
+  {
+   "date": "2026-10-02",
+   "text": "Shane: ship v0.2. Kodiak-v0.2-1B = E17 skills + reworded options, seed 1 (picked on validation); accuracy mode = 3 models. Wording trap moves to v0.3."
+  },
+  {
+   "date": "2026-10-02",
+   "text": "v0.2 released: Kodiak-v0.2-1B is live on Hugging Face; the demo runs on ZeroGPU with v0.2 as the default (D59). Accuracy mode uploading."
+  },
+  {
+   "date": "2026-10-02",
+   "text": "Accuracy mode published (weights verified) and added to the ZeroGPU demo. Both v0.2 models are live."
+  },
+  {
+   "date": "2026-10-02",
+   "text": "v0.2 announcement published on cortexagent.com (the site's first post)."
+  }
+ ],
+ "published": [
+  {
+   "name": "Kodiak-v0.2-1B",
+   "kind": "model",
+   "link": "https://huggingface.co/cortex-agent-llc/kodiak-v0.2-1b",
+   "run": "b-xl-s1-e18-s1",
+   "date": "2026-10-02",
+   "notes": "v0.2 release: E17 skills + reworded options; never-seen 0.689 ± 0.008 (3 seeds), this run 0.680"
+  },
+  {
+   "name": "Kodiak-v0.2-1B accuracy mode",
+   "kind": "model (3-model ensemble)",
+   "link": "https://huggingface.co/cortex-agent-llc/kodiak-v0.2-1b-accuracy",
+   "run": [
+    "b-xl-s1-e18-s0",
+    "b-xl-s1-e18-s1",
+    "b-xl-s1-e18-s2"
+   ],
+   "date": "2026-10-02",
+   "notes": "never-seen 0.706, ECE 0.062, abstain precision 0.905"
+  },
+  {
+   "name": "Announcement: Kodiak v0.2",
+   "kind": "blog post",
+   "link": "https://cortexagent.com/blog/kodiak-v0-2-an-open-1b-decision-model-you-can-download-today",
+   "date": "2026-10-02",
+   "notes": "first cortexagent.com post"
+  },
+  {
+   "name": "kodiak-xl-v2-preview",
+   "kind": "model",
+   "link": "https://huggingface.co/cortex-agent-llc/kodiak-xl-v2-preview",
+   "run": "b-xl-s1-v2-s1",
+   "date": "2026-09-29",
+   "notes": "Ettin-1B backbone, the most accurate single Kodiak: never-seen 0.666 (3-run mean 0.659). 'Can't tell' precision 0.86 (below 0.90). 38 ms GPU.",
+   "superseded": true
+  },
+  {
+   "name": "kodiak-large-v2-ensemble-preview",
+   "kind": "model",
+   "link": "https://huggingface.co/cortex-agent-llc/kodiak-large-v2-ensemble-preview",
+   "run": [
+    "b-base-s1-v2-s0",
+    "b-base-s1-v2-s1",
+    "b-base-s1-v2-s2"
+   ],
+   "date": "2026-09-28",
+   "notes": "Accuracy mode: the 3 large v2 runs averaged; the recommended large model. Never-seen 0.623, abstain precision 0.94, ECE 0.059.",
+   "badge": "accuracy mode",
+   "superseded": true
+  },
+  {
+   "name": "kodiak-large-v2-preview",
+   "kind": "model",
+   "link": "https://huggingface.co/cortex-agent-llc/kodiak-large-v2-preview",
+   "run": "b-base-s1-v2-s1",
+   "date": "2026-09-26",
+   "notes": "Quality tier (ModernBERT-large, ~400M). Seed 1 of 3, chosen on validation. Includes model.onnx."
+  },
+  {
+   "name": "kodiak-small-v2-preview",
+   "kind": "model",
+   "link": "https://huggingface.co/cortex-agent-llc/kodiak-small-v2-preview",
+   "run": "b-small-s1-B-v2",
+   "date": "2026-09-26",
+   "notes": "Fast tier (ModernBERT-base, 152M). Includes model.onnx."
+  },
+  {
+   "name": "kodiak-small-r1-preview",
+   "kind": "model",
+   "link": "https://huggingface.co/cortex-agent-llc/kodiak-small-r1-preview",
+   "run": "b-small-s1-R1-cap3",
+   "date": "2026-09-25",
+   "notes": "First preview; superseded by small v2.",
+   "superseded": true
+  },
+  {
+   "name": "Demo Space",
+   "kind": "demo",
+   "link": "https://huggingface.co/spaces/comgen42/kodiak-demo",
+   "date": "2026-09-25",
+   "notes": "ZeroGPU since 2026-10-02; Kodiak-v0.2-1B default"
+  },
+  {
+   "name": "Source code",
+   "kind": "code",
+   "link": "https://github.com/grizzlypeaksoftware/kodiak",
+   "date": "2026-09-25",
+   "notes": "Code, docs, decisions, reports; Node/Docker server in server/."
+  }
+ ],
+ "queue": [
+  {
+   "name": "Decision Index: Kodiak-v0.2-1B accuracy mode",
+   "why": "The v0.2 leaderboard entry (3 models averaged; less seed luck, D56). Same frozen suite and engine rules as runs 1-2. Submission is a separate OK from Shane.",
+   "after": "running: 73,580 of ~151k at 4:10 PM (~5 requests/s now); done ~8:30 PM; submission is a separate OK from Shane",
+   "script": "runs/kodiak-v02-accuracy",
+   "log": "../decision-index/runs-kodiak-v02-accuracy.log",
+   "done_marker": "\"complete\": true",
+   "cost": "free (GPU)"
+  },
+  {
+   "name": "Hugging Face post linking to the announcement",
+   "why": "Text given in chat; posts from Shane's account or the cortex-agent-llc org.",
+   "after": "Shane posts"
+  },
+  {
+   "name": "E20: wording-consistency loss (proposal, v0.3 main goal)",
+   "why": "Pair each example with a reworded twin in the same batch and penalize disagreeing answers. Bar: consistency ≥ 0.75 (v0.2: 0.678), reworded accuracy ≥ 0.712; guards incl. never-seen ≥ 0.679.",
+   "after": "Shane's approval; code + smoke while the Decision Index run finishes; full run when the GPU is free (~midnight)",
+   "cost": "free (GPU)"
+  },
+  {
+   "name": "Stage 3 retry: ratings as low / medium / high bands",
+   "why": "Ratings are the weakest answer type and a bigger model didn't fix them (D33). Raters disagreed on exact numbers (D31); test whether they agree on bands. If ≥80%: ~$10 batch + 3 seeds; if not, ratings ship as 'experimental' in v0.1.",
+   "after": "v2.2 (or alongside it)",
+   "cost": "pilot ~$0.15; batch ~$10 only if the pilot passes (ask first)"
+  }
+ ],
+ "experiments": [
+  {
+   "match": "-e18-s[02]$",
+   "name": "E19: confirm E18's never-seen gain (seeds 0 and 2 of the E18 recipe)",
+   "why": "3-seed test of the E18 recipe; E18's seed-1 run is the third seed",
+   "report": "e19-rewording-3seeds",
+   "decision": "D58: keep. 3 seeds: never-seen 0.662 → 0.689, ECE 0.109 → 0.085; joins the v0.2 recipe"
+  },
+  {
+   "match": "-e18-s1$",
+   "name": "E18: option-wording robustness (seed 1)",
+   "why": "Same answers under reworded options",
+   "report": "e18-xl-wording",
+   "decision": "D57: kill as a wording fix (consistency 0.678 < 0.721); never-seen 0.680 and better calibration on one seed, unconfirmed"
+  },
+  {
+   "match": "-e17-",
+   "name": "E17: in-purpose skills data (XL + 10k skills examples)",
+   "why": "Grounding, tool selection, claim checks, relevance from the Decision Index report card",
+   "report": "e17-xl-skills-3seeds",
+   "decision": "D53: keep. 3 seeds: skills 0.518 → 0.981, never-seen 0.659 → 0.662 (no cost); seed 1's precision/probe bonus was noise. Val loss isn't comparable to XL v2"
+  },
+  {
+   "match": "b-xl-",
+   "name": "v0.2 backbone: Ettin-1B",
+   "why": "Bigger reader (1B, ModernBERT architecture)",
+   "report": "v02-xl",
+   "decision": "D47: confirmed, 0.659 ± 0.013 (3 seeds); flagship candidate"
+  },
+  {
+   "match": "simret2-",
+   "name": "Returns Desk v2 (3 seeds)",
+   "why": "Three worlds + split info intent (D43 follow-up)",
+   "report": "v02-simret2",
+   "decision": "D44: like v1; not in v0.1"
+  },
+  {
+   "match": "simret-",
+   "name": "Returns Desk simulator (3 seeds)",
+   "why": "Computed-label data vs the word-matching shortcut",
+   "report": "v02-simret",
+   "decision": "D43: probe 3 → 5 of 8; −1 pt never-seen; new shortcut"
+  },
+  {
+   "match": "unfam-",
+   "name": "Calibration batch: unfamiliar inputs (3 seeds)",
+   "why": "'Can't tell' data for unfamiliar inputs",
+   "report": "v02-unfamiliar",
+   "decision": "D42: no effect"
+  },
+  {
+   "match": "v21-",
+   "name": "Generator v2.1: mined vs random (3 seeds)",
+   "why": "Hard-example mining ablation",
+   "report": "v02-v21-mining",
+   "decision": "D41: tie, not adopted"
+  },
+  {
+   "match": "polarity-",
+   "name": "Mixed / neutral tone batch (3 seeds)",
+   "why": "Gap from the categorizer demo",
+   "report": "v02-polarity",
+   "decision": "D39: no real gain"
+  },
+  {
+   "match": "distill-",
+   "name": "Distillation of the large ensemble (3 seeds)",
+   "why": "Ensemble calibration at small-model cost",
+   "report": "v02-distill",
+   "decision": "D36: didn't help"
+  },
+  {
+   "match": "b-base-s1-v2",
+   "name": "ModernBERT-large backbone (3 seeds)",
+   "why": "Bigger reader",
+   "report": "v02-backbone",
+   "decision": "D33: beats every open classifier; all 3 runs together = accuracy mode (the recommended large model, D45); seed 1 also published alone"
+  },
+  {
+   "match": "-A-eq|-B-v2|-C-v1v2",
+   "name": "Generator v1 vs v2.0 A/B (3 seeds)",
+   "why": "Better data at equal size",
+   "report": "generator-ab-seeds",
+   "decision": "D29: fixes over-refusal, no never-seen gain; B-v2 published"
+  },
+  {
+   "match": "-R1-|-R2-",
+   "name": "Recipe test",
+   "why": "Repeat cap, full schedule, tuned threshold",
+   "report": "recipe-test",
+   "decision": "D25: new defaults; R1 published as r1"
+  },
+  {
+   "match": "-syn",
+   "name": "Data scaling test: 0 / 3k / 10k synthetic",
+   "why": "Does more v1 data help?",
+   "report": "scaling-test",
+   "decision": "D24: not on never-seen tasks"
+  },
+  {
+   "match": "-v0|p3-",
+   "name": "First runs and plumbing",
+   "why": "Phase 3-4 bring-up",
+   "report": "kodiak-v0-checkpoints",
+   "decision": ""
+  }
+ ],
+ "finance": {
+  "note": "Cloud spend is estimated from logged tokens × DigitalOcean list prices (synthetic.prices_per_million); DigitalOcean's billing page is the source of truth. A few small unlogged calls (taxonomy generation, checker bake-offs, ~$1) aren't included. Training and evaluation run on the DGX Spark Shane already owns.",
+  "fixed": [
+   {
+    "item": "Hugging Face Pro",
+    "usd_per_month": 9,
+    "since": "2026-09-25",
+    "note": "Shane's personal account; hosts the demo Space (confirm price)"
+   },
+   {
+    "item": "DigitalOcean inference prepay",
+    "usd_once": 500,
+    "since": "2026-09-26",
+    "note": "Prepaid credit; spend is drawn from it (not an extra cost)"
+   }
+  ]
+ },
+ "research": {
+  "active": {
+   "id": "v0.2",
+   "proposal": null,
+   "title": "Release: Kodiak-v0.2-1B",
+   "steps": [
+    {
+     "name": "Shane: ship v0.2 (wording trap → v0.3)",
+     "status": "done",
+     "note": "2026-10-02; recorded in GOAL.md"
+    },
+    {
+     "name": "Pick the model on validation",
+     "status": "done",
+     "note": "seed 1 (val loss 0.026 vs 0.041 / 0.043)"
+    },
+    {
+     "name": "Build release folders (single + accuracy mode)",
+     "status": "done",
+     "note": "dist/kodiak-v0.2-1b (seed 1) and -accuracy (3 models; threshold 0.6 on validation): never-seen 0.706, ECE 0.062, abstain precision 0.905"
+    },
+    {
+     "name": "Model card with honest numbers and limits",
+     "status": "done",
+     "note": "Shane approved; v0.2's own benchmark numbers and limits"
+    },
+    {
+     "name": "Publish to Hugging Face (cortex-agent-llc/kodiak-v0.2-1b, -accuracy)",
+     "status": "done",
+     "note": "both repos public; all weights SHA-verified (11:17)"
+    },
+    {
+     "name": "Demo Space: v0.2 default + move to ZeroGPU (Pro)",
+     "status": "done",
+     "note": "live on ZeroGPU: v0.2 default + accuracy mode; tested through the live Space"
+    },
+    {
+     "name": "Decision Index run (accuracy mode) and submission",
+     "status": "in_progress",
+     "note": "accuracy mode running (Shane OK'd the run); submission is a separate OK"
+    },
+    {
+     "name": "Announcement post",
+     "status": "done",
+     "note": "published on cortexagent.com 2026-10-02 (blog/kodiak-v0-2-...); HF post pending (Shane)"
+    }
+   ],
+   "bar": []
+  },
+  "ideas": [
+   {
+    "name": "E20: wording-consistency loss",
+    "why": "v0.3 main goal; v0.2 consistency 0.678 across wordings (D58).",
+    "status": "proposal: gate OK; waiting for Shane"
+   },
+   {
+    "name": "E19: confirm the never-seen side effect of reworded options",
+    "why": "One-seed +1.6 never-seen and better calibration from E18 (D57); 3-seed test with a pre-set bar.",
+    "status": "done: keep (D58)"
+   },
+   {
+    "name": "Option-wording robustness",
+    "why": "PhishNChips 'verdict' flips to one answer with long option descriptions while other wordings disagree (D56); same family as the wording trap. Data with paraphrased/long option texts and consistency across wordings.",
+    "status": "E18 killed as a wording fix (D57); a consistency-objective version is untested"
+   },
+   {
+    "name": "Submit accuracy mode (3 E17 models averaged)",
+    "why": "Single-seed Decision Index scores swing by up to 0.36 per benchmark (D56); averaging 3 models cuts that noise and is a stronger entrant; ~3 × 38 ms is far under the 1,000 ms limit.",
+    "status": "needs Shane's OK (~3.5-10 h GPU)"
+   },
+   {
+    "name": "Longer inputs within 8k tokens",
+    "why": "577 Decision Index requests were unsupported (mostly ToolRet's long documents); train on longer states so XL uses its full window.",
+    "status": "idea (no proposal yet)"
+   },
+   {
+    "name": "Use the banked skills data (~11.5k)",
+    "why": "If E17 passes, test whether 20k skills examples beat 10k (a scale ablation), or which skill sets earn their keep.",
+    "status": "waits on E17"
+   },
+   {
+    "name": "Wording-trap fix without a general cost",
+    "why": "Open in GOAL.md: Returns Desk data moved the probe (E12/E13) but cost ~1 point never-seen.",
+    "status": "open goal; parked"
+   },
+   {
+    "name": "Abstain precision ≥ 0.90 for XL",
+    "why": "Open in GOAL.md: XL is 0.87; averaging three XL runs (E16) reached only 0.88.",
+    "status": "open goal"
+   },
+   {
+    "name": "Ratings as low / medium / high bands (Stage 3 retry)",
+    "why": "Ratings are the weakest answer type; raters disagreed on exact numbers (D31). Test agreement on bands first.",
+    "status": "in the queue (pilot ~$0.15)"
+   },
+   {
+    "name": "Decision Index engine: sparse attention for long multi-option requests",
+    "why": "Engineering, not training: lets the long ToolRet requests run instead of being refused.",
+    "status": "before the next Decision Index run"
+   },
+   {
+    "name": "'Trick the Bear' game mode",
+    "why": "Players try to fool Kodiak; their wins become hard examples (with consent).",
+    "status": "idea"
+   },
+   {
+    "name": "Claude Code publishing-decision hook (on/off)",
+    "why": "Real decisions from Shane's own publishing work as a private eval/teach set.",
+    "status": "idea"
+   }
+  ],
+  "reports": {
+   "E1": "scaling-test",
+   "E2": "recipe-test",
+   "E3": "generator-ab-seeds",
+   "E5": "backbone-test",
+   "E6": "v02-cascade",
+   "E8": "v02-distill",
+   "E9": "v02-polarity",
+   "E10": "v02-v21-mining",
+   "E11": "v02-unfamiliar",
+   "E12": "v02-simret",
+   "E13": "v02-simret2",
+   "E15": "v02-xl-3seeds",
+   "E17": "d55-di-diagnosis",
+   "E18": "e18-xl-wording",
+   "E19": "e19-rewording-3seeds"
+  }
+ }
 }

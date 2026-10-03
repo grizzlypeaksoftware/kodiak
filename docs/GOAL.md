@@ -1,7 +1,7 @@
 # Kodiak: the frozen goal
 
 > **Owner: Shane Larson.** Claude may *propose* changes to this file in chat, but never edits it. Every experiment proposal quotes the
-> product sentence below and is judged against the metrics here. Status: **draft for Shane's approval (2026-09-28)**; delete this line to approve.
+> product sentence below and is judged against the metrics here. Status: **approved by Shane (2026-09-30)**.
 
 ## The product sentence
 
@@ -18,12 +18,26 @@ Kodiak is an open decision model that lets teams automate routine "read this and
 
 ## The metric that matters
 
-- **Primary:** never-seen tasks, forced accuracy, choice questions, frozen eval set v0.2 (`eval:heldout`). Current best: **0.623**
-  (accuracy mode, D45); single large model **0.609 ± 0.008** (3 seeds).
-- **Guards (must not get worse beyond noise):** familiar tasks accuracy (large 0.855), never-seen calibration error (0.128 single / 0.098
-  accuracy mode), abstain precision (≥ 0.90 at the default threshold), speed (report the multiple vs the current model).
+- **Primary:** never-seen tasks, forced accuracy, choice questions, frozen eval set v0.2 (`eval:heldout`). Current best: **0.689 ± 0.008**
+  (E17 skills + reworded options, 3 seeds, D58); before it XL v2 0.659 ± 0.013 (D47), large accuracy mode 0.623 (D45), single large 0.609.
+- **Guards (must not get worse beyond noise):** familiar tasks accuracy (XL 0.878), never-seen calibration error (XL 0.116 single / 0.088
+  XL accuracy mode), abstain precision (target ≥ 0.90 at the default threshold; XL is at 0.87, so for now it must not fall below 0.86),
+  speed (report the multiple vs the current model; XL ~38 ms on GPU).
 - **Targeted fixes** (e.g. a wording trap) may use a named probe as their metric, but must still pass the guards.
 - Never trained or tuned on the eval set; thresholds and model selection use validation data only.
+
+## The ambition
+
+Frontier-class in its class: a best-in-class decision model, built with guerrilla ML engineering (small budgets, sharp experiments, open
+tools). The strategy and the primary metric above stay the same.
+
+## Public comparison: the Decision Index
+
+- The public Decision Index (github.com/apolinario/decision-index) is one of our benchmark comparison tools. It shows where Kodiak stands
+  against other decision models, and its report card points at the skills to train next.
+- It does not replace the primary metric: a change still has to win on the frozen eval v0.2 and pass the guards.
+- Never train or tune on its questions; data built for its skills comes from our own generators (as in E17).
+- Current (preliminary, not submitted): **17.19**, #48 of 71, 5th among models ≤ 2B (D51). Submit only with Shane's OK.
 
 ## What counts as a win
 
@@ -42,3 +56,10 @@ Kodiak is an open decision model that lets teams automate routine "read this and
 
 Beat 0.623 never-seen (accuracy mode) or 0.609 per single model with a bigger backbone, ship the fine-tuning kit, and fix the user-found wording
 trap without a general cost. No release until then; the Hugging Face previews stay up.
+
+Status (2026-09-30): bigger backbone **done** (XL 0.659, D47); fine-tuning kit **done**; wording trap **open** (E12/E13 parked: probe up,
+~1 point general cost); abstain precision 0.90 **open** for XL (E16 missed it).
+
+**Decision (Shane, 2026-10-02): ship v0.2 now.** The recipe is E17 skills + reworded options (never-seen 0.689, D58). The wording trap
+improved (consistency 0.62 → 0.68, probe 4.7 → 5.7 of 8) but isn't fixed; it moves to the **v0.3 goal**, with "can't tell" precision ≥ 0.90.
+The model card says so.

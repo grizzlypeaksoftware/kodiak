@@ -1,0 +1,50 @@
+{
+ "split": "train",
+ "seed": 18,
+ "writer": "do:openai-gpt-oss-120b",
+ "checker": "do:deepseek-3.2",
+ "usd": 0.0,
+ "table": {
+  "mnli": {
+   "false": {
+    "description": "The claim is shown to be false according to the information provided in the text."
+   },
+   "contradicted by the text": {
+    "description": "The passage directly opposes the claim, showing it is contradicted by the text."
+   },
+   "no": {
+    "description": "Based on the passage, the correct answer to the question is no."
+   },
+   "neither supported nor contradicted by the text": {
+    "paraphrase": "undetermined by passage",
+    "description": "The text provides no evidence either supporting or opposing the given statement."
+   }
+  },
+  "kodiak_synth_v1": {
+   "complement: a different product, but an accessory or add-on for what was searched": {
+    "paraphrase": "add‑on product",
+    "description": "The item complements the original request as a compatible accessory or add‑on."
+   },
+   "ask the user for missing information": {
+    "description": "The assistant needs more details from the user to continue the task.",
+    "paraphrase": "request clarification"
+   },
+   "no: adds details the source never mentions (nothing in the source conflicts with them)": {
+    "description": "no: the answer includes information absent from the source material.",
+    "paraphrase": "unsupported addition"
+   },
+   "exact match: it is what the shopper searched for": {
+    "description": "The item is precisely the one the shopper queried for.",
+    "paraphrase": "perfect fit"
+   },
+   "irrelevant: unrelated to the search, and not used with it either": {
+    "paraphrase": "off‑topic",
+    "description": "The suggestion is irrelevant to the shopper's query and not applicable together."
+   },
+   "answer directly without calling a tool": {
+    "description": "The answer can be given directly without calling a tool.",
+    "paraphrase": "no tool needed"
+   }
+  }
+ }
+}

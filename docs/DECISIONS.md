@@ -56,6 +56,14 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D49 | 2026-09-29 | Enter the public Decision Index with Kodiak XL (expectation 15-25, set before the run) | active |
 | D50 | 2026-09-29 | Run 1 scored 12.75: empty-state format mismatch; one generic rule, validated on our data; fresh full run | active |
 | D51 | 2026-09-30 | Decision Index run 2: 17.19, rank #48 of 71; report card sets the next data targets | active |
+| D52 | 2026-09-30 | E17 seed 1 clears its bar (skills 0.518 → 0.980, guards hold, abstain precision 0.89, probe 6/8); confirming seeds | superseded by D53 |
+| D53 | 2026-10-01 | E17 confirmed (3 seeds): skills 0.981 at no general cost; keep. Seed 1's precision/probe bonus was luck. Decision Index is the real-world check | active |
+| D54 | 2026-10-01 | Release naming: Kodiak-v0.2-1B (family, version, parameter count); no 'preview' at release | active |
+| D55 | 2026-10-01 | Decision Index with the E17 model: 17.19 → 17.57; targeted skills transfer, but classification regressions (label collapse); don't submit yet | superseded by D56 |
+| D56 | 2026-10-01 | DI diagnosis (3 seeds each): E17's gains are real (ESCI, HoVer, CLINC, BFCL); 'regressions' were XL v2 seed-1 luck, except PhishNChips (option-wording fragility) | active |
+| D57 | 2026-10-01 | E18 (reworded options) misses its bar as a wording fix (consistency 0.621 → 0.678, needed 0.721); side effect on never-seen (+1.6) and calibration noted, unconfirmed | active |
+| D58 | 2026-10-02 | E19 confirms it (3 seeds): reworded options raise never-seen 0.662 → 0.689 and cut never-seen ECE 0.109 → 0.085; keep: joins the v0.2 recipe | active |
+| D59 | 2026-10-02 | v0.2 released: Kodiak-v0.2-1B (+ accuracy mode); demo Space moved to ZeroGPU | active |
 
 ---
 
@@ -538,4 +546,106 @@ relevance judgments (ESCI), aspect-level sentiment (ACOS). Each goes through the
 Decision Index is re-run only as a final check. (2) Engine fix for the next run: sparse attention for long multi-option requests. (3) Submitting
 run 2 to the board needs Shane's OK.
 **D51 addendum (Shane, 2026-09-30).** Don't submit run 2 yet: build a better model first, then re-run the Decision Index and submit that.
+
+### D52: E17 (skills data) seed 1 clears its bar; two confirming seeds started
+**Result (seed 1, `runs/b-xl-s1-e17-s1`, reports/e17-xl-skills.md).** Skills score **0.518 → 0.980** (grounding 0.45 → 1.00, tools
+0.46 → 0.97, claims 0.81 → 0.99, relevance 0.35 → 0.96; "which sentence" 0.24 → 1.00). Guards all hold vs XL v2 seed 1: never-seen
+forced 0.666 → 0.664 (≥ 0.645), familiar 0.878 → 0.880 (≥ 0.87), abstain precision **0.859 → 0.891** (≥ 0.86; close to the 0.90 goal),
+never-seen ECE 0.116 → 0.111, label-overlap probe **4 → 6 of 8**. Jailbreak +5.2, Banking77 +2.8; poem −2.7, fin-sentiment −2.2 and
+new v0.2 never-seen tasks −1.0 (one seed each; within noise until the 3-seed check).
+**Caveat, stated before anyone celebrates.** The skills eval comes from the same generators as the training data (different seed, no shared
+passages or states, checked), so 0.98 shows the model learned these synthetic tasks, not yet that it does them on real-world data. The
+external check is the Decision Index (RAGTruth, API-Bank, HoVer, ESCI, BFCL...), run once at the end as the proposal says. Lesson for the
+next skills eval: include some real-world-style items (e.g. permissively licensed human-written examples), so the in-house test can't saturate.
+**Unexpected:** abstain precision rose 0.859 → 0.891 and the wording-trap probe 4 → 6 of 8, both open goals in GOAL.md, without targeting
+them. Plausible mechanism: the "not enough information" and "ask for missing information" answers teach when the text doesn't settle a
+question. To be confirmed across seeds.
+**Next.** Seeds 0 and 2 (approved plan), then a 3-seed vs 3-seed report; if it holds, the Decision Index re-run (Shane's OK before any submission).
+
+### D53: E17 confirmed over 3 seeds: the skills are learned at no general cost (keep); seed 1's bonus was luck
+**Result (3 seeds vs XL v2's 3 seeds; reports/e17-xl-skills-3seeds.md).** Skills score **0.518 → 0.981** (0.980 / 0.980 / 0.982: all
+three runs). Never-seen forced 0.659 ± 0.013 → **0.662 ± 0.012** (+0.2, no cost), familiar 0.881 → 0.878, never-seen ECE 0.113 → 0.109,
+poem and fin-sentiment unchanged (seed 1's dips were noise). Every pre-set line holds on the 3-seed means. **Verdict: keep.**
+**Correction to D52.** Seed 1's "bonus" did not hold: abstain precision 0.868 → 0.889 **± 0.029** (seeds 0.91 / 0.89 / 0.86: too noisy to
+claim), label-overlap probe 5.3 → 4.7 of 8 (XL v2 seeds 6/4/6, E17 seeds 4/6/4). Exactly why we run three seeds before claiming a small effect.
+**What it means.** Kodiak now does four new kinds of decision (grounding checks, tool choice with full API specs, claim verification,
+product relevance) on our generators' data, without losing anything elsewhere. Whether that carries over to real-world data is the
+Decision Index's question (RAGTruth, API-Bank, BFCL, When2Call, HoVer, ANLI, ESCI); one re-run with Shane's OK, as the proposal says.
+
+### D54: Release naming: `Kodiak-v0.2-1B` (family, version, parameter count); no "preview" at release
+**Decision (Shane, 2026-10-01).** Releases are named family, version, then size: **Kodiak-v0.2-1B**, Kodiak-v0.2-400M, Kodiak-v0.2-150M
+(Hugging Face: `cortex-agent-llc/kodiak-v0.2-1b`, ...). Accuracy mode is "Kodiak-v0.2-1B, accuracy mode (3 models averaged)". The release
+drops "preview".
+**Why.** "XL" reads like a large model in a field of 8B-70B models and invites the wrong comparison; the parameter count is the norm (Llama-3.1-8B,
+Qwen3-0.6B, Ettin-encoder-1B), it's what the Decision Index board and Hub readers scan for, and a 1B model ranking well among small models is
+the story. The "v" keeps the version from reading as a size.
+**Rejected.** Size first ("Kodiak-1B v0.2": the version gets dropped in conversation); bear tiers ("Kodiak Grizzly 1B": a word to learn;
+possible later as a nickname).
+**Scope.** Existing public preview repos (`kodiak-xl-v2-preview`, `kodiak-large-v2-ensemble-preview`) stay as they are because posts link to them.
+Internal preset names (`xl`, `large`, `small`) stay in code. The Decision Index entry uses the release name.
+
+### D55: Decision Index with the E17 model (seed 1): 17.19 → 17.57; the skills transfer, but some classifications collapse
+**Run** (`decision-index/runs/kodiak-e17-s1`, same frozen suite and engine as run 2; 150,759 requests, 577 unsupported as before; ~3.3 h).
+Index **17.57** (raw 36.64) vs 17.19. Areas: retrieval 0.329 → 0.352, tools 0.104 → 0.130, language 0.218 → 0.213, knowledge 0.070 → 0.069,
+arts 0.127 → 0.086.
+**Transfer to real-world data (the E17 question): mostly yes.** Amazon ESCI 0.04 → **0.21**, HoVer 0.04 → **0.21**, BFCL 0.19 → **0.31**,
+ANLI 0.02 → 0.10, ToolRet 0.15 → 0.21, ContractNLI 0.23 → 0.32, NLI4CT 0.12 → 0.17, RouterBench 0.00 → 0.11, SGD 0.00 → 0.08,
+CLINC150 0.76 → **0.91**. **Not transferred:** RAGTruth stays 0.00 (response-level hallucination), API-Bank 0.02 → 0.01, When2Call 0.17 → 0.10.
+**Regressions:** PhishNChips 0.38 → **0.07**, FinEntity 0.58 → 0.39, BPoMP 0.47 → 0.33, BANKING77 0.60 → 0.52, VAST 0.10 → 0.01, Humicroedit
+0.08 → 0.01. Symptom on PhishNChips: the "verdict" question collapsed to "phishing" on 1,912 of 2,000 emails (run 2: 666), while the same
+model's "is this phishing?" yes/no stays near "no": a label bias, not a reading failure.
+**Caveat.** One model on each side; the Decision Index's own seed-to-seed spread is unmeasured, so swings on single benchmarks (2,000-row
+sets) may partly be seed noise. **Decision:** don't submit this model. Next is a cheap diagnosis (other seeds on the regressed benchmarks; why
+the verdict collapses) before any fix is proposed through the gate.
+
+### D56: Decision Index diagnosis: E17's gains are real; the "regressions" were mostly seed luck; PhishNChips is a wording fragility
+**Method** (reports/d55-di-diagnosis.md). A fixed sample of up to 1,000 rows from the 12 benchmarks that moved most; all three XL v2 seeds and
+all three E17 seeds (seed 1 rescored from the full runs on the same rows). ~45 min GPU, free.
+**Findings.** (1) Per-benchmark Decision Index scores swing a lot between training seeds (XL v2: FinEntity 0.22-0.58, BPoMP 0.18-0.59). The
+published XL v2 seed 1 happened to be the luckiest seed on several classification benchmarks, so comparing it with one E17 seed showed
+false regressions. (2) Real E17 gains on all three seeds: ESCI 0.04 → 0.19, HoVer 0.12 → 0.21, CLINC 0.84 → 0.91, BFCL 0.20 → 0.25.
+BANKING77, BPoMP, FinEntity, VAST, Humicroedit, When2Call: no change. (3) PhishNChips is a real drop (0.28 → 0.08): the two-option
+"verdict" question with long descriptions flips to "phishing" while three other wordings of the same question say "safe". XL v2 seed 2
+already does it (87%), so it's an existing fragility in reading long option descriptions (the wording-trap family), which E17 makes consistent.
+**Lessons.** Never compare single Decision Index runs between models: use 3 seeds or accuracy mode (the average of 3), which also cuts seed
+noise for a submission. Next fix candidate: option-wording robustness (a proposal through the gate), which also serves the open wording-trap goal.
+
+### D57: E18 misses its bar as a wording fix; a never-seen and calibration side effect is noted but unconfirmed
+**Result (seed 1, `runs/b-xl-s1-e18-s1`, reports/e18-xl-wording.md) vs E17 seed 1.** Wording consistency 0.621 → **0.678** (needed ≥ 0.721);
+accuracy with reworded options 0.681 → **0.679** (needed ≥ 0.711). **Both pre-set lines missed: kill as a wording fix.** Consistency rose on
+6 of 8 tasks (fin sentiment 0.59 → 0.76, banking77 0.64 → 0.71) but fell on contract NLI (0.73 → 0.64); reworded accuracy did not move.
+**Guards all hold:** familiar 0.877, abstain precision 0.870, skills 0.985, probe 6/8.
+**Side effect (one seed, not claimed):** never-seen forced 0.664 → **0.680** (+1.6; the new v0.2 tasks +2.1), never-seen ECE 0.111 → 0.094,
+overall ECE 0.073 → 0.060, poem sentiment +11. It is the primary metric, but one seed and +1.6 sits within ~1.2 seed standard deviations
+(XL: ± 0.013), and the confirm seeds were reserved for clearing the wording bar, so they don't run on this result. Testing it needs its own
+proposal with its own pre-set bar.
+**Why it may have fallen short.** Only ~28% of training questions get reworded (one-off options and per-example v2.0 options can't be), and
+the eval's many-label tasks (banking77, arXiv, occupations) need every option reworded consistently; the model may need the same question
+in two wordings *in the same batch* (a consistency objective) rather than independent samples. Not tested.
+
+### D58: E19 confirms E18's side effect over 3 seeds: training with reworded options is a general win; it joins the v0.2 recipe
+**Result (3 seeds vs E17's 3; reports/e19-rewording-3seeds.md).** Never-seen forced **0.662 ± 0.012 → 0.689 ± 0.008** (+2.7; bar ≥ 0.682),
+new v0.2 never-seen tasks 0.611 → 0.644 (+3.4), never-seen ECE **0.109 → 0.085** (bar ≤ 0.109), overall ECE 0.072 → 0.056, overall accuracy
+0.713 → 0.729. Guards: familiar 0.878 → 0.877, abstain precision 0.889 → 0.880, skills 0.978-0.985, probe mean 4.7 → 5.7 of 8. Poem
+sentiment 0.544 → **0.698** (+15; the gap E9 failed to close) and fin sentiment +2.6. Every pre-set line holds: **keep.** By GOAL.md this is a
+win on the primary metric (+2.0 over the best of the same size), the largest since the 1B backbone (D47).
+**Wording (E18's own question), 3 seeds:** consistency 0.621 → 0.676 / 0.678 / 0.679, reworded accuracy 0.681 → 0.706 / 0.679 / 0.691: better,
+but still short of E18's bar, so the wording trap stays open (GOAL.md). The probe moved +1.0 on the mean, not the +2 of 8 on all 3 seeds a
+targeted fix needs.
+**Why it likely helps.** Never-seen tasks arrive with label wordings the model has never seen; training on several wordings of familiar labels
+teaches it to read what an option means rather than recognize a memorized string. The biggest gains are where label words are ambiguous
+(poem 'mixed', 'no emotional impact'; fin 'neutral').
+**Next.** The v0.2 recipe is E17 + reworded options. Release bar (wording trap) is Shane's call.
+
+### D59: v0.2 released: Kodiak-v0.2-1B and accuracy mode; the demo moves to ZeroGPU
+**Release (Shane: "ship v0.2", "card looks good").** `cortex-agent-llc/kodiak-v0.2-1b`: E17 skills + reworded options, seed 1 (lowest
+validation loss of the three), final weights (SHA-256 verified after upload). `cortex-agent-llc/kodiak-v0.2-1b-accuracy`: all three seeds
+averaged, abstain threshold 0.6 tuned on validation (never-seen 0.706, ECE 0.062, abstain precision 0.905). No extra "final" training run:
+the three tested models are the release; the ~11k banked skills examples wait for v0.3, so nothing untested ships.
+**Demo.** The Space runs on ZeroGPU (Shane's Pro plan) with v0.2 as the default. Three fixes it needed: Python 3.12 in the Space README
+(ZeroGPU defaults to 3.10; kodiak-s1 needs 3.12), `import spaces` before anything touches CUDA, and short GPU reservations (5 s per
+decision, 20 s per table) because visitors' daily ZeroGPU quota is charged the *reserved* time, not the time used.
+**Upload lesson.** The Xet transfer stalled at 48 MB with no traffic for 8 minutes; plain LFS (`HF_HUB_DISABLE_XET=1`) at ~1-2 MB/s worked.
+Upload small files first so a public repo never shows a card without weights for long (it did here for ~40 min). Pin the Space
+builder's gradio (`sdk_version` in the Space README) to the version in requirements.txt: the builder's default moved to 6.29.1 and broke the build.
 

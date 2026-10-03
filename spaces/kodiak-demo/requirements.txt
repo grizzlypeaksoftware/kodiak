@@ -1,2 +1,3 @@
 kodiak-s1[infer] @ git+https://github.com/grizzlypeaksoftware/kodiak@1cf20116581cf7d177f50e4f3cb37fec884965d0
 gradio==6.29.0
+spaces

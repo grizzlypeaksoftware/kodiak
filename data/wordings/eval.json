@@ -1,0 +1,630 @@
+{
+ "split": "eval",
+ "seed": 1821,
+ "writer": "do:openai-gpt-oss-120b",
+ "checker": "do:deepseek-3.2",
+ "usd": 0.047,
+ "table": {
+  "banking77": {
+   "card not working": {
+    "description": "The user reports that their card does not function for any transaction attempts.",
+    "paraphrase": "Card malfunction"
+   },
+   "card arrival": {
+    "paraphrase": "Card arrival status",
+    "description": "The question concerns the arrival status of a newly ordered physical card."
+   },
+   "activate my card": {
+    "description": "The inquiry concerns how to enable or start using a new card that was received.",
+    "paraphrase": "Enable card"
+   },
+   "balance not updated after bank transfer": {
+    "description": "The complaint is that the account balance did not change after a bank transfer was made.",
+    "paraphrase": "Balance unchanged after transfer"
+   },
+   "apple pay or google pay": {
+    "paraphrase": "Digital wallet support",
+    "description": "The user wants to know whether Apple Pay or Google Pay can be used with their card."
+   },
+   "card delivery estimate": {
+    "description": "The user wants an estimate of how long delivery will take for a pending card shipment.",
+    "paraphrase": "Delivery timeframe"
+   },
+   "card payment wrong exchange rate": {
+    "paraphrase": "Wrong FX rate",
+    "description": "The issue is that a card payment was processed using an exchange rate that the user finds inaccurate."
+   },
+   "balance not updated after cheque or cash deposit": {
+    "description": "The user notes that their balance has not updated after depositing cash or a cheque.",
+    "paraphrase": "Balance unchanged after deposit"
+   },
+   "card swallowed": {
+    "description": "The user reports that an ATM has retained their card, preventing its retrieval.",
+    "paraphrase": "Card captured"
+   },
+   "age limit": {
+    "description": "The question asks about the minimum age required to create an account or obtain a card.",
+    "paraphrase": "Age requirement"
+   },
+   "beneficiary not allowed": {
+    "paraphrase": "Beneficiary blocked",
+    "description": "The question states that a chosen beneficiary cannot be added or used for transfers."
+   },
+   "card about to expire": {
+    "description": "The inquiry indicates that the current card is nearing its expiration date and needs replacement.",
+    "paraphrase": "Expiring card"
+   },
+   "automatic top up": {
+    "description": "The user asks how to set up automatic top‑ups for their account balance.",
+    "paraphrase": "Auto top‑up"
+   },
+   "atm support": {
+    "description": "The request seeks information on which ATMs can be used for cash withdrawals.",
+    "paraphrase": "ATM compatibility"
+   },
+   "card linking": {
+    "paraphrase": "Connect card",
+    "description": "The request is about linking an existing card to the app or another service."
+   },
+   "card payment fee charged": {
+    "paraphrase": "Unexpected payment fee",
+    "description": "The complaint involves a fee being charged for a card payment that the user believes is incorrect."
+   },
+   "cancel transfer": {
+    "description": "The user wants to stop or reverse a transfer that has already been initiated."
+   },
+   "card acceptance": {
+    "description": "The user asks where the card can be used for purchases or services worldwide.",
+    "paraphrase": "Card acceptance locations"
+   },
+   "Refund not showing up": {
+    "paraphrase": "Missing refund",
+    "description": "The user reports that a previously requested refund has not appeared in their account."
+   },
+   "cash withdrawal not recognised": {
+    "description": "The user states that a cash withdrawal appears on their account that they did not perform.",
+    "paraphrase": "unknown cash withdrawal"
+   },
+   "country support": {
+    "paraphrase": "country availability question",
+    "description": "The user wants to know if they can use the service in a particular nation."
+   },
+   "cash withdrawal charge": {
+    "paraphrase": "question on withdrawal charge",
+    "description": "The user wants information about a cash withdrawal fee that was applied."
+   },
+   "change pin": {
+    "paraphrase": "PIN change request",
+    "description": "The user wants instructions on updating or resetting their card PIN."
+   },
+   "declined cash withdrawal": {
+    "paraphrase": "cash withdrawal rejection",
+    "description": "The user could not obtain cash because the ATM refused the transaction."
+   },
+   "direct debit payment not recognised": {
+    "paraphrase": "unrecognised direct debit",
+    "description": "The user cannot locate a direct debit on their statement and wants clarification."
+   },
+   "declined card payment": {
+    "paraphrase": "declined card purchase",
+    "description": "The user experiences a rejection of a card transaction and wants to know why."
+   },
+   "declined transfer": {
+    "paraphrase": "declined money transfer",
+    "description": "The user asks why their money transfer was not approved and was rejected."
+   },
+   "contactless not working": {
+    "paraphrase": "contactless not functional",
+    "description": "The user cannot complete a transaction using the contactless feature of their card."
+   },
+   "compromised card": {
+    "description": "The user suspects that their card details are at risk and need protection.",
+    "paraphrase": "compromised card concern"
+   },
+   "pin blocked": {
+    "paraphrase": "blocked PIN",
+    "description": "The user’s PIN is blocked after too many incorrect attempts and needs unlocking."
+   },
+   "lost or stolen phone": {
+    "description": "The user indicates their phone is lost or stolen and seeks help with account access.",
+    "paraphrase": "phone loss or theft"
+   },
+   "passcode forgotten": {
+    "paraphrase": "forgotten passcode",
+    "description": "The user cannot remember their passcode and needs to reset it."
+   },
+   "pending cash withdrawal": {
+    "paraphrase": "cash withdrawal pending",
+    "description": "The user has an ATM cash withdrawal that is still pending in the system."
+   },
+   "pending card payment": {
+    "paraphrase": "card payment pending",
+    "description": "The user has a card payment that is still pending and wants to know its status."
+   },
+   "pending transfer": {
+    "paraphrase": "transfer pending",
+    "description": "The user has an incoming or outgoing transfer that remains pending."
+   },
+   "receiving money": {
+    "paraphrase": "receiving funds",
+    "description": "The user wants information about how to receive money from another party."
+   },
+   "top up by bank transfer charge": {
+    "paraphrase": "bank transfer top‑up charge",
+    "description": "The user asks about fees for topping up via a bank transfer."
+   },
+   "reverted card payment?": {
+    "description": "The user’s card payment was reversed or reverted and they need clarification.",
+    "paraphrase": "reverted payment"
+   },
+   "supported cards and currencies": {
+    "description": "The user inquires about which cards and currencies are supported for transactions.",
+    "paraphrase": "supported cards/currencies"
+   },
+   "top up by card charge": {
+    "paraphrase": "card top‑up charge",
+    "description": "The user asks about fees for topping up using a debit or credit card."
+   },
+   "lost or stolen card": {
+    "paraphrase": "card loss or theft",
+    "description": "The user reports that their card has been lost or stolen and needs assistance."
+   },
+   "getting spare card": {
+    "description": "The user wants a replacement card because their current one is missing or damaged.",
+    "paraphrase": "spare card request"
+   },
+   "getting virtual card": {
+    "description": "The user is asking for a digital card that can be used online or in-app.",
+    "paraphrase": "virtual card request"
+   },
+   "order physical card": {
+    "description": "The user wants to order a new physical card to be mailed to them.",
+    "paraphrase": "physical card order"
+   },
+   "pending top up": {
+    "paraphrase": "top‑up pending",
+    "description": "The user reports a top‑up that has not yet completed and is awaiting confirmation."
+   },
+   "top up by cash or cheque": {
+    "description": "The user wants to know the costs for topping up with cash or a cheque.",
+    "paraphrase": "cash/cheque top‑up charge"
+   },
+   "terminate account": {
+    "paraphrase": "close account",
+    "description": "The user wishes to close their account permanently."
+   },
+   "top up failed": {
+    "paraphrase": "top‑up failure",
+    "description": "The user reports that their attempt to top up was unsuccessful."
+   },
+   "request refund": {
+    "description": "The user wants a refund for a transaction they made.",
+    "paraphrase": "request reimbursement"
+   },
+   "transfer into account": {
+    "paraphrase": "funds into account",
+    "description": "The question is about depositing funds directly into the account."
+   },
+   "transfer fee charged": {
+    "paraphrase": "fee on transfer",
+    "description": "The request concerns an unexpected cost taken for sending funds."
+   },
+   "topping up by card": {
+    "description": "The user wants instructions for funding the account with a payment card.",
+    "paraphrase": "top‑up via card"
+   },
+   "unable to verify identity": {
+    "description": "The user cannot complete the identity verification process.",
+    "paraphrase": "identity check fails"
+   },
+   "top up limits": {
+    "description": "The request concerns the limit on how much can be topped up.",
+    "paraphrase": "top‑up cap"
+   },
+   "top up reverted": {
+    "paraphrase": "reinstated top‑up",
+    "description": "The question states that the added money disappeared after initially appearing."
+   },
+   "transfer timing": {
+    "description": "The user wants to know the expected timing for a money transfer.",
+    "paraphrase": "transfer speed"
+   },
+   "transaction charged twice": {
+    "paraphrase": "double billing",
+    "description": "The complaint notes that a single purchase appeared as two separate payments."
+   },
+   "transfer not received by recipient": {
+    "description": "The complaint states the transfer was not delivered to the beneficiary.",
+    "paraphrase": "transfer not delivered"
+   },
+   "card payment not recognised": {
+    "description": "The user does not recognize a particular card transaction and suspects it may be fraudulent.",
+    "paraphrase": "unrecognized payment"
+   },
+   "failed transfer": {
+    "description": "The user reports a transfer that failed to complete.",
+    "paraphrase": "transfer failure"
+   },
+   "extra charge on statement": {
+    "description": "The user sees an additional charge on their statement and wants clarification.",
+    "paraphrase": "Extra statement charge"
+   },
+   "fiat currency support": {
+    "description": "The question asks which fiat currencies are supported for holding or spending.",
+    "paraphrase": "Supported fiat currencies"
+   },
+   "get physical card": {
+    "paraphrase": "Physical card request",
+    "description": "The request is to order or receive a physical payment card."
+   },
+   "exchange via app": {
+    "paraphrase": "App exchange procedure",
+    "description": "The user asks how to perform a currency exchange using the mobile application."
+   },
+   "edit personal details": {
+    "paraphrase": "Edit personal data",
+    "description": "The request is to modify personal information such as name or address."
+   },
+   "get disposable virtual card": {
+    "paraphrase": "Get disposable card",
+    "description": "The user wants to obtain a disposable virtual card for temporary use."
+   },
+   "exchange rate": {
+    "paraphrase": "Rate of exchange question",
+    "description": "The inquiry is about the exchange rate used for a currency conversion."
+   },
+   "disposable card limits": {
+    "description": "The user wants to know the limits for creating or using disposable virtual cards.",
+    "paraphrase": "disposable card caps"
+   },
+   "exchange charge": {
+    "paraphrase": "Exchange fee query",
+    "description": "The user wants to know the charge applied when exchanging currencies."
+   },
+   "wrong exchange rate for cash withdrawal": {
+    "paraphrase": "bad cash‑withdrawal rate",
+    "description": "The complaint concerns an exchange rate applied to a cash withdrawal that seems wrong."
+   },
+   "wrong amount of cash received": {
+    "description": "The user reports receiving an incorrect amount of cash from an ATM withdrawal.",
+    "paraphrase": "cash amount incorrect"
+   },
+   "virtual card not working": {
+    "paraphrase": "virtual card failure",
+    "description": "The problem described is that a virtual card cannot be used for transactions."
+   },
+   "verify my identity": {
+    "paraphrase": "identity verification steps",
+    "description": "The request asks for instructions on how to verify their identity for the service."
+   },
+   "why verify identity": {
+    "paraphrase": "reason for identity check",
+    "description": "The question asks why the service requires the user to go through identity verification."
+   },
+   "verify source of funds": {
+    "description": "The user seeks to confirm the origin of the funds they are using for a transaction.",
+    "paraphrase": "source of funds verification"
+   },
+   "visa or mastercard": {
+    "description": "The user wants to know whether they can use Visa, Mastercard, or both with the service.",
+    "paraphrase": "card network support"
+   },
+   "verify top up": {
+    "paraphrase": "top‑up verification status",
+    "description": "The user wants to confirm that a top‑up has been verified successfully."
+   }
+  },
+  "jailbreak_classification": {
+   "no": {
+    "paraphrase": "not an evasion attempt",
+    "description": "no, the prompt does not attempt to bypass the assistant’s safety constraints."
+   },
+   "yes": {
+    "paraphrase": "attempts to jailbreak",
+    "description": "yes, the prompt tries to manipulate the assistant into ignoring its safeguards."
+   }
+  },
+  "bias_in_bios": {
+   "chiropractor": {
+    "description": "This person provides chiropractic care, manipulates joints, and advises on posture.",
+    "paraphrase": "Back specialist"
+   },
+   "composer": {
+    "paraphrase": "Songwriter",
+    "description": "This person composes melodies, orchestrates works, and produces original music content."
+   },
+   "attorney": {
+    "description": "This person practices law, drafts contracts, and negotiates settlements for others.",
+    "paraphrase": "Law practitioner"
+   },
+   "DJ": {
+    "paraphrase": "Club spinner",
+    "description": "The person’s job is to select, blend, and cue tracks in clubs or events."
+   },
+   "accountant": {
+    "description": "The individual handles accounts, tax filings, and budgeting for businesses or clients.",
+    "paraphrase": "Money manager"
+   },
+   "dentist": {
+    "paraphrase": "Oral surgeon",
+    "description": "This person provides dental care, extracts teeth, and creates restorative dental work."
+   },
+   "filmmaker": {
+    "description": "This person writes scripts, manages production, and coordinates crew to bring stories to screen.",
+    "paraphrase": "Film maker"
+   },
+   "dietitian": {
+    "description": "This person assesses dietary needs, recommends foods, and educates clients about nutrition.",
+    "paraphrase": "Food consultant"
+   },
+   "architect": {
+    "description": "This person develops architectural concepts, drafts blueprints, and coordinates with engineers.",
+    "paraphrase": "Structure planner"
+   },
+   "comedian": {
+    "paraphrase": "Comic performer",
+    "description": "This person crafts comedic material, appears on stage, and engages crowds with laughter."
+   },
+   "professor": {
+    "paraphrase": "college educator",
+    "description": "The person holds an academic position teaching at a university level."
+   },
+   "poet": {
+    "description": "The individual’s profession is writing poetry as a creative writer.",
+    "paraphrase": "verse author"
+   },
+   "psychologist": {
+    "description": "The person works as a psychologist, diagnosing conditions and delivering psychological treatment.",
+    "paraphrase": "clinical psychologist"
+   },
+   "rapper": {
+    "paraphrase": "rap performer",
+    "description": "The individual creates rap songs, writes lyrics, and stages concerts for listeners."
+   },
+   "journalist": {
+    "description": "Their occupation is journalist.",
+    "paraphrase": "News reporter"
+   },
+   "paralegal": {
+    "description": "They hold the position of paralegal.",
+    "paraphrase": "Legal assistant"
+   },
+   "physician": {
+    "description": "Their occupation is physician.",
+    "paraphrase": "Medical doctor"
+   },
+   "interior designer": {
+    "description": "They are employed as an interior designer.",
+    "paraphrase": "Space decorator"
+   },
+   "photographer": {
+    "description": "They work professionally as a photographer.",
+    "paraphrase": "Image capture artist"
+   },
+   "painter": {
+    "description": "Their job is that of a painter.",
+    "paraphrase": "Artistic painter"
+   },
+   "pastor": {
+    "description": "The person serves in the role of pastor.",
+    "paraphrase": "Spiritual leader"
+   },
+   "model": {
+    "description": "The person works as a model, showcasing clothing and products in photo shoots and runway shows.",
+    "paraphrase": "Fashion showcase"
+   },
+   "nurse": {
+    "paraphrase": "Healthcare caregiver",
+    "description": "The individual works professionally as a nurse."
+   },
+   "personal trainer": {
+    "paraphrase": "Fitness coach",
+    "description": "Their employment is as a personal trainer."
+   },
+   "yoga teacher": {
+    "paraphrase": "mind‑body trainer",
+    "description": "The individual leads physical and breathing exercises as a yoga instructor."
+   },
+   "software engineer": {
+    "description": "The person designs, writes, and maintains computer programs as a software engineer.",
+    "paraphrase": "code developer"
+   },
+   "teacher": {
+    "paraphrase": "lesson facilitator",
+    "description": "The person instructs students in a classroom setting as a teacher."
+   },
+   "surgeon": {
+    "description": "This individual is a surgeon, performing operative procedures to treat medical conditions.",
+    "paraphrase": "operative physician"
+   }
+  },
+  "contract_nli": {
+   "no": {
+    "paraphrase": "assertion not present",
+    "description": "no, the excerpt fails to confirm the assertion."
+   },
+   "yes": {
+    "paraphrase": "clearly affirmed",
+    "description": "The excerpt clearly affirms the statement, indicating the claim is true."
+   }
+  },
+  "ethics_commonsense": {
+   "yes": {
+    "paraphrase": "clearly unethical",
+    "description": "yes, the narrator clearly acted wrongly by ordinary moral standards."
+   },
+   "no": {
+    "description": "no, the narrator's action is not clearly morally wrong according to ordinary standards.",
+    "paraphrase": "not immoral"
+   }
+  },
+  "fin_tweets_topic": {
+   "Energy / Oil": {
+    "description": "The item discusses developments in the energy sector, oil prices, or related commodities.",
+    "paraphrase": "Energy/Oil update"
+   },
+   "General News / Opinion": {
+    "paraphrase": "Opinion piece",
+    "description": "The content offers a general commentary, editorial view, or broad market opinion piece."
+   },
+   "Analyst Update": {
+    "paraphrase": "Analyst insight",
+    "description": "The article provides an update from an analyst regarding market outlook or stock assessment."
+   },
+   "Gold / Metals / Materials": {
+    "description": "The article highlights gold, precious metals, or broader material commodity price movements.",
+    "paraphrase": "Gold/Metals"
+   },
+   "M&A / Investments": {
+    "description": "The piece reports on mergers, acquisitions, or investment transactions between companies.",
+    "paraphrase": "M&A activity"
+   },
+   "Personnel Change": {
+    "description": "The text details a change in personnel, such as a new executive hire or departure.",
+    "paraphrase": "Staff change"
+   },
+   "Treasuries / Corporate Debt": {
+    "description": "The article addresses treasury yields, bond market trends, or corporate debt issuance updates.",
+    "paraphrase": "Bond market"
+   },
+   "Fed / Central Banks": {
+    "paraphrase": "Fed/central bank",
+    "description": "The text addresses actions, statements, or policy shifts by the Federal Reserve or central banks."
+   },
+   "Markets": {
+    "description": "The news reports on stock market indices, trading volumes, or overall market sentiment.",
+    "paraphrase": "Market snapshot"
+   },
+   "Company / Product News": {
+    "paraphrase": "Company news",
+    "description": "The piece announces a new product launch or a company's recent corporate development."
+   },
+   "Dividend": {
+    "paraphrase": "Dividend news",
+    "description": "The text reports on dividend declarations, payouts, or changes to shareholder returns."
+   },
+   "Stock Commentary": {
+    "paraphrase": "Stock analysis",
+    "description": "The piece provides commentary on a specific stock’s fundamentals, valuation, or analyst opinion."
+   },
+   "Legal / Regulation": {
+    "description": "The piece addresses legal issues, regulatory changes, or compliance matters affecting markets.",
+    "paraphrase": "Legal/regulatory news"
+   },
+   "Macro": {
+    "description": "The article discusses macro‑economic trends, indicators, or broad economic policy impacts.",
+    "paraphrase": "Macro outlook"
+   },
+   "IPO": {
+    "paraphrase": "IPO announcement",
+    "description": "The text announces a new initial public offering, listing details, or IPO pricing information."
+   },
+   "Financials": {
+    "description": "The piece pertains to financial institutions, banking results, or sector-specific financial news.",
+    "paraphrase": "Financial sector"
+   },
+   "Currencies": {
+    "paraphrase": "FX update",
+    "description": "The content focuses on foreign exchange movements, rates, or currency market analysis."
+   },
+   "Stock Movement": {
+    "paraphrase": "Stock price",
+    "description": "The content reports on a particular stock’s price movement, gains, losses, or volatility."
+   },
+   "Politics": {
+    "paraphrase": "Political news",
+    "description": "The article covers political events, policy decisions, or government actions influencing finance."
+   },
+   "Earnings": {
+    "paraphrase": "Earnings report",
+    "description": "The story discusses a company's quarterly or annual earnings results and related metrics."
+   }
+  },
+  "fin_tweets_sentiment": {
+   "bearish": {
+    "paraphrase": "downward bias",
+    "description": "It signals pessimism about the market, implying a downward trend ahead."
+   },
+   "bullish": {
+    "paraphrase": "positive outlook",
+    "description": "The message expresses optimism, predicting that asset values will rise shortly."
+   },
+   "neutral": {
+    "description": "The text remains balanced, presenting no clear bias toward price direction.",
+    "paraphrase": "no clear stance"
+   }
+  },
+  "arxiv_field": {
+   "physics (applied, optics, fluids and other)": {
+    "description": "The paper addresses applied physics topics such as optics, fluid dynamics, or instrumentation.",
+    "paraphrase": "Applied physics"
+   },
+   "mathematics": {
+    "paraphrase": "Pure mathematics",
+    "description": "The research presents new theorems, proofs, or abstract mathematical structures."
+   },
+   "general relativity and quantum cosmology": {
+    "description": "The manuscript explores spacetime curvature, black holes, or the universe's large‑scale structure.",
+    "paraphrase": "Relativity & cosmology"
+   },
+   "economics": {
+    "description": "The study examines markets, financial systems, economic theory, or policy analysis.",
+    "paraphrase": "Economic research"
+   },
+   "quantitative biology": {
+    "description": "The paper is in the quantitative biology domain.",
+    "paraphrase": "Bio‑quantitative"
+   },
+   "nonlinear sciences": {
+    "paraphrase": "Complex systems",
+    "description": "The work studies chaotic systems, complex networks, or interdisciplinary dynamic models."
+   },
+   "electrical engineering and systems science": {
+    "description": "The content addresses circuits, signal processing, control systems, or hardware engineering topics.",
+    "paraphrase": "Electrical engineering"
+   },
+   "nuclear physics": {
+    "paraphrase": "Nuclear science",
+    "description": "The article focuses on nuclear reactions, decay processes, or atomic nucleus properties."
+   },
+   "astrophysics": {
+    "description": "The paper's main focus lies within the study of stars, galaxies, or cosmology.",
+    "paraphrase": "Astronomy research"
+   },
+   "high energy physics": {
+    "paraphrase": "Particle physics",
+    "description": "The paper investigates particle accelerators, fundamental forces, or high‑energy collider experiments."
+   },
+   "computer science": {
+    "paraphrase": "Computing discipline",
+    "description": "The work primarily deals with algorithms, data structures, software, or theoretical computing concepts."
+   },
+   "condensed matter physics": {
+    "description": "The document concentrates on solid‑state phenomena, material properties, or low‑temperature physics.",
+    "paraphrase": "Solid‑state physics"
+   },
+   "quantum physics": {
+    "description": "The research examines quantum states, entanglement, or other phenomena at atomic scales.",
+    "paraphrase": "Quantum mechanics"
+   },
+   "statistics": {
+    "paraphrase": "Statistical study",
+    "description": "The paper presents statistical theory, inference methods, or data analysis techniques."
+   },
+   "quantitative finance": {
+    "description": "The research centers on mathematical models of financial markets, risk, or investment strategies.",
+    "paraphrase": "financial modeling"
+   }
+  },
+  "poem_sentiment": {
+   "negative": {
+    "paraphrase": "unhappy tone",
+    "description": "It communicates unhappiness and critical feeling throughout."
+   },
+   "mixed": {
+    "paraphrase": "dual emotional tone",
+    "description": "Both hopeful and bleak tones are present in the line."
+   }
+  }
+ }
+}
