@@ -429,6 +429,30 @@
     "writer": "do:openai-gpt-oss-120b",
     "verifier": "do:deepseek-3.2",
     "pilot": true
+   },
+   {
+    "name": "E21 skills-2 eval (seed 22; 100 per kind; never trained on)",
+    "file": "data/probes/skills2_eval_raw.jsonl",
+    "target_jobs": 460,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "E21 pilot: skills-2 generators (seed 23)",
+    "file": "data/probes/skills2_pilot.jsonl",
+    "target_jobs": 120,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "E21 batch: pairwise judge, sarcasm, policy violation (seed 24; 30k jobs, $15 cap)",
+    "file": "data/synthetic/skills2_v1.jsonl",
+    "log": "data/synthetic/skills2_v1.log",
+    "target_jobs": 30000,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2"
    }
   ],
   "stages": [
@@ -906,6 +930,24 @@
  ],
  "queue": [
   {
+   "name": "E21: skills batch 2 (approved)",
+   "why": "Screening 1 gaps (v0.2 skill −0.04 / +0.24 / +0.65). E17 recipe + a real-data anchor. Bar: skills-2 score +0.25 (each kind +0.10); all v0.2 guards.",
+   "after": "now: 30k-job batch (~$12, cap $15) generating; Shane's spot-check any time (not blocking); then smoke + full run",
+   "cost": "~$12 batch + $0.23 eval/pilot",
+   "script": "skills2_batch.sh",
+   "log": "data/synthetic/skills2_v1.log",
+   "done_marker": "SKILLS2_BATCH_DONE"
+  },
+  {
+   "name": "E21 training: v0.2 recipe + skills-2 (seed 1)",
+   "why": "Starts automatically when the skills-2 batch finishes; samples 2,500 per kind; smoke at step 500 vs v0.2 seed 1; full run; auto-scoring.",
+   "after": "waiting for the batch (~5.5 h), then ~5 h training",
+   "script": "e21_run.sh",
+   "log": "runs/e21-run.log",
+   "done_marker": "E21 COMPLETE",
+   "cost": "free (GPU)"
+  },
+  {
    "name": "Decision Index submission: PR #49 (18.69)",
    "why": "https://github.com/apolinario/decision-index/pull/49 · results: huggingface.co/datasets/cortex-agent-llc/decision-index-results (compact, re-scored 18.69). Maintainers re-score and measure latency on their hardware.",
    "after": "waiting for maintainer review"
@@ -1070,94 +1112,116 @@
  },
  "research": {
   "active": {
-   "id": "E20",
-   "proposal": "E20-wording-consistency-loss",
-   "title": "Wording-consistency loss (v0.3 main goal)",
+   "id": "E21",
+   "proposal": "E21-skills-batch-2",
+   "title": "Skills batch 2: pairwise judge, sarcasm, policy violation",
    "steps": [
     {
-     "name": "Proposal passes the gate",
-     "status": "done",
-     "note": "2026-10-02"
-    },
-    {
-     "name": "Code + tests (twins, consistency loss; off = identical batches)",
-     "status": "done",
-     "note": ""
-    },
-    {
-     "name": "Smoke check at step 500",
-     "status": "done",
-     "note": "0.833 vs 0.850 (pass; limit −0.02)"
-    },
-    {
-     "name": "Approved by Shane",
+     "name": "Proposal passes the gate; approved by Shane",
      "status": "done",
      "note": "2026-10-03"
     },
     {
-     "name": "Full run (6,000 steps)",
+     "name": "Held-out skills-2 eval (100 per kind) + MT-Bench anchor (150)",
      "status": "done",
-     "note": "done 1:40 PM"
+     "note": "$0.18; sarcasm anchor: no permissive dataset"
+    },
+    {
+     "name": "Baseline: v0.2 on skills-2",
+     "status": "done",
+     "note": "0.142 (judge +0.12, sarcasm −0.24, policy +0.55); anchor +0.04"
+    },
+    {
+     "name": "Shane spot-checks the eval",
+     "status": "in_progress",
+     "note": "#evals/skills2-eval-review"
+    },
+    {
+     "name": "Pilot + training batch (~7.5k kept)",
+     "status": "in_progress",
+     "note": "pilot $0.05 ($0.0004/job); 30k-job batch running (~$12)"
+    },
+    {
+     "name": "Smoke check at step 500",
+     "status": "pending",
+     "note": ""
+    },
+    {
+     "name": "Full run (6,000 steps)",
+     "status": "pending",
+     "note": ""
     },
     {
      "name": "Result vs the keep line",
-     "status": "done",
-     "note": "kill (D62): consistency 0.684 < 0.75; familiar and ranking guards fail"
+     "status": "pending",
+     "note": ""
     },
     {
      "name": "Two confirming seeds (only if it passes)",
      "status": "pending",
-     "note": "not run: the bar was missed"
+     "note": ""
     }
    ],
    "bar": [
     {
-     "metric": "Wording consistency",
-     "baseline": "0.678",
-     "target": "≥ 0.75",
-     "result": "0.684 (miss)"
+     "metric": "Skills-2 score",
+     "baseline": "0.142",
+     "target": "≥ 0.392",
+     "result": ""
     },
     {
-     "metric": "Accuracy with reworded options",
-     "baseline": "0.692",
-     "target": "≥ 0.712",
-     "result": "0.691 (miss)"
+     "metric": "Each kind",
+     "baseline": "+0.12 / −0.24 / +0.55",
+     "target": "each +0.10",
+     "result": ""
     },
     {
-     "metric": "Never-seen forced (eval v0.2)",
-     "baseline": "0.689",
+     "metric": "MT-Bench anchor",
+     "baseline": "+0.040",
+     "target": "not lower",
+     "result": ""
+    },
+    {
+     "metric": "Never-seen forced",
+     "baseline": "0.680 (s1)",
      "target": "≥ 0.679",
-     "result": "0.678"
+     "result": ""
     },
     {
-     "metric": "Familiar tasks",
+     "metric": "Familiar",
      "baseline": "0.877",
      "target": "≥ 0.87",
-     "result": "0.863 (fail)"
+     "result": ""
     },
     {
      "metric": "Abstain precision",
-     "baseline": "0.880",
+     "baseline": "0.870",
      "target": "≥ 0.86",
-     "result": "0.890"
+     "result": ""
     },
     {
-     "metric": "Skills score",
-     "baseline": "0.98",
+     "metric": "E17 skills",
+     "baseline": "0.985",
      "target": "≥ 0.95",
-     "result": "0.982"
+     "result": ""
+    },
+    {
+     "metric": "Ranking",
+     "baseline": "0.561",
+     "target": "≥ 0.541",
+     "result": ""
+    },
+    {
+     "metric": "Wording consistency",
+     "baseline": "0.678",
+     "target": "≥ 0.66",
+     "result": ""
     },
     {
      "metric": "Label-overlap probe",
-     "baseline": "6 of 8 (seed 1)",
+     "baseline": "6 of 8",
      "target": "≥ 5 of 8",
-     "result": "6 of 8"
-    },
-    {
-     "metric": "Ranking (aurc_gap_closed)",
-     "baseline": "0.561 (seed 1)",
-     "target": "≥ 0.541",
-     "result": "0.510 (fail)"
+     "result": ""
     }
    ]
   },
@@ -1170,7 +1234,7 @@
    {
     "name": "Next skills batch: pairwise judge, sarcasm, policy violation",
     "why": "Clear gaps in skills-roadmap screening 1 (v0.2 skill −0.04 / +0.24 / +0.65). E17 recipe: checked synthetic data + a real-data anchor in the test.",
-    "status": "roadmap: proposal after E20"
+    "status": "E21 proposal: gate OK; waiting for Shane"
    },
    {
     "name": "Real-data probes: long-answer hallucination, aspect sentiment, stance",
@@ -1235,7 +1299,8 @@
    "E18": "e18-xl-wording",
    "E19": "e19-rewording-3seeds",
    "roadmap": "skills-roadmap-screening",
-   "E20": "e20-xl-consistency"
+   "E20": "e20-xl-consistency",
+   "E21": "skills2-eval-review"
   }
  },
  "decision_kinds": [

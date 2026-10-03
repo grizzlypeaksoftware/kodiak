@@ -6,7 +6,7 @@ same answer or the job is dropped. Each kind is a small spec (question, labels, 
 
     uv run python -m kodiak_s1.data.sim.probes --per-kind 60 --out data/probes/probes_v1.jsonl --max-usd 2
     uv run python -m kodiak_s1.data.sim.probes --build-eval data/probes/probes_v1.jsonl   # -> data/eval/kodiak-probes-v0.1.jsonl
-Seed 21 = probes (never trained on).
+Seed 21 = probes (never trained on). E21: seed 22 = skills-2 eval (never trained on), seed 23 = pilots, seed 24 = training (--split train).
 """
 
 from __future__ import annotations
@@ -51,7 +51,9 @@ KINDS = {
         "labels": {"yes": "yes", "no": "no"},
         "fields": {"text": "a short message or post (1 to 3 sentences) about an everyday situation"},
         "slots": {},
-        "rule": "The answer must be: {label}. If not sarcastic, it may still be emotional or use exaggeration sincerely.",
+        "rule": "The answer must be: {label}. If sarcastic, the literal words must say the opposite of what the writer means, the way people "
+                "really write online (no '/s', no 'yeah right' every time; vary the style). If not sarcastic, it may still be emotional, blunt or "
+                "use sincere exaggeration.",
     },
     "long_hallucination": {
         "why": "RAGTruth 0.00: hallucination anywhere in a long answer",
@@ -81,8 +83,9 @@ KINDS = {
         "fields": {"policy": "a numbered list of exactly 4 short rules for a community, company chat or marketplace (1. ... 4.)",
                    "message": "one message posted there"},
         "slots": {},
-        "rule": "The correct answer must be: {label}. If a rule is broken, break it clearly but without quoting its wording; the message must "
-                "not break any other rule.",
+        "rule": "The correct answer must be: {label}. If a rule is broken, the message must break that rule clearly and unambiguously (a "
+                "reader of the rule alone would agree), without quoting its wording, and must clearly respect every other rule; make the rules "
+                "about different things. If no rule is broken, the message should come close to one rule but stay within it.",
     },
     "pii": {
         "why": "guardrails: personal or sensitive data",
@@ -125,8 +128,9 @@ KINDS = {
         "labels": {"first": "the first answer", "second": "the second answer", "tie": "they are about equally good"},
         "fields": {"question": "a user's question", "answer_1": "the first answer (2 to 5 sentences)", "answer_2": "the second answer (2 to 5 sentences)"},
         "slots": {},
-        "rule": "The correct verdict must be: {label}. When one is better, make it more correct or complete, not longer; the worse one should "
-                "still sound confident.",
+        "rule": "The correct verdict must be: {label}. When one is better, make it more correct, more complete or more helpful (not longer); "
+                "the worse one should still sound confident and fluent. When they're about equally good, make them differ in style or order but not "
+                "in quality.",
     },
     "escalation": {
         "why": "triage: does this need a human now",
@@ -178,7 +182,7 @@ def build(kind: str, c: dict, raw: dict) -> tuple[dict, list[dict], dict] | None
     return state, [q], {"decision": {"label": c["target"]}}
 
 
-def run_job(kind: str, job: int, seed: int) -> dict:
+def run_job(kind: str, job: int, seed: int, split: str = "test") -> dict:
     from kodiak_s1.data import synth
     from kodiak_s1.data.gen2.prompts import verify_prompt
     from kodiak_s1.schema import Example, render_state
@@ -204,8 +208,8 @@ def run_job(kind: str, job: int, seed: int) -> dict:
             rec.update(status="checker_disagrees", checker=got)
             return rec
         ex = {"state": state, "questions": qs, "answers": ans,
-              "meta": {"source": SOURCE_ID, "split": "test", "license": "ODC-By-1.0 AND Apache-2.0" if c.get("passage") else "Apache-2.0",
-                       "teacher": f"{WRITER} (checked by {CHECKER})", "tags": ["eval:probe", f"probe:{kind}", f"target:{c['target']}"]}}
+              "meta": {"source": SOURCE_ID, "split": split, "license": "ODC-By-1.0 AND Apache-2.0" if c.get("passage") else "Apache-2.0",
+                       "teacher": f"{WRITER} (checked by {CHECKER})", "tags": (["eval:probe"] if split == "test" else ["synthetic", "skills2"]) + [f"probe:{kind}", f"target:{c['target']}"]}}
         Example.model_validate(ex)
         rec.update(status="ok", example=ex)
     except OSError as e:
@@ -226,6 +230,10 @@ def main(argv: list[str] | None = None) -> None:
     ap.add_argument("--workers", type=int, default=12)
     ap.add_argument("--out", default="data/probes/probes_v1.jsonl")
     ap.add_argument("--max-usd", type=float, default=2.0)
+    ap.add_argument("--split", choices=["test", "train"], default="test", help="train: examples for training (E21), tagged skills2")
+    ap.add_argument("--start", type=int, default=0)
+    ap.add_argument("--eval-out", default="data/eval/kodiak-probes-v0.1.jsonl")
+    ap.add_argument("--eval-per-kind", type=int, default=50)
     ap.add_argument("--build-eval", default="", help="turn a probes file into data/eval/kodiak-probes-v0.1.jsonl (up to 50 per kind)")
     a = ap.parse_args(argv)
     if a.build_eval:
@@ -233,10 +241,10 @@ def main(argv: list[str] | None = None) -> None:
         for line in open(a.build_eval, encoding="utf-8"):
             r = json.loads(line)
             last[(r["kind"], r["job"])] = r
-        out, n = Path("data/eval/kodiak-probes-v0.1.jsonl"), Counter()
+        out, n = Path(a.eval_out), Counter()
         with out.open("w", encoding="utf-8") as f:
             for (kind, job), r in sorted(last.items()):
-                if r["status"] == "ok" and n[kind] < 50:
+                if r["status"] == "ok" and n[kind] < a.eval_per_kind:
                     f.write(json.dumps(r["example"], ensure_ascii=False) + "\n")
                     n[kind] += 1
         print(dict(n), "->", out)
@@ -250,14 +258,14 @@ def main(argv: list[str] | None = None) -> None:
             spent += cost(r, prices)
             if r["status"] != "retry":
                 done.add((r["kind"], r["job"]))
-    todo = [(k, j) for k in a.kinds.split(",") for j in range(a.per_kind) if (k, j) not in done]
+    todo = [(k, j) for k in a.kinds.split(",") for j in range(a.start, a.start + a.per_kind) if (k, j) not in done]
     lock, stats, state = threading.Lock(), Counter(), {"spent": spent}
 
     def work(kj):
         with lock:
             if state["spent"] >= a.max_usd:
                 return
-        rec = run_job(kj[0], kj[1], a.seed)
+        rec = run_job(kj[0], kj[1], a.seed, a.split)
         with lock:
             state["spent"] += cost(rec, prices)
             with out.open("a", encoding="utf-8") as f:
