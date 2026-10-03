@@ -323,7 +323,8 @@ def research(cfg: dict) -> dict:
                           "gate_ok": not problems, "problems": problems})
     r = cfg.get("research", {})
     return {"log": log, "dead": [{"name": n, "why": w} for n, w in dead], "lessons": [{"title": t, "text": x} for t, x in lessons],
-            "proposals": proposals, "active": r.get("active"), "ideas": r.get("ideas", []), "reports": r.get("reports", {})}
+            "proposals": proposals, "active": r.get("active"), "ideas": r.get("ideas", []), "reports": r.get("reports", {}),
+            "kinds": cfg.get("decision_kinds", [])}
 
 
 def collect() -> dict:

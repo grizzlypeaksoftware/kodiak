@@ -96,6 +96,9 @@
         <div class="card d-none" id="res-proposal-card"><div class="card-body">
           <div class="d-flex"><h2 class="h6 text-uppercase muted me-auto">Proposal</h2><a href="#research" class="small">close</a></div>
           <div id="res-proposal" class="report"></div></div></div>
+        <div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Decision kinds: trained and candidates</h2>
+          <div class="muted small mb-2">Every kind of decision Kodiak has trained on (and since when), and candidates from the skills roadmap. Source: <code>docs/progress.json</code> → <code>decision_kinds</code>.</div>
+          <div id="res-kinds"></div></div></div>
         <div class="card"><div class="card-body"><h2 class="h6 text-uppercase muted">Experiment log (newest first)</h2>
           <div class="muted small mb-2">Every experiment, with the bar set <em>before</em> it ran. Source: <code>docs/EXPERIMENTS.md</code> (append-only).</div>
           <div id="res-log"></div></div></div>
@@ -208,6 +211,9 @@ function research(r) {
     <span class="badge text-bg-light border text-wrap" style="max-width:45%">${esc(i.status)}</span></div><div class="small muted">${esc(i.why)}</div></div>`).join(""));
   set2("res-dead", r.dead.map(d => `<div class="small py-1"><strong>${esc(d.name)}</strong> <span class="muted">${md(d.why)}</span></div>`).join("")
     + r.lessons.map(l => `<div class="small py-1 mt-2 border-top"><strong>${esc(l.title)}</strong> <span class="muted">${md(l.text)}</span></div>`).join(""));
+  const kcls = st => st === "trained" ? "success" : st.includes("gap") ? "danger" : st.includes("real-data") ? "warning" : "secondary";
+  set2("res-kinds", `<div class="table-responsive"><table class="table table-sm small align-middle mb-0"><thead><tr><th>Kind</th><th>Group</th><th>Status</th><th>Since</th><th>Source</th><th>Evidence</th></tr></thead><tbody>${
+    (r.kinds || []).map(k => `<tr><td>${esc(k.kind)}</td><td class="muted">${esc(k.group)}</td><td><span class="badge text-bg-${kcls(k.status)} text-wrap">${esc(k.status)}</span></td><td class="text-nowrap">${esc(k.since)}</td><td>${esc(k.source)}</td><td>${esc(k.evidence)}</td></tr>`).join("")}</tbody></table></div>`);
   set2("res-log", [...r.log].reverse().map(e => {
     const p = props[e.id], rep = r.reports[e.id];
     return `<div class="border rounded p-2 mb-2">

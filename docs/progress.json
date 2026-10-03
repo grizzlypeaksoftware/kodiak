@@ -421,6 +421,14 @@
     "target_jobs": 30000,
     "writer": "do:openai-gpt-oss-120b",
     "verifier": "do:deepseek-3.2"
+   },
+   {
+    "name": "Skills roadmap screening probes (12 decision kinds, seed 21; never trained on)",
+    "file": "data/probes/probes_v1.jsonl",
+    "target_jobs": 720,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
    }
   ],
   "stages": [
@@ -776,6 +784,10 @@
   {
    "date": "2026-10-03",
    "text": "Ranking (aurc_gap_closed) added as a metric and guard after a Hugging Face reviewer's analysis; model cards updated (D60). E20 code ready."
+  },
+  {
+   "date": "2026-10-03",
+   "text": "Skills roadmap: 12 candidate decision kinds screened on v0.2 ($0.35). Clear gaps: pairwise judge, sarcasm, policy violation. Decision-kinds tracker added to the Research tab."
   }
  ],
  "published": [
@@ -873,7 +885,7 @@
   {
    "name": "Decision Index: Kodiak-v0.2-1B accuracy mode",
    "why": "The v0.2 leaderboard entry (3 models averaged; less seed luck, D56). Same frozen suite and engine rules as runs 1-2. Submission is a separate OK from Shane.",
-   "after": "running: 73,580 of ~151k at 4:10 PM (~5 requests/s now); done ~8:30 PM; submission is a separate OK from Shane",
+   "after": "running: 84,650 of ~151k at 4:56 PM (~4 requests/s); done ~9:30 PM; submission is a separate OK from Shane",
    "script": "runs/kodiak-v02-accuracy",
    "log": "../decision-index/runs-kodiak-v02-accuracy.log",
    "done_marker": "\"complete\": true",
@@ -885,9 +897,15 @@
    "after": "Shane posts"
   },
   {
+   "name": "Skills roadmap: screen 12 candidate decision kinds",
+   "why": "Measure Kodiak-v0.2-1B on ~50 checked probes per kind (aspect sentiment, stance, sarcasm, long hallucination, tool unavailable, policy violation, PII, duplicates, task done, tool result, pairwise judge, escalation); build training data only for real gaps.",
+   "after": "done: probes $0.35; v0.2 measured; tracker on the Research tab; next: real-data probes for 3 kinds, then pick v0.3 kinds with Shane",
+   "cost": "~$0.5 (cap $2)"
+  },
+  {
    "name": "E20: wording-consistency loss (proposal, v0.3 main goal)",
    "why": "Pair each example with a reworded twin in the same batch and penalize disagreeing answers. Bar: consistency ≥ 0.75 (v0.2: 0.678), reworded accuracy ≥ 0.712; guards incl. never-seen ≥ 0.679.",
-   "after": "code + tests done; queued to start when the Decision Index run frees the GPU (~8:30 PM); smoke at step 500 runs without approval, the full run continues only with Shane's approval (otherwise it pauses and resumes from step 500)",
+   "after": "code + tests done; starts when the Decision Index run frees the GPU (~9:30 PM); smoke at step 500 needs no approval; the full run continues only with Shane's approval (otherwise it pauses at step 500)",
    "cost": "free (GPU)",
    "script": "e20_run.sh",
    "log": "runs/e20-run.log",
@@ -1150,7 +1168,234 @@
    "E15": "v02-xl-3seeds",
    "E17": "d55-di-diagnosis",
    "E18": "e18-xl-wording",
-   "E19": "e19-rewording-3seeds"
+   "E19": "e19-rewording-3seeds",
+   "roadmap": "skills-roadmap-screening"
   }
- }
+ },
+ "decision_kinds": [
+  {
+   "kind": "Entailment / NLI",
+   "group": "reading",
+   "status": "trained",
+   "since": "previews (Sep 2026)",
+   "source": "MNLI, SciTail",
+   "evidence": "contract NLI (never-seen) in eval v0.2"
+  },
+  {
+   "kind": "Multiple-choice reasoning",
+   "group": "reasoning",
+   "status": "trained",
+   "since": "previews (Sep 2026)",
+   "source": "CommonsenseQA, OpenBookQA, WinoGrande",
+   "evidence": "WinoGrande 0.58 on the Decision Index"
+  },
+  {
+   "kind": "Intent classification",
+   "group": "routing",
+   "status": "trained",
+   "since": "previews (Sep 2026)",
+   "source": "CLINC150, MASSIVE",
+   "evidence": "CLINC 0.91 (DI sample); Banking77 never-seen 0.82"
+  },
+  {
+   "kind": "Emotion",
+   "group": "sentiment",
+   "status": "trained",
+   "since": "previews (Sep 2026)",
+   "source": "GoEmotions",
+   "evidence": "poem sentiment never-seen 0.70 (v0.2)"
+  },
+  {
+   "kind": "Toxicity / moderation",
+   "group": "guardrails",
+   "status": "trained",
+   "since": "previews (Sep 2026)",
+   "source": "Civil Comments, SMS spam",
+   "evidence": ""
+  },
+  {
+   "kind": "Prompt injection",
+   "group": "guardrails",
+   "status": "trained",
+   "since": "previews (Sep 2026)",
+   "source": "prompt_injections",
+   "evidence": "jailbreak never-seen 0.89-0.92"
+  },
+  {
+   "kind": "Response quality rating",
+   "group": "judging",
+   "status": "trained",
+   "since": "previews (Sep 2026)",
+   "source": "HelpSteer2, UltraFeedback",
+   "evidence": "ratings are rough (model card)"
+  },
+  {
+   "kind": "Tool routing (function name)",
+   "group": "tools",
+   "status": "trained",
+   "since": "previews (Sep 2026)",
+   "source": "Glaive FC v2, ToolACE",
+   "evidence": ""
+  },
+  {
+   "kind": "Document question answering",
+   "group": "reading",
+   "status": "trained",
+   "since": "previews (Sep 2026)",
+   "source": "Qasper",
+   "evidence": ""
+  },
+  {
+   "kind": "Classification, extraction-as-choice, ratings, routing, comparison, compliance, next action, claim check",
+   "group": "synthetic mix",
+   "status": "trained",
+   "since": "previews (Sep 2026)",
+   "source": "Generator v2.0 (9.1k)",
+   "evidence": "E3 (D29)"
+  },
+  {
+   "kind": "\"Can't tell\" (abstain) on every question",
+   "group": "calibration",
+   "status": "trained",
+   "since": "previews (Sep 2026)",
+   "source": "all sources + constructed unanswerables",
+   "evidence": "abstain precision 0.88 / 0.905 accuracy mode"
+  },
+  {
+   "kind": "Grounding: is a response supported, which sentence isn't",
+   "group": "checks",
+   "status": "trained",
+   "since": "v0.2",
+   "source": "E17 skills generator (2.5k)",
+   "evidence": "skills test 0.45 → 1.00; HoVer/ANLI gains on real data"
+  },
+  {
+   "kind": "Assistant next step from API specs (call / ask / answer)",
+   "group": "tools",
+   "status": "trained",
+   "since": "v0.2",
+   "source": "E17 skills generator (2.5k)",
+   "evidence": "BFCL 0.20 → 0.28"
+  },
+  {
+   "kind": "Claim verification (supported / refuted / not enough info)",
+   "group": "checks",
+   "status": "trained",
+   "since": "v0.2",
+   "source": "E17 skills generator (2.5k)",
+   "evidence": "HoVer 0.12 → 0.23"
+  },
+  {
+   "kind": "Product relevance (exact / substitute / complement / irrelevant)",
+   "group": "routing",
+   "status": "trained",
+   "since": "v0.2",
+   "source": "E17 skills generator (2.5k)",
+   "evidence": "Amazon ESCI 0.04 → 0.23"
+  },
+  {
+   "kind": "Reading options by meaning (reworded options)",
+   "group": "robustness",
+   "status": "trained",
+   "since": "v0.2",
+   "source": "E18/E19 rewording",
+   "evidence": "never-seen 0.662 → 0.689 (D58); consistency 0.68 (v0.3 goal)"
+  },
+  {
+   "kind": "Pairwise judge (which answer is better)",
+   "group": "judging",
+   "status": "candidate: gap",
+   "since": "",
+   "source": "screened 2026-10-03 (50 synthetic probes)",
+   "evidence": "v0.2 skill -0.04 (0 = chance)"
+  },
+  {
+   "kind": "Sarcasm",
+   "group": "sentiment",
+   "status": "candidate: gap",
+   "since": "",
+   "source": "screened 2026-10-03 (50 synthetic probes)",
+   "evidence": "v0.2 skill +0.24 (0 = chance)"
+  },
+  {
+   "kind": "Policy violation (which written rule is broken)",
+   "group": "guardrails",
+   "status": "candidate: gap",
+   "since": "",
+   "source": "screened 2026-10-03 (50 synthetic probes)",
+   "evidence": "v0.2 skill +0.65 (0 = chance)"
+  },
+  {
+   "kind": "Duplicate / same-issue tickets",
+   "group": "triage",
+   "status": "candidate: v0.2 already OK",
+   "since": "",
+   "source": "screened 2026-10-03 (50 synthetic probes)",
+   "evidence": "v0.2 skill +0.72 (0 = chance)"
+  },
+  {
+   "kind": "No tool fits the request",
+   "group": "tools",
+   "status": "candidate: v0.2 already OK",
+   "since": "",
+   "source": "screened 2026-10-03 (50 synthetic probes)",
+   "evidence": "v0.2 skill +0.76 (0 = chance)"
+  },
+  {
+   "kind": "Escalation (legal / safety / churn)",
+   "group": "triage",
+   "status": "candidate: v0.2 already OK",
+   "since": "",
+   "source": "screened 2026-10-03 (50 synthetic probes)",
+   "evidence": "v0.2 skill +0.79 (0 = chance)"
+  },
+  {
+   "kind": "Agent: is the task complete",
+   "group": "agents",
+   "status": "candidate: v0.2 already OK",
+   "since": "",
+   "source": "screened 2026-10-03 (50 synthetic probes)",
+   "evidence": "v0.2 skill +0.79 (0 = chance)"
+  },
+  {
+   "kind": "PII / sensitive data type",
+   "group": "guardrails",
+   "status": "candidate: v0.2 already OK",
+   "since": "",
+   "source": "screened 2026-10-03 (50 synthetic probes)",
+   "evidence": "v0.2 skill +0.85 (0 = chance)"
+  },
+  {
+   "kind": "Stance toward a target",
+   "group": "sentiment",
+   "status": "candidate: needs real-data probe",
+   "since": "",
+   "source": "screened 2026-10-03 (50 synthetic probes)",
+   "evidence": "v0.2 skill +0.88 (0 = chance)"
+  },
+  {
+   "kind": "Aspect sentiment",
+   "group": "sentiment",
+   "status": "candidate: needs real-data probe",
+   "since": "",
+   "source": "screened 2026-10-03 (50 synthetic probes)",
+   "evidence": "v0.2 skill +0.89 (0 = chance)"
+  },
+  {
+   "kind": "Hallucination in a long answer",
+   "group": "checks",
+   "status": "candidate: needs real-data probe",
+   "since": "",
+   "source": "screened 2026-10-03 (50 synthetic probes)",
+   "evidence": "v0.2 skill +0.96 (0 = chance)"
+  },
+  {
+   "kind": "Agent: did the tool call succeed",
+   "group": "agents",
+   "status": "candidate: v0.2 already OK",
+   "since": "",
+   "source": "screened 2026-10-03 (50 synthetic probes)",
+   "evidence": "v0.2 skill +1.00 (0 = chance)"
+  }
+ ]
 }
