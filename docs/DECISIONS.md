@@ -67,6 +67,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D60 | 2026-10-03 | Ranking (aurc_gap_closed) becomes a tracked metric and a guard; model card leads with it, calibration comparison footnoted as raw | active |
 | D61 | 2026-10-03 | Decision Index, Kodiak-v0.2-1B accuracy mode: 18.69 (was 17.19); not submitted (Shane's call) | active |
 | D62 | 2026-10-03 | E20 (wording-consistency loss) killed: consistency 0.678 → 0.684 (needed 0.75); familiar and ranking guards fail | active |
+| D63 | 2026-10-04 | E21 seed 1: skills-2 0.142 → 0.950, MT-Bench anchor +0.04 → +0.28; two guards miss narrowly (never-seen 0.674 < 0.679, probe 4 < 5); verdict pending Shane | active |
 
 ---
 
@@ -682,4 +683,16 @@ wording eval and real users test. It also cost familiar accuracy and ranking (th
 **Lesson.** Wording robustness needs *variety of label sets*, not a stronger penalty on a few: the invariance is learned per vocabulary. A
 future attempt should reword many more, diverse label sets (e.g. the skills-roadmap kinds and synthetic tasks with sentence-style options)
 before adding any loss. Wording consistency stays the open v0.3 goal; v0.2 remains the best model.
+
+### D63: E21 (skills batch 2) seed 1: the skills are learned and carry over to real human judgments; two guards miss narrowly
+**Result (seed 1, reports/e21-xl-skills2.md) vs Kodiak-v0.2-1B seed 1.** Skills-2 score **0.142 → 0.950** (bar ≥ 0.392): pairwise judge
++0.115 → +0.850, sarcasm −0.240 → +1.000, policy violation +0.550 → +1.000. **MT-Bench human pairwise anchor (real data, never trained on):
++0.040 → +0.280** (accuracy 0.36 → 0.52), the real-world check that E17's skills test lacked. Guards that hold: familiar 0.878, E17 skills
+0.982, ranking 0.574 (from 0.561), wording consistency 0.674, never-seen ECE 0.094 → 0.078; abstain precision **0.870 → 0.940** (the first
+single model above the 0.90 v0.3 target, one seed); jailbreak +5.2.
+**Guards missed:** never-seen forced **0.674** vs ≥ 0.679 (−0.005; v0.2 seed 1 was 0.680, its three seeds 0.680-0.697) and the label-overlap
+probe **4 of 8** vs ≥ 5 (v0.2 seeds 5/6/6; E17 seeds 4/6/4: the probe swings ±2 between seeds). Both misses are within one seed's noise, but
+the pre-set rule is strict, so this is **not a keep on one seed**, and moving the bar after the fact would break the discipline.
+**Options for Shane.** (A) Kill as written. (B) Run the two confirming seeds and judge the never-seen and probe guards on the 3-seed means
+(the GOAL.md rule that small effects need three seeds, applied to the guards), written down before the seeds run. Recommendation: B.
 

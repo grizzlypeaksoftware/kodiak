@@ -828,6 +828,14 @@
   {
    "date": "2026-10-03",
    "text": "E20 (wording-consistency loss) killed: agreement learned on training wordings didn't transfer (D62). v0.2 stays the best model."
+  },
+  {
+   "date": "2026-10-03",
+   "text": "E21 skills-2 batch done: 23,118 checked examples for $11.94; E21 training started."
+  },
+  {
+   "date": "2026-10-04",
+   "text": "E21 seed 1: skills-2 0.142 → 0.950 and real MT-Bench judgments +0.04 → +0.28; two guards missed by seed-noise margins; decision pending (D63)."
   }
  ],
  "published": [
@@ -930,9 +938,9 @@
  ],
  "queue": [
   {
-   "name": "E21: skills batch 2 (approved)",
-   "why": "Screening 1 gaps (v0.2 skill −0.04 / +0.24 / +0.65). E17 recipe + a real-data anchor. Bar: skills-2 score +0.25 (each kind +0.10); all v0.2 guards.",
-   "after": "running: 3,057 of 30,000 at 4:29 PM (~95/min); done ~9:30 PM; Shane's spot-check any time (not blocking)",
+   "name": "E21 skills-2 batch: done (23,118 kept, $11.94)",
+   "why": "policy violation 9,074, pairwise judge 7,807, sarcasm 6,237; E21 trains on 2,500 each, ~15.6k banked.",
+   "after": "done 8:20 PM",
    "cost": "~$12 batch + $0.23 eval/pilot",
    "script": "skills2_batch.sh",
    "log": "data/synthetic/skills2_v1.log",
@@ -940,9 +948,9 @@
    "running_when_alive": true
   },
   {
-   "name": "E21 training: v0.2 recipe + skills-2 (seed 1)",
-   "why": "Starts automatically when the skills-2 batch finishes; samples 2,500 per kind; smoke at step 500 vs v0.2 seed 1; full run; auto-scoring.",
-   "after": "starts when the batch finishes (~9:30 PM); training ~5 h; results ~3 AM",
+   "name": "E21 result: big skills gain; 2 guards missed narrowly (decision)",
+   "why": "Skills-2 0.142 → 0.950; MT-Bench human judgments +0.04 → +0.28; abstain precision 0.94. Missed: never-seen 0.674 vs 0.679, probe 4 vs 5 (both within seed noise).",
+   "after": "Shane: kill as written, or confirm with 2 seeds and judge guards on 3-seed means (D63)",
    "script": "e21_run.sh",
    "log": "runs/e21-run.log",
    "done_marker": "E21 COMPLETE",
@@ -1125,23 +1133,23 @@
     },
     {
      "name": "Pilot + training batch (~7.5k kept)",
-     "status": "in_progress",
-     "note": "pilot $0.05 ($0.0004/job); 30k-job batch running (~$12)"
+     "status": "done",
+     "note": "23,118 kept for $11.94; 2,500 per kind used, ~15.6k banked"
     },
     {
      "name": "Smoke check at step 500",
-     "status": "pending",
-     "note": ""
+     "status": "done",
+     "note": "0.853 vs 0.850 (+0.003): pass"
     },
     {
      "name": "Full run (6,000 steps)",
-     "status": "pending",
-     "note": ""
+     "status": "done",
+     "note": "done 12:45 AM"
     },
     {
      "name": "Result vs the keep line",
-     "status": "pending",
-     "note": ""
+     "status": "in_progress",
+     "note": "skills-2 0.950, anchor +0.28; two guards miss narrowly; Shane decides (D63)"
     },
     {
      "name": "Two confirming seeds (only if it passes)",
@@ -1154,61 +1162,61 @@
      "metric": "Skills-2 score",
      "baseline": "0.142",
      "target": "≥ 0.392",
-     "result": ""
+     "result": "0.950 ✓"
     },
     {
      "metric": "Each kind",
      "baseline": "+0.12 / −0.24 / +0.55",
      "target": "each +0.10",
-     "result": ""
+     "result": "+0.74 / +1.24 / +0.45 ✓"
     },
     {
      "metric": "MT-Bench anchor",
      "baseline": "+0.040",
      "target": "not lower",
-     "result": ""
+     "result": "+0.280 ✓"
     },
     {
      "metric": "Never-seen forced",
      "baseline": "0.680 (s1)",
      "target": "≥ 0.679",
-     "result": ""
+     "result": "0.674 ✗ (−0.005)"
     },
     {
      "metric": "Familiar",
      "baseline": "0.877",
      "target": "≥ 0.87",
-     "result": ""
+     "result": "0.878 ✓"
     },
     {
      "metric": "Abstain precision",
      "baseline": "0.870",
      "target": "≥ 0.86",
-     "result": ""
+     "result": "0.940 ✓"
     },
     {
      "metric": "E17 skills",
      "baseline": "0.985",
      "target": "≥ 0.95",
-     "result": ""
+     "result": "0.982 ✓"
     },
     {
      "metric": "Ranking",
      "baseline": "0.561",
      "target": "≥ 0.541",
-     "result": ""
+     "result": "0.574 ✓"
     },
     {
      "metric": "Wording consistency",
      "baseline": "0.678",
      "target": "≥ 0.66",
-     "result": ""
+     "result": "0.674 ✓"
     },
     {
      "metric": "Label-overlap probe",
      "baseline": "6 of 8",
      "target": "≥ 5 of 8",
-     "result": ""
+     "result": "4 of 8 ✗"
     }
    ]
   },
@@ -1287,7 +1295,7 @@
    "E19": "e19-rewording-3seeds",
    "roadmap": "skills-roadmap-screening",
    "E20": "e20-xl-consistency",
-   "E21": "skills2-eval-review"
+   "E21": "e21-xl-skills2"
   }
  },
  "decision_kinds": [
