@@ -45,5 +45,11 @@ pilot (e.g. policy messages must break exactly one rule unambiguously).
 skills-2 score **≥ 0.392**, each kind ≥ +0.10 over its baseline, anchor not below +0.040. Sarcasm anchor: no permissively licensed
 human-written set found on the Hub (license missing or unknown), so sarcasm is synthetic-only. Details: reports/preds_skills2/.
 
+**Confirmation rule (Shane, 2026-10-04, option B of D63; written before seeds 0 and 2 run).** Seed 1 cleared the skills bar (0.950, anchor
++0.28) but missed two guards by single-seed margins (never-seen 0.674 vs 0.679; probe 4 vs 5). Seeds 0 and 2 run with the identical recipe.
+**Keep** only if, on the **3-seed means** vs Kodiak-v0.2-1B's 3 seeds: skills-2 score ≥ 0.392 and MT-Bench anchor ≥ +0.040; never-seen
+forced ≥ 0.679; label-overlap probe ≥ 5 of 8 (mean, v0.2: 5.7); familiar ≥ 0.87; abstain precision ≥ 0.86; E17 skills ≥ 0.95; ranking
+≥ 0.541; wording consistency ≥ 0.66. Any 3-seed mean below its line = **kill**. No further changes to this rule.
+
 ## Approval
 Approved: Shane (2026-10-03, "Approved")

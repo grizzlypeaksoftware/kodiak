@@ -836,6 +836,10 @@
   {
    "date": "2026-10-04",
    "text": "E21 seed 1: skills-2 0.142 → 0.950 and real MT-Bench judgments +0.04 → +0.28; two guards missed by seed-noise margins; decision pending (D63)."
+  },
+  {
+   "date": "2026-10-04",
+   "text": "Shane chose option B for E21: two confirming seeds, guards judged on 3-seed means (rule written before they ran)."
   }
  ],
  "published": [
@@ -948,12 +952,12 @@
    "running_when_alive": true
   },
   {
-   "name": "E21 result: big skills gain; 2 guards missed narrowly (decision)",
+   "name": "E21 confirmation: seeds 0 and 2 (option B)",
    "why": "Skills-2 0.142 → 0.950; MT-Bench human judgments +0.04 → +0.28; abstain precision 0.94. Missed: never-seen 0.674 vs 0.679, probe 4 vs 5 (both within seed noise).",
-   "after": "Shane: kill as written, or confirm with 2 seeds and judge guards on 3-seed means (D63)",
-   "script": "e21_run.sh",
-   "log": "runs/e21-run.log",
-   "done_marker": "E21 COMPLETE",
+   "after": "running: started ~1:10 AM; ~10 h (two runs + scoring); verdict on 3-seed means (rule written first)",
+   "script": "e21_confirm.sh",
+   "log": "runs/e21-confirm.log",
+   "done_marker": "E21 CONFIRM COMPLETE",
    "cost": "free (GPU)",
    "running_marker": "GPU free"
   },
@@ -1149,12 +1153,12 @@
     {
      "name": "Result vs the keep line",
      "status": "in_progress",
-     "note": "skills-2 0.950, anchor +0.28; two guards miss narrowly; Shane decides (D63)"
+     "note": "seed 1: skills-2 0.950, anchor +0.28; 2 guards missed narrowly → option B (D63)"
     },
     {
      "name": "Two confirming seeds (only if it passes)",
-     "status": "pending",
-     "note": ""
+     "status": "in_progress",
+     "note": "seeds 0 and 2 running; guards judged on 3-seed means (rule written before)"
     }
    ],
    "bar": [
