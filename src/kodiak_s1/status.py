@@ -45,14 +45,14 @@ def _read_run(path: Path) -> dict:
     c = _synth_cache.get(path)
     if c and c["key"] == key:
         return c
-    jobs: dict[int, dict] = {}
+    jobs: dict[tuple, dict] = {}
     with open(path, encoding="utf-8") as f:
         for line in f:
             try:
                 r = json.loads(line)
             except json.JSONDecodeError:
                 continue  # a line being written right now
-            jobs[r["job"]] = r
+            jobs[(r.get("kind"), r["job"])] = r  # probe generators number jobs per kind
     done = [r for r in jobs.values() if r.get("status") != "retry"]
     tok = lambda k: sum(r.get(k) or 0 for r in jobs.values())  # noqa: E731
     c = {"key": key, "done": len(done),
@@ -195,7 +195,9 @@ def queue_status(queue: list[dict], procs: list[str]) -> list[dict]:
             q["state"] = "done"
         elif "training failed" in text:
             q["state"] = "failed"
-        elif alive and lines:
+        elif alive and q.get("running_marker") and q["running_marker"] not in text:
+            q["state"] = "waiting"  # the script is alive but still waiting for its turn
+        elif alive and (lines or q.get("running_when_alive")):
             q["state"] = "running"
         elif alive:
             q["state"] = "waiting"

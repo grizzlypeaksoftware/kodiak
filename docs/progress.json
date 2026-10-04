@@ -932,20 +932,22 @@
   {
    "name": "E21: skills batch 2 (approved)",
    "why": "Screening 1 gaps (v0.2 skill −0.04 / +0.24 / +0.65). E17 recipe + a real-data anchor. Bar: skills-2 score +0.25 (each kind +0.10); all v0.2 guards.",
-   "after": "now: 30k-job batch (~$12, cap $15) generating; Shane's spot-check any time (not blocking); then smoke + full run",
+   "after": "running: 3,057 of 30,000 at 4:29 PM (~95/min); done ~9:30 PM; Shane's spot-check any time (not blocking)",
    "cost": "~$12 batch + $0.23 eval/pilot",
    "script": "skills2_batch.sh",
    "log": "data/synthetic/skills2_v1.log",
-   "done_marker": "SKILLS2_BATCH_DONE"
+   "done_marker": "SKILLS2_BATCH_DONE",
+   "running_when_alive": true
   },
   {
    "name": "E21 training: v0.2 recipe + skills-2 (seed 1)",
    "why": "Starts automatically when the skills-2 batch finishes; samples 2,500 per kind; smoke at step 500 vs v0.2 seed 1; full run; auto-scoring.",
-   "after": "waiting for the batch (~5.5 h), then ~5 h training",
+   "after": "starts when the batch finishes (~9:30 PM); training ~5 h; results ~3 AM",
    "script": "e21_run.sh",
    "log": "runs/e21-run.log",
    "done_marker": "E21 COMPLETE",
-   "cost": "free (GPU)"
+   "cost": "free (GPU)",
+   "running_marker": "GPU free"
   },
   {
    "name": "Decision Index submission: PR #49 (18.69)",
@@ -958,24 +960,9 @@
    "after": "Shane posts"
   },
   {
-   "name": "Skills roadmap: screen 12 candidate decision kinds",
-   "why": "Measure Kodiak-v0.2-1B on ~50 checked probes per kind (aspect sentiment, stance, sarcasm, long hallucination, tool unavailable, policy violation, PII, duplicates, task done, tool result, pairwise judge, escalation); build training data only for real gaps.",
-   "after": "done: probes $0.35; v0.2 measured; tracker on the Research tab; next: real-data probes for 3 kinds, then pick v0.3 kinds with Shane",
-   "cost": "~$0.5 (cap $2)"
-  },
-  {
-   "name": "E20 done: killed (D62)",
-   "why": "Consistency 0.678 → 0.684 (needed 0.75); familiar and ranking guards failed. v0.2 stays the best model.",
-   "after": "done 1:46 PM",
-   "cost": "free (GPU)",
-   "script": "e20_run.sh",
-   "log": "runs/e20-run.log",
-   "done_marker": "E20 COMPLETE"
-  },
-  {
    "name": "Stage 3 retry: ratings as low / medium / high bands",
    "why": "Ratings are the weakest answer type and a bigger model didn't fix them (D33). Raters disagreed on exact numbers (D31); test whether they agree on bands. If ≥80%: ~$10 batch + 3 seeds; if not, ratings ship as 'experimental' in v0.1.",
-   "after": "v2.2 (or alongside it)",
+   "after": "idea: not scheduled (behind the skills roadmap)",
    "cost": "pilot ~$0.15; batch ~$10 only if the pilot passes (ask first)"
   }
  ],
@@ -1234,7 +1221,7 @@
    {
     "name": "Next skills batch: pairwise judge, sarcasm, policy violation",
     "why": "Clear gaps in skills-roadmap screening 1 (v0.2 skill −0.04 / +0.24 / +0.65). E17 recipe: checked synthetic data + a real-data anchor in the test.",
-    "status": "E21 proposal: gate OK; waiting for Shane"
+    "status": "E21: approved and running"
    },
    {
     "name": "Real-data probes: long-answer hallucination, aspect sentiment, stance",
@@ -1435,25 +1422,25 @@
   {
    "kind": "Pairwise judge (which answer is better)",
    "group": "judging",
-   "status": "candidate: gap",
+   "status": "in training (E21)",
    "since": "",
-   "source": "screened 2026-10-03 (50 synthetic probes)",
+   "source": "E21 skills-2 generator (2.5k) + screening",
    "evidence": "v0.2 skill -0.04 (0 = chance)"
   },
   {
    "kind": "Sarcasm",
    "group": "sentiment",
-   "status": "candidate: gap",
+   "status": "in training (E21)",
    "since": "",
-   "source": "screened 2026-10-03 (50 synthetic probes)",
+   "source": "E21 skills-2 generator (2.5k) + screening",
    "evidence": "v0.2 skill +0.24 (0 = chance)"
   },
   {
    "kind": "Policy violation (which written rule is broken)",
    "group": "guardrails",
-   "status": "candidate: gap",
+   "status": "in training (E21)",
    "since": "",
-   "source": "screened 2026-10-03 (50 synthetic probes)",
+   "source": "E21 skills-2 generator (2.5k) + screening",
    "evidence": "v0.2 skill +0.65 (0 = chance)"
   },
   {
