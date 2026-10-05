@@ -840,6 +840,10 @@
   {
    "date": "2026-10-04",
    "text": "Shane chose option B for E21: two confirming seeds, guards judged on 3-seed means (rule written before they ran)."
+  },
+  {
+   "date": "2026-10-04",
+   "text": "E21 confirmation: skills learned on all 3 seeds (0.959; MT-Bench +0.31) but killed by its pre-written rule on the wording-trap probe (4.7 < 5) (D64)."
   }
  ],
  "published": [
@@ -952,9 +956,9 @@
    "running_when_alive": true
   },
   {
-   "name": "E21 confirmation: seeds 0 and 2 (option B)",
-   "why": "Skills-2 0.142 → 0.950; MT-Bench human judgments +0.04 → +0.28; abstain precision 0.94. Missed: never-seen 0.674 vs 0.679, probe 4 vs 5 (both within seed noise).",
-   "after": "running: started ~1:10 AM; ~10 h (two runs + scoring); verdict on 3-seed means (rule written first)",
+   "name": "E21 confirmation done: killed on the probe (D64)",
+   "why": "All 3-seed lines pass except the wording-trap probe (4.7 vs ≥ 5). Skills-2 data banked; next attempt should pair it with wording-trap protection.",
+   "after": "done 4:18 PM",
    "script": "e21_confirm.sh",
    "log": "runs/e21-confirm.log",
    "done_marker": "E21 CONFIRM COMPLETE",
@@ -979,6 +983,13 @@
   }
  ],
  "experiments": [
+  {
+   "match": "-e21-",
+   "name": "E21: skills batch 2 (pairwise judge, sarcasm, policy violation)",
+   "why": "v0.2 recipe + 2,500 checked examples per new kind; seeds 0-2 (confirmation judged on 3-seed means, D63)",
+   "report": "e21-xl-skills2-3seeds",
+   "decision": "D64: kill on one guard (probe 4.7 < 5); skills-2 0.959, MT-Bench +0.31, abstain precision 0.919"
+  },
   {
    "match": "-e20-",
    "name": "E20: wording-consistency loss",
@@ -1008,8 +1019,8 @@
    "decision": "D53: keep. 3 seeds: skills 0.518 → 0.981, never-seen 0.659 → 0.662 (no cost); seed 1's precision/probe bonus was noise. Val loss isn't comparable to XL v2"
   },
   {
-   "match": "b-xl-",
-   "name": "v0.2 backbone: Ettin-1B",
+   "match": "b-xl-s1-v2-",
+   "name": "E15: Ettin-1B backbone (XL v2, Sept 28-29)",
    "why": "Bigger reader (1B, ModernBERT architecture)",
    "report": "v02-xl",
    "decision": "D47: confirmed, 0.659 ± 0.013 (3 seeds); flagship candidate"
@@ -1152,13 +1163,13 @@
     },
     {
      "name": "Result vs the keep line",
-     "status": "in_progress",
-     "note": "seed 1: skills-2 0.950, anchor +0.28; 2 guards missed narrowly → option B (D63)"
+     "status": "done",
+     "note": "kill (D64): every 3-seed line passes except the probe (4.7 < 5)"
     },
     {
      "name": "Two confirming seeds (only if it passes)",
-     "status": "in_progress",
-     "note": "seeds 0 and 2 running; guards judged on 3-seed means (rule written before)"
+     "status": "done",
+     "note": "seeds 0 and 2 done; 3-seed report"
     }
    ],
    "bar": [
@@ -1166,25 +1177,25 @@
      "metric": "Skills-2 score",
      "baseline": "0.142",
      "target": "≥ 0.392",
-     "result": "0.950 ✓"
+     "result": "0.959 ✓ (3 seeds)"
     },
     {
      "metric": "Each kind",
      "baseline": "+0.12 / −0.24 / +0.55",
      "target": "each +0.10",
-     "result": "+0.74 / +1.24 / +0.45 ✓"
+     "result": "all ✓"
     },
     {
      "metric": "MT-Bench anchor",
      "baseline": "+0.040",
      "target": "not lower",
-     "result": "+0.280 ✓"
+     "result": "+0.310 ✓"
     },
     {
      "metric": "Never-seen forced",
      "baseline": "0.680 (s1)",
      "target": "≥ 0.679",
-     "result": "0.674 ✗ (−0.005)"
+     "result": "0.690 ✓"
     },
     {
      "metric": "Familiar",
@@ -1196,31 +1207,31 @@
      "metric": "Abstain precision",
      "baseline": "0.870",
      "target": "≥ 0.86",
-     "result": "0.940 ✓"
+     "result": "0.919 ✓"
     },
     {
      "metric": "E17 skills",
      "baseline": "0.985",
      "target": "≥ 0.95",
-     "result": "0.982 ✓"
+     "result": "0.979 ✓"
     },
     {
      "metric": "Ranking",
      "baseline": "0.561",
      "target": "≥ 0.541",
-     "result": "0.574 ✓"
+     "result": "0.555 ✓"
     },
     {
      "metric": "Wording consistency",
      "baseline": "0.678",
      "target": "≥ 0.66",
-     "result": "0.674 ✓"
+     "result": "0.682 ✓"
     },
     {
      "metric": "Label-overlap probe",
      "baseline": "6 of 8",
      "target": "≥ 5 of 8",
-     "result": "4 of 8 ✗"
+     "result": "4.7 of 8 ✗ (mean)"
     }
    ]
   },
@@ -1231,9 +1242,9 @@
     "status": "idea: needs a proposal"
    },
    {
-    "name": "Next skills batch: pairwise judge, sarcasm, policy violation",
-    "why": "Clear gaps in skills-roadmap screening 1 (v0.2 skill −0.04 / +0.24 / +0.65). E17 recipe: checked synthetic data + a real-data anchor in the test.",
-    "status": "E21: approved and running"
+    "name": "Skills-2 + wording-trap protection (E21 follow-up)",
+    "why": "E21 learned the three kinds (0.959; MT-Bench +0.31) but the probe fell 5.7 → 4.7 (D64). Pair the banked skills-2 data with Returns Desk computed-label data (moved the probe on the small model, E12/E13).",
+    "status": "idea: needs a proposal"
    },
    {
     "name": "Real-data probes: long-answer hallucination, aspect sentiment, stance",
@@ -1299,7 +1310,7 @@
    "E19": "e19-rewording-3seeds",
    "roadmap": "skills-roadmap-screening",
    "E20": "e20-xl-consistency",
-   "E21": "e21-xl-skills2"
+   "E21": "e21-xl-skills2-3seeds"
   }
  },
  "decision_kinds": [
@@ -1434,26 +1445,26 @@
   {
    "kind": "Pairwise judge (which answer is better)",
    "group": "judging",
-   "status": "in training (E21)",
+   "status": "candidate: learned in E21 (killed on a guard)",
    "since": "",
    "source": "E21 skills-2 generator (2.5k) + screening",
-   "evidence": "v0.2 skill -0.04 (0 = chance)"
+   "evidence": "v0.2 skill -0.04 (0 = chance); E21 3 seeds: learned (skills-2 0.959), not shipped"
   },
   {
    "kind": "Sarcasm",
    "group": "sentiment",
-   "status": "in training (E21)",
+   "status": "candidate: learned in E21 (killed on a guard)",
    "since": "",
    "source": "E21 skills-2 generator (2.5k) + screening",
-   "evidence": "v0.2 skill +0.24 (0 = chance)"
+   "evidence": "v0.2 skill +0.24 (0 = chance); E21 3 seeds: learned (skills-2 0.959), not shipped"
   },
   {
    "kind": "Policy violation (which written rule is broken)",
    "group": "guardrails",
-   "status": "in training (E21)",
+   "status": "candidate: learned in E21 (killed on a guard)",
    "since": "",
    "source": "E21 skills-2 generator (2.5k) + screening",
-   "evidence": "v0.2 skill +0.65 (0 = chance)"
+   "evidence": "v0.2 skill +0.65 (0 = chance); E21 3 seeds: learned (skills-2 0.959), not shipped"
   },
   {
    "kind": "Duplicate / same-issue tickets",

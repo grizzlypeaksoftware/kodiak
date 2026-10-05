@@ -67,7 +67,8 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D60 | 2026-10-03 | Ranking (aurc_gap_closed) becomes a tracked metric and a guard; model card leads with it, calibration comparison footnoted as raw | active |
 | D61 | 2026-10-03 | Decision Index, Kodiak-v0.2-1B accuracy mode: 18.69 (was 17.19); not submitted (Shane's call) | active |
 | D62 | 2026-10-03 | E20 (wording-consistency loss) killed: consistency 0.678 → 0.684 (needed 0.75); familiar and ranking guards fail | active |
-| D63 | 2026-10-04 | E21 seed 1: skills-2 0.142 → 0.950, MT-Bench anchor +0.04 → +0.28; two guards miss narrowly (never-seen 0.674 < 0.679, probe 4 < 5); verdict pending Shane | active |
+| D63 | 2026-10-04 | E21 seed 1: skills-2 0.142 → 0.950, MT-Bench anchor +0.04 → +0.28; two guards miss narrowly (never-seen 0.674 < 0.679, probe 4 < 5); verdict pending Shane | superseded by D64 |
+| D64 | 2026-10-04 | E21 confirmed over 3 seeds on every line except the label-overlap probe (mean 4.7 < 5): kill by the pre-written rule; skills-2 data banked | active |
 
 ---
 
@@ -695,4 +696,18 @@ probe **4 of 8** vs ≥ 5 (v0.2 seeds 5/6/6; E17 seeds 4/6/4: the probe swings �
 the pre-set rule is strict, so this is **not a keep on one seed**, and moving the bar after the fact would break the discipline.
 **Options for Shane.** (A) Kill as written. (B) Run the two confirming seeds and judge the never-seen and probe guards on the 3-seed means
 (the GOAL.md rule that small effects need three seeds, applied to the guards), written down before the seeds run. Recommendation: B.
+
+### D64: E21 is killed by its own pre-written rule, on one line only: the wording-trap probe
+**3-seed means vs Kodiak-v0.2-1B's 3 seeds (reports/e21-xl-skills2-3seeds.md; rule written before seeds 0 and 2 ran, D63 option B).**
+Skills-2 **0.959** (0.953 / 0.950 / 0.975; bar ≥ 0.392) ✓ · MT-Bench human pairwise anchor **+0.310** (+0.30 / +0.28 / +0.35; v0.2 +0.04) ✓
+· never-seen forced 0.689 → **0.690** ✓ · familiar 0.877 → 0.878 ✓ · abstain precision 0.880 → **0.919** ✓ (above 0.90 on the mean) · E17
+skills 0.979 ✓ · ranking 0.556 → 0.555 ✓ · wording consistency 0.678 → 0.682 ✓ · never-seen ECE 0.085 → 0.073, jailbreak +4.5 ·
+**label-overlap probe 5.7 → 4.7 of 8** (seeds 5 / 4 / 5; mean p(right) 0.56 / 0.53 / 0.56 vs v0.2 0.56 / 0.66 / 0.66) ✗ (line ≥ 5).
+**Verdict: kill**, as the rule says ("any 3-seed mean below its line = kill; no further changes"). The probe drop may be partly real, not
+only noise: p(right) fell on two of three seeds, so the sarcasm data ("the words say the opposite of what's meant") may push the model to
+read past literal conditions, which is exactly what the wording trap tests.
+**What's kept.** The skills-2 data (23,118 checked examples, $11.94) and eval are banked. **Lessons:** (1) an 8-sentence probe swings ±1-2
+per seed, so a guard on it needs a line that reflects that noise, set *before* the run; (2) the next attempt should pair the skills-2 data
+with something that protects the wording trap (the Returns Desk computed-label data moved this probe +1.7 to +2 on the small model, E12/E13),
+proposed through the gate with its own bar. v0.2 stays the released model.
 
