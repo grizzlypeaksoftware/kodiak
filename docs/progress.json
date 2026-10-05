@@ -844,6 +844,10 @@
   {
    "date": "2026-10-04",
    "text": "E21 confirmation: skills learned on all 3 seeds (0.959; MT-Bench +0.31) but killed by its pre-written rule on the wording-trap probe (4.7 < 5) (D64)."
+  },
+  {
+   "date": "2026-10-04",
+   "text": "D65: six rules against folly experiments; a 100-item trap test shows E21 improves the wording trap (0.867 → 0.913), so the 8-sentence probe that killed it was misleading."
   }
  ],
  "published": [
@@ -945,6 +949,11 @@
   }
  ],
  "queue": [
+  {
+   "name": "Decision: ship E21 as v0.3? (owner call, D65)",
+   "why": "E21 learned 3 skills (skills-2 0.959, MT-Bench +0.31, abstain precision 0.919) and, on the new 100-item trap test, improves the wording trap (0.867 → 0.913). Its recorded verdict stays kill (8-sentence probe); shipping is Shane's informed call.",
+   "after": "Shane decides"
+  },
   {
    "name": "E21 skills-2 batch: done (23,118 kept, $11.94)",
    "why": "policy violation 9,074, pairwise judge 7,807, sarcasm 6,237; E21 trains on 2,500 each, ~15.6k banked.",
@@ -1236,6 +1245,11 @@
    ]
   },
   "ideas": [
+   {
+    "name": "Process: rules against folly (D65)",
+    "why": "Noise-based guards, ≥100-item gate tests, ≤5 guards, prediction, zero-training check first, 2 attempts max. In the template and gate from E22.",
+    "status": "done"
+   },
    {
     "name": "Wording robustness, next attempt: many more reworded label sets",
     "why": "E20 killed (D62): agreement learned on ~290 training labels didn't transfer. Reword many diverse label sets (skills-roadmap kinds, sentence-style options) before any loss term. v0.3 goal.",

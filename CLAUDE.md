@@ -11,6 +11,14 @@ Kodiak is an open, encoder-only decision model by Cortex Agent LLC (owner: Shane
    `scripts/smoke_check.py` must pass before a full run; a full run needs `Approved: Shane` in the file (`gate.py --full`).
 4. Give Shane options with reasons, and a recommendation. Ask before spending any money.
 
+## Not folly (D65, after E20/E21)
+1. Guard lines come from **docs/NOISE.md**: baseline mean − 2 SD, judged on 3-seed means; one run rejects only past 3 SD.
+2. A test that gates needs ≥ ~100 items; small probes are reported, never gating.
+3. One target plus ≤ ~5 guards.
+4. Write the predicted effect size and its evidence before any GPU time.
+5. Zero-training check first: answer what you can by evaluating models that already exist.
+6. At most 2 attempts per open problem; after 2 misses, step back and rethink with Shane.
+
 ## After a result
 Append the row to docs/EXPERIMENTS.md (verdict keep / kill / park), record the decision in docs/DECISIONS.md, and update the dashboard
 (docs/progress.json: queue, experiments, milestones). Check running jobs promptly; don't estimate from memory.

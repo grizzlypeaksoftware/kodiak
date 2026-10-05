@@ -22,9 +22,22 @@ REQUIRED = {
 }
 
 
+# From E22 on (D65): rules against "folly" experiments: a written prediction, a zero-training check, an attempt count (max 2 per
+# problem), and guards taken from the noise table.
+REQUIRED_D65 = {
+    "prediction (rule 4)": r"- Prediction:\s*(?!<)\S.{10,}",
+    "zero-training check (rule 5)": r"- Zero-training check:\s*(?!<)\S.{10,}",
+    "attempt count (rule 6)": r"- Attempt:\s*[12] of 2",
+    "noise-based guards (rules 1-3)": r"- Noise:.*NOISE\.md",
+}
+
+
 def check(path: Path, full: bool) -> list[str]:
     text = path.read_text()
     problems = [f"missing or unfilled: {name}" for name, pat in REQUIRED.items() if not re.search(pat, text)]
+    m = re.match(r"E(\d+)", path.name)
+    if m and int(m.group(1)) >= 22:
+        problems += [f"missing or unfilled: {name}" for name, pat in REQUIRED_D65.items() if not re.search(pat, text)]
     cited = set(re.findall(r"- Not (E\d+)", text))
     log = Path("docs/EXPERIMENTS.md").read_text()
     killed = {e for e in re.findall(r"^\| (E\d+) \|.*\| (?:kill|park)", log, re.M)}

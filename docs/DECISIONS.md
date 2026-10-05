@@ -69,6 +69,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D62 | 2026-10-03 | E20 (wording-consistency loss) killed: consistency 0.678 → 0.684 (needed 0.75); familiar and ranking guards fail | active |
 | D63 | 2026-10-04 | E21 seed 1: skills-2 0.142 → 0.950, MT-Bench anchor +0.04 → +0.28; two guards miss narrowly (never-seen 0.674 < 0.679, probe 4 < 5); verdict pending Shane | superseded by D64 |
 | D64 | 2026-10-04 | E21 confirmed over 3 seeds on every line except the label-overlap probe (mean 4.7 < 5): kill by the pre-written rule; skills-2 data banked | active |
+| D65 | 2026-10-04 | Six rules against folly experiments (noise-based guards, ≥100-item gate tests, ≤5 guards, prediction, zero-training check first, 2 attempts max); 100-item trap eval shows E21 *improves* the wording trap | active |
 
 ---
 
@@ -710,4 +711,17 @@ read past literal conditions, which is exactly what the wording trap tests.
 per seed, so a guard on it needs a line that reflects that noise, set *before* the run; (2) the next attempt should pair the skills-2 data
 with something that protects the wording trap (the Returns Desk computed-label data moved this probe +1.7 to +2 on the small model, E12/E13),
 proposed through the gate with its own bar. v0.2 stays the released model.
+
+### D65: rules against "folly" experiments; a 100-item trap test shows the probe that killed E21 was misleading
+**Why (Shane, 2026-10-04):** "How do we ensure our experiments are not just folly?" E20 and E21 showed two process faults: guards drawn
+inside their own noise (the decisive 8-sentence probe moves ±1-2 per seed), and too many guards (10 lines at ~10% false-fail each kill a good
+experiment about half the time). That breeds the circular loop the gate was meant to stop.
+**Zero-training check (no GPU training).** A new 100-item wording-trap eval (50 trap + 50 control items, writer + blind checker, seed 31,
+traps verified to contain a wrong option's words; $0.04): v0.2 seeds 0.84 / 0.90 / 0.86 (mean **0.867**), E21 seeds 0.92 / 0.92 / 0.90 (mean
+**0.913**); control items 1.00 for all six models. On a test large enough to trust, E21 does **not** worsen the wording trap; it improves it.
+E21's recorded verdict stays "kill" under its own rule (D64): the rule can't be rewritten after the fact; whether to ship it is now an
+informed owner decision.
+**Rules (CLAUDE.md "Not folly", TEMPLATE.md, gate.py from E22 on):** (1) guard lines from docs/NOISE.md, baseline mean − 2 SD on 3-seed means,
+one run rejects only past 3 SD; (2) gate tests ≥ ~100 items, small probes report only; (3) one target + ≤ ~5 guards; (4) written prediction
+with evidence; (5) zero-training check first; (6) at most 2 attempts per open problem, then rethink with Shane.
 
