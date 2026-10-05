@@ -453,6 +453,30 @@
     "target_jobs": 30000,
     "writer": "do:openai-gpt-oss-120b",
     "verifier": "do:deepseek-3.2"
+   },
+   {
+    "name": "E22 held-out evals: 4 new kinds (seed 52; never trained on)",
+    "file": "data/probes/skills3_eval_raw.jsonl",
+    "target_jobs": 680,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "E22 pilot (seed 53)",
+    "file": "data/probes/skills3_pilot.jsonl",
+    "target_jobs": 160,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2",
+    "pilot": true
+   },
+   {
+    "name": "E22 batch: long-answer adherence, stance, refund eligibility, step safety (seed 54; 30k jobs, $18 cap)",
+    "file": "data/synthetic/skills3_v1.jsonl",
+    "log": "data/synthetic/skills3_v1.log",
+    "target_jobs": 30000,
+    "writer": "do:openai-gpt-oss-120b",
+    "verifier": "do:deepseek-3.2"
    }
   ],
   "stages": [
@@ -958,30 +982,24 @@
  ],
  "queue": [
   {
-   "name": "E22: skills batch 3 (proposal): skills-2 + 4 new kinds, judged on real data",
-   "why": "Real-data gaps: RAGBench long-answer adherence, SemEval stance, MT-Bench pairwise; plus refund eligibility and agent step safety. Target: real-anchor score 0.211 → ≥ 0.311 (3-seed means); 5 noise-based guards (D65 rules).",
-   "after": "Shane's approval ($20 cap; ~16 GPU-h incl. confirming seeds)",
-   "cost": "≤ $20; ~16 GPU-h"
+   "name": "E22 batch: 4 new kinds (30k jobs, ~$12, cap $18)",
+   "why": "Long-answer adherence, stance, refund eligibility, agent step safety; ~2,500 each used, the rest banked.",
+   "after": "running (~5-6 h)",
+   "script": "skills3_batch.sh",
+   "log": "data/synthetic/skills3_v1.log",
+   "done_marker": "SKILLS3_BATCH_DONE",
+   "running_when_alive": true,
+   "cost": "~$12"
   },
   {
-   "name": "E21 skills-2 batch: done (23,118 kept, $11.94)",
-   "why": "policy violation 9,074, pairwise judge 7,807, sarcasm 6,237; E21 trains on 2,500 each, ~15.6k banked.",
-   "after": "done 8:20 PM",
-   "cost": "~$12 batch + $0.23 eval/pilot",
-   "script": "skills2_batch.sh",
-   "log": "data/synthetic/skills2_v1.log",
-   "done_marker": "SKILLS2_BATCH_DONE",
-   "running_when_alive": true
-  },
-  {
-   "name": "E21 confirmation done: killed on the probe (D64)",
-   "why": "All 3-seed lines pass except the wording-trap probe (4.7 vs ≥ 5). Skills-2 data banked; next attempt should pair it with wording-trap protection.",
-   "after": "done 4:18 PM",
-   "script": "e21_confirm.sh",
-   "log": "runs/e21-confirm.log",
-   "done_marker": "E21 CONFIRM COMPLETE",
-   "cost": "free (GPU)",
-   "running_marker": "GPU free"
+   "name": "E22 training: seed 1, then seeds 0 and 2",
+   "why": "v0.2 recipe + skills-2 + skills-3. Target: real-anchor score 3-seed mean ≥ 0.311 (v0.2 0.211); 5 noise-based guards; automatic stop rule after seed 1.",
+   "after": "waits for the batch; ~16 GPU-h; verdict by scripts/e22_verdict.py",
+   "script": "e22_run.sh",
+   "log": "runs/e22-run.log",
+   "done_marker": "E22 COMPLETE",
+   "running_marker": "GPU free",
+   "cost": "free (GPU)"
   },
   {
    "name": "Decision Index submission: PR #49 (18.69)",
@@ -1001,6 +1019,13 @@
   }
  ],
  "experiments": [
+  {
+   "match": "-e22-",
+   "name": "E22: skills batch 3 (skills-2 + 4 new kinds, judged on real data)",
+   "why": "Real-anchor target; D65 rules",
+   "report": "e22-xl-skills3",
+   "decision": "running"
+  },
   {
    "match": "-e21-",
    "name": "E21: skills batch 2 (pairwise judge, sarcasm, policy violation)",
@@ -1140,116 +1165,87 @@
  },
  "research": {
   "active": {
-   "id": "E21",
-   "proposal": "E21-skills-batch-2",
-   "title": "Skills batch 2: pairwise judge, sarcasm, policy violation",
+   "id": "E22",
+   "proposal": "E22-skills-batch-3",
+   "title": "Skills batch 3: skills-2 + 4 new kinds, judged on real data",
    "steps": [
     {
-     "name": "Proposal passes the gate; approved by Shane",
+     "name": "Screening 2 + real-data probes (zero-training check)",
      "status": "done",
-     "note": "2026-10-03"
+     "note": "$0.45 + real anchors; gaps confirmed"
     },
     {
-     "name": "Held-out skills-2 eval (100 per kind) + MT-Bench anchor (150)",
+     "name": "Proposal passes the new gate (D65); approved by Shane",
      "status": "done",
-     "note": "$0.18; sarcasm anchor: no permissive dataset"
+     "note": "2026-10-05"
     },
     {
-     "name": "Baseline: v0.2 on skills-2",
+     "name": "Real-anchor baseline, v0.2 × 3 seeds",
      "status": "done",
-     "note": "0.142 (judge +0.12, sarcasm −0.24, policy +0.55); anchor +0.04"
+     "note": "0.243 / 0.138 / 0.251 → 0.211 ± 0.063"
     },
     {
-     "name": "Shane spot-checks the eval",
+     "name": "Held-out synthetic evals + pilot",
+     "status": "done",
+     "note": "$0.35"
+    },
+    {
+     "name": "Batch (30k jobs)",
      "status": "in_progress",
-     "note": "#evals/skills2-eval-review"
+     "note": "~$12"
     },
     {
-     "name": "Pilot + training batch (~7.5k kept)",
-     "status": "done",
-     "note": "23,118 kept for $11.94; 2,500 per kind used, ~15.6k banked"
+     "name": "Seed 1 (smoke + full + stop rule)",
+     "status": "pending",
+     "note": ""
     },
     {
-     "name": "Smoke check at step 500",
-     "status": "done",
-     "note": "0.853 vs 0.850 (+0.003): pass"
+     "name": "Seeds 0 and 2",
+     "status": "pending",
+     "note": ""
     },
     {
-     "name": "Full run (6,000 steps)",
-     "status": "done",
-     "note": "done 12:45 AM"
-    },
-    {
-     "name": "Result vs the keep line",
-     "status": "done",
-     "note": "kill (D64): every 3-seed line passes except the probe (4.7 < 5)"
-    },
-    {
-     "name": "Two confirming seeds (only if it passes)",
-     "status": "done",
-     "note": "seeds 0 and 2 done; 3-seed report"
+     "name": "Verdict on 3-seed means",
+     "status": "pending",
+     "note": ""
     }
    ],
    "bar": [
     {
-     "metric": "Skills-2 score",
-     "baseline": "0.142",
-     "target": "≥ 0.392",
-     "result": "0.959 ✓ (3 seeds)"
-    },
-    {
-     "metric": "Each kind",
-     "baseline": "+0.12 / −0.24 / +0.55",
-     "target": "each +0.10",
-     "result": "all ✓"
-    },
-    {
-     "metric": "MT-Bench anchor",
-     "baseline": "+0.040",
-     "target": "not lower",
-     "result": "+0.310 ✓"
+     "metric": "Real-anchor score (3-seed mean)",
+     "baseline": "0.211",
+     "target": "≥ 0.311",
+     "result": ""
     },
     {
      "metric": "Never-seen forced",
-     "baseline": "0.680 (s1)",
-     "target": "≥ 0.679",
-     "result": "0.690 ✓"
+     "baseline": "0.689",
+     "target": "≥ 0.673",
+     "result": ""
     },
     {
      "metric": "Familiar",
      "baseline": "0.877",
-     "target": "≥ 0.87",
-     "result": "0.878 ✓"
+     "target": "≥ 0.871",
+     "result": ""
     },
     {
      "metric": "Abstain precision",
-     "baseline": "0.870",
-     "target": "≥ 0.86",
-     "result": "0.919 ✓"
-    },
-    {
-     "metric": "E17 skills",
-     "baseline": "0.985",
-     "target": "≥ 0.95",
-     "result": "0.979 ✓"
+     "baseline": "0.880",
+     "target": "≥ 0.854",
+     "result": ""
     },
     {
      "metric": "Ranking",
-     "baseline": "0.561",
-     "target": "≥ 0.541",
-     "result": "0.555 ✓"
+     "baseline": "0.556",
+     "target": "≥ 0.542",
+     "result": ""
     },
     {
-     "metric": "Wording consistency",
-     "baseline": "0.678",
-     "target": "≥ 0.66",
-     "result": "0.682 ✓"
-    },
-    {
-     "metric": "Label-overlap probe",
-     "baseline": "6 of 8",
-     "target": "≥ 5 of 8",
-     "result": "4.7 of 8 ✗ (mean)"
+     "metric": "Wording-trap eval (100 items)",
+     "baseline": "0.867",
+     "target": "≥ 0.806",
+     "result": ""
     }
    ]
   },

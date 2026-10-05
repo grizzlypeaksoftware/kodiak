@@ -54,4 +54,4 @@ variable (as in E17 and E21).
 - GPU: ~6 h for seed 1, +10 h for seeds 0 and 2 · Runs: evals + spot-check → baseline (3 seeds) → batch → smoke → seed 1 → seeds 0 and 2
 
 ## Approval
-Approved: <Shane writes "Approved: Shane" here before any full run>
+Approved: Shane (2026-10-05, "approved")

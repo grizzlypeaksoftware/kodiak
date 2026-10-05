@@ -43,7 +43,9 @@ KINDS = {
         "labels": {"favor": "in favor", "against": "against", "neutral": "neutral or no clear stance"},
         "fields": {"text": "a social-media post or short opinion piece of 2 to 5 sentences"},
         "slots": {"target": "the specific policy, idea or proposal the question asks about"},
-        "rule": "The author's stance on the target must be: {label}. Mention the target indirectly at least once.",
+        "rule": "The author's stance on the target must be: {label}. Write like a real social-media post: imply the stance through values, "
+                "sarcasm, a related argument, a consequence or a hashtag-like phrase; never say 'I support' or 'I oppose'; mention the target "
+                "at most once. A neutral post discusses or reports on the topic without taking a side.",
     },
     "sarcasm": {
         "why": "iSarcasmEval 0.00",
@@ -63,8 +65,10 @@ KINDS = {
         "fields": {"user_question": "a question a reader might ask about the passage",
                    "answer": "a helpful answer of 6 to 9 sentences"},
         "slots": {},
-        "rule": "If {label} starts with 'yes': every claim must come from the passage. Otherwise exactly one sentence in the middle of the "
-                "answer must add a specific plausible detail the passage doesn't give, or change a fact; the rest must be faithful.",
+        "rule": "If {label} starts with 'yes': every claim must come from the passage. Otherwise exactly one sentence that is not the first must "
+                "be subtly unsupported, the way real model answers go wrong: a changed number or date, a widened scope ('all' for 'some'), a "
+                "cause or conclusion the passage doesn't state, or a confident detail it never gives; plausible, in the same tone, and the "
+                "rest faithful. Never invent an obviously unrelated fact.",
     },
     "tool_unavailable": {
         "why": "When2Call 0.10-0.17, API-Bank 0.01: knowing when no tool fits",
