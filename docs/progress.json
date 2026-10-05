@@ -848,6 +848,10 @@
   {
    "date": "2026-10-04",
    "text": "D65: six rules against folly experiments; a 100-item trap test shows E21 improves the wording trap (0.867 → 0.913), so the 8-sentence probe that killed it was misleading."
+  },
+  {
+   "date": "2026-10-04",
+   "text": "Shane: don't ship E21; its skills data carries forward. GOAL.md guards now come from docs/NOISE.md (D65)."
   }
  ],
  "published": [
@@ -949,11 +953,6 @@
   }
  ],
  "queue": [
-  {
-   "name": "Decision: ship E21 as v0.3? (owner call, D65)",
-   "why": "E21 learned 3 skills (skills-2 0.959, MT-Bench +0.31, abstain precision 0.919) and, on the new 100-item trap test, improves the wording trap (0.867 → 0.913). Its recorded verdict stays kill (8-sentence probe); shipping is Shane's informed call.",
-   "after": "Shane decides"
-  },
   {
    "name": "E21 skills-2 batch: done (23,118 kept, $11.94)",
    "why": "policy violation 9,074, pairwise judge 7,807, sarcasm 6,237; E21 trains on 2,500 each, ~15.6k banked.",

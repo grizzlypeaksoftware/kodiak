@@ -20,13 +20,12 @@ Kodiak is an open decision model that lets teams automate routine "read this and
 
 - **Primary:** never-seen tasks, forced accuracy, choice questions, frozen eval set v0.2 (`eval:heldout`). Current best: **0.689 ± 0.008**
   (E17 skills + reworded options, 3 seeds, D58); before it XL v2 0.659 ± 0.013 (D47), large accuracy mode 0.623 (D45), single large 0.609.
-- **Guards (must not get worse beyond noise):** familiar tasks accuracy (XL 0.878), never-seen calibration error (XL 0.116 single / 0.088
-  XL accuracy mode), abstain precision (target ≥ 0.90 at the default threshold; XL is at 0.87, so for now it must not fall below 0.86),
-  speed (report the multiple vs the current model; XL ~38 ms on GPU).
-- **Ranking guard (Shane, 2026-10-03; from a Hugging Face reviewer):** never-seen `aurc_gap_closed` (how well confidence puts the model's own
-  mistakes last; unchanged by any recalibration, and what the cascade relies on) must not fall more than 2 points below the current best
-  (Kodiak-v0.2-1B 0.548 / 0.561 / 0.559 over 3 seeds).
-- **Targeted fixes** (e.g. a wording trap) may use a named probe as their metric, but must still pass the guards.
+- **Guards (must not get worse beyond noise; Shane, 2026-10-04, D65):** familiar tasks, never-seen calibration error, abstain precision
+  (target ≥ 0.90), ranking (`aurc_gap_closed`, never-seen; added 2026-10-03 after a Hugging Face reviewer, D60), wording consistency and the 100-item wording-trap eval. **Each guard line comes from
+  docs/NOISE.md:** the current model's 3-seed mean minus 2 SD (plus 2 SD for lower-is-better), judged on the new experiment's 3-seed mean; one
+  run alone rejects only past 3 SD. Re-measure the table when the baseline changes. Speed: report the multiple vs the current model (~38 ms GPU).
+- **Gate tests need ≥ ~100 items.** Small probes (e.g. the 8-sentence label-overlap probe) are reported but never decide an experiment.
+- **Targeted fixes** (e.g. a wording trap) may use a named test of ≥ ~100 items as their metric, but must still pass the guards.
 - Never trained or tuned on the eval set; thresholds and model selection use validation data only.
 
 ## The ambition
