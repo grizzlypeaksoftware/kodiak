@@ -46,3 +46,17 @@ Forced accuracy on ~50 probes per kind; skill = (accuracy − chance) / (1 − c
 ## Proposed next batch (v0.3 or v0.4; through the gate, Shane's approval)
 
 Pairwise judge, sarcasm and policy violation, plus one of the three "real-data probe" kinds once its real probe confirms a gap.
+
+## Screening 2 (2026-10-04): 20 more kinds, plus real-data probes
+
+Synthetic probes (seed 41, 27-60 per kind), Kodiak-v0.2-1B seed 1, skill (0 = chance):
+- **Gaps (< 0.30):** invoice total check +0.07, missing required element +0.10, refund eligibility under a policy +0.19, agent step safety
+  +0.21, advice risk +0.28.
+- **Weak (0.30-0.50):** refusal appropriateness +0.35, manipulation tactic +0.35, scam type +0.42, urgency +0.44.
+- **Already OK (≥ 0.50):** code risk, answer completeness, message kind, on-topic, email action, lifecycle, language, lead quality, ticket
+  category (12 labels), clause type, team owner.
+
+**Real-data probes** (permissive licenses; never trained on): RAGBench long-answer adherence (CC BY 4.0; responses from LLMs, labels by
+GPT-4o) **+0.14** (calls 39 of 50 unsupported answers supported); SemEval-2016 stance (MIT, human labels) **+0.24** (calls most opinionated
+tweets neutral); SemEval-2014 aspect sentiment (CC BY 4.0) +0.63 (misses 'mixed'). The synthetic probes said +0.96 / +0.88 / +0.89: synthetic
+examples are too clean, which confirms rule 2 of D65 and the need for real anchors.

@@ -852,6 +852,10 @@
   {
    "date": "2026-10-04",
    "text": "Shane: don't ship E21; its skills data carries forward. GOAL.md guards now come from docs/NOISE.md (D65)."
+  },
+  {
+   "date": "2026-10-04",
+   "text": "Screening 2 (20 kinds, $0.6) + real-data probes: RAGBench +0.14 and SemEval stance +0.24 are real gaps; E22 proposed (target on real data)."
   }
  ],
  "published": [
@@ -953,6 +957,12 @@
   }
  ],
  "queue": [
+  {
+   "name": "E22: skills batch 3 (proposal): skills-2 + 4 new kinds, judged on real data",
+   "why": "Real-data gaps: RAGBench long-answer adherence, SemEval stance, MT-Bench pairwise; plus refund eligibility and agent step safety. Target: real-anchor score 0.211 → ≥ 0.311 (3-seed means); 5 noise-based guards (D65 rules).",
+   "after": "Shane's approval ($20 cap; ~16 GPU-h incl. confirming seeds)",
+   "cost": "≤ $20; ~16 GPU-h"
+  },
   {
    "name": "E21 skills-2 batch: done (23,118 kept, $11.94)",
    "why": "policy violation 9,074, pairwise judge 7,807, sarcasm 6,237; E21 trains on 2,500 each, ~15.6k banked.",
@@ -1262,12 +1272,12 @@
    {
     "name": "Real-data probes: long-answer hallucination, aspect sentiment, stance",
     "why": "Synthetic probes score high (0.89-0.96) but the Decision Index says near zero (RAGTruth 0.00, ACOS 0.02, VAST ~0.07); a real-data probe decides if they're gaps.",
-    "status": "roadmap: next screening step (permissive datasets)"
+    "status": "done: hallucination +0.14 and stance +0.24 are real gaps; aspect +0.63"
    },
    {
     "name": "Screening 2: 20 more decision kinds",
     "why": "Unscreened candidates on the Decision kinds card (contract clauses, urgency, language, refusal, intent of a query, etc.).",
-    "status": "roadmap: ~$0.60 when ready"
+    "status": "done (2026-10-04): gaps invoice, required elements, refund eligibility, step safety, advice risk"
    },
    {
     "name": "Use the banked skills data (~11.5k)",
@@ -1522,26 +1532,26 @@
   {
    "kind": "Stance toward a target",
    "group": "sentiment",
-   "status": "candidate: needs real-data probe",
+   "status": "candidate: gap (real data)",
    "since": "",
    "source": "screened 2026-10-03 (50 synthetic probes)",
-   "evidence": "v0.2 skill +0.88 (0 = chance)"
+   "evidence": "synthetic +0.88 but SemEval-2016 stance (real, MIT) +0.24"
   },
   {
    "kind": "Aspect sentiment",
    "group": "sentiment",
-   "status": "candidate: needs real-data probe",
+   "status": "candidate: weak (real data)",
    "since": "",
    "source": "screened 2026-10-03 (50 synthetic probes)",
-   "evidence": "v0.2 skill +0.89 (0 = chance)"
+   "evidence": "synthetic +0.89; SemEval-2014 ABSA (real, CC BY 4.0) +0.63; misses 'mixed'"
   },
   {
    "kind": "Hallucination in a long answer",
    "group": "checks",
-   "status": "candidate: needs real-data probe",
+   "status": "candidate: gap (real data)",
    "since": "",
    "source": "screened 2026-10-03 (50 synthetic probes)",
-   "evidence": "v0.2 skill +0.96 (0 = chance)"
+   "evidence": "synthetic +0.96 but RAGBench (real, CC BY 4.0) +0.14"
   },
   {
    "kind": "Agent: did the tool call succeed",
@@ -1554,162 +1564,162 @@
   {
    "kind": "Urgency / priority level",
    "group": "triage",
-   "status": "candidate: not screened",
+   "status": "candidate: weak",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.44"
   },
   {
    "kind": "Ticket category for an unseen taxonomy (100+ labels)",
    "group": "routing",
-   "status": "candidate: not screened",
+   "status": "candidate: v0.2 already OK",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.98 (12 labels)"
   },
   {
    "kind": "Language or locale of the text",
    "group": "routing",
-   "status": "candidate: not screened",
+   "status": "candidate: v0.2 already OK",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.77"
   },
   {
    "kind": "Which team or person should own this",
    "group": "routing",
-   "status": "candidate: not screened",
+   "status": "candidate: v0.2 already OK",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +1.00"
   },
   {
    "kind": "Refund / return eligibility under a stated policy",
    "group": "guardrails",
-   "status": "candidate: not screened",
+   "status": "candidate: gap",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.19"
   },
   {
    "kind": "Contract clause type",
    "group": "documents",
-   "status": "candidate: not screened",
+   "status": "candidate: v0.2 already OK",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +1.00"
   },
   {
    "kind": "Does the document contain a required element (signature, date, amount)",
    "group": "documents",
-   "status": "candidate: not screened",
+   "status": "candidate: gap",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.10"
   },
   {
    "kind": "Invoice / receipt field checks (amount matches total?)",
    "group": "documents",
-   "status": "candidate: not screened",
+   "status": "candidate: gap",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.07"
   },
   {
    "kind": "Did the assistant refuse, and was the refusal appropriate",
    "group": "judging",
-   "status": "candidate: not screened",
+   "status": "candidate: weak",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.35"
   },
   {
    "kind": "Is the answer on-topic for the question",
    "group": "judging",
-   "status": "candidate: not screened",
+   "status": "candidate: v0.2 already OK",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.65"
   },
   {
    "kind": "Is this answer complete (covers every part of the question)",
    "group": "judging",
-   "status": "candidate: not screened",
+   "status": "candidate: v0.2 already OK",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.55"
   },
   {
    "kind": "Persuasion / manipulation tactics",
    "group": "guardrails",
-   "status": "candidate: not screened",
+   "status": "candidate: weak",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.35"
   },
   {
    "kind": "Scam or fraud message type",
    "group": "guardrails",
-   "status": "candidate: not screened",
+   "status": "candidate: weak",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.42"
   },
   {
    "kind": "Medical / legal / financial advice risk level",
    "group": "guardrails",
-   "status": "candidate: not screened",
+   "status": "candidate: gap",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.28"
   },
   {
    "kind": "Customer lifecycle stage (lead, active, churning)",
    "group": "sales",
-   "status": "candidate: not screened",
+   "status": "candidate: v0.2 already OK",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.73"
   },
   {
    "kind": "Lead quality / buying intent",
    "group": "sales",
-   "status": "candidate: not screened",
+   "status": "candidate: v0.2 already OK",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.93"
   },
   {
    "kind": "Meeting or email: action required?",
    "group": "productivity",
-   "status": "candidate: not screened",
+   "status": "candidate: v0.2 already OK",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.70"
   },
   {
    "kind": "Is this message a question, request, or FYI",
    "group": "productivity",
-   "status": "candidate: not screened",
+   "status": "candidate: v0.2 already OK",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.55"
   },
   {
    "kind": "Code review: is this change risky",
    "group": "agents",
-   "status": "candidate: not screened",
+   "status": "candidate: v0.2 already OK",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.51"
   },
   {
    "kind": "Agent plan: is the next step safe to auto-run",
    "group": "agents",
-   "status": "candidate: not screened",
+   "status": "candidate: gap",
    "since": "",
-   "source": "",
-   "evidence": ""
+   "source": "screened 2026-10-04 (synthetic probes, seed 41)",
+   "evidence": "v0.2 skill +0.21"
   }
  ]
 }

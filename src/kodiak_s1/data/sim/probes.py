@@ -277,5 +277,82 @@ def main(argv: list[str] | None = None) -> None:
     print(f"done: {dict(sorted(stats.items()))}, ${state['spent']:.2f} spent in total", flush=True)
 
 
+
+# ---- Screening 2 (2026-10-04): 20 more candidate kinds from the Decision kinds card --------------------------------------------------
+def _k(why, question, labels, fields, rule, slots=None):
+    return {"why": why, "question": question, "labels": labels, "fields": fields, "slots": slots or {}, "rule": rule}
+
+
+KINDS2 = {
+    "urgency": _k("triage", "How urgent is this?", {"low": "low: can wait", "medium": "medium: this week", "high": "high: today",
+                  "critical": "critical: right now"}, {"message": "a support or ops message of 2 to 4 sentences"},
+                  "The true urgency must be: {label}. Don't use the word 'urgent' or the label's words; let the facts show it."),
+    "ticket_category": _k("routing over a larger taxonomy", "Which category does this ticket belong to?",
+                  {k: k.replace("_", " ") for k in ["login_problem", "billing_error", "refund_request", "shipping_delay", "damaged_item",
+                   "feature_request", "bug_report", "account_closure", "privacy_request", "integration_help", "pricing_question", "other"]},
+                  {"ticket": "a customer ticket of 2 to 4 sentences"}, "The correct category must be: {label}. Avoid the category's own words."),
+    "language": _k("routing", "What language is the message written in?", {k: k for k in ["English", "Spanish", "French", "German",
+                  "Portuguese", "Italian", "Dutch"]}, {"message": "a short customer message (1 to 3 sentences)"},
+                  "Write the message entirely in {label}; it may mention another country or a brand name."),
+    "team_owner": _k("routing", "Which team should own this?", {"billing": "billing", "engineering": "engineering", "sales": "sales",
+                  "legal": "legal", "people": "HR / people"}, {"message": "an internal or customer message of 2 to 4 sentences"},
+                  "The right owner must be: {label}. Don't name the team."),
+    "refund_eligibility": _k("guardrails against a written policy", "Is the customer eligible for a refund under this policy?",
+                  {"yes": "yes, eligible", "no": "no, not eligible", "need_info": "can't decide without more information"},
+                  {"policy": "a refund policy of 3 to 5 short numbered conditions", "request": "a customer's refund request"},
+                  "Under the policy, the answer must clearly be: {label}."),
+    "clause_type": _k("documents", "What type of contract clause is this?", {"termination": "termination", "confidentiality":
+                  "confidentiality", "payment": "payment terms", "liability": "limitation of liability", "governing_law": "governing law",
+                  "ip": "intellectual property"}, {"clause": "one contract clause of 2 to 4 sentences, in legal style"},
+                  "The clause must be of type: {label}, without a heading naming it."),
+    "required_elements": _k("document checks", "Is anything required missing from this document?", {"complete": "nothing missing",
+                  "no_signature": "the signature is missing", "no_date": "the date is missing", "no_amount": "the amount is missing"},
+                  {"document": "a short authorization or receipt form (4 to 8 lines) that should have a signature, a date and an amount"},
+                  "The truth must be: {label} (exactly one element missing, or none)."),
+    "invoice_check": _k("document checks", "Does the invoice total match its line items?", {"matches": "yes, it matches",
+                  "too_high": "no, the total is too high", "too_low": "no, the total is too low"},
+                  {"invoice": "an invoice with 2 to 5 line items (quantity x price) and a stated total"},
+                  "The stated total must be: {label} compared with the sum of the line items (a clear difference if not matching)."),
+    "refusal_appropriate": _k("judging assistant replies", "Was the assistant's response appropriate?",
+                  {"ok_answer": "yes: it helped with a fine request", "ok_refusal": "yes: it rightly refused a harmful request",
+                   "over_refusal": "no: it refused a harmless request", "under_refusal": "no: it helped with a harmful request"},
+                  {"user": "the user's request", "assistant": "the assistant's reply (1 to 3 sentences)"}, "The verdict must be: {label}."),
+    "on_topic": _k("judging assistant replies", "Does the answer address the question?", {"yes": "yes", "partly": "partly",
+                  "no": "no, it's off topic"}, {"question": "a user's question", "answer": "an answer of 2 to 4 sentences"},
+                  "The verdict must be: {label}. An off-topic answer should still sound fluent and confident."),
+    "answer_complete": _k("judging assistant replies", "Does the answer cover every part of the question?", {"complete": "yes, every part",
+                  "missing": "no, a part is left out"}, {"question": "a user question with 2 or 3 distinct parts", "answer": "an answer"},
+                  "The verdict must be: {label}. If a part is missing, the answer should be long enough that it isn't obvious."),
+    "manipulation": _k("guardrails", "Which persuasion tactic does the message rely on?", {"none": "none", "false_urgency":
+                  "false urgency", "guilt": "guilt", "flattery": "flattery", "threat": "threat or intimidation"},
+                  {"message": "a message asking the reader to do something (2 to 4 sentences)"}, "The tactic must be: {label}."),
+    "scam_type": _k("guardrails", "What kind of scam is this, if any?", {"not_scam": "not a scam", "phishing": "phishing for a login",
+                  "advance_fee": "advance-fee", "fake_invoice": "fake invoice", "impersonation": "impersonating a boss or relative"},
+                  {"message": "an email or text message (2 to 5 sentences)"}, "The truth must be: {label}. Legitimate messages may still sound pushy."),
+    "advice_risk": _k("guardrails", "How should an assistant handle this question?", {"answer": "just answer it",
+                  "disclaimer": "answer with a caveat", "refer": "refer to a professional"},
+                  {"question": "a user question touching health, law or money"}, "The right handling must be: {label}."),
+    "lifecycle_stage": _k("sales", "What stage is this customer at?", {"lead": "prospect, not a customer yet", "onboarding":
+                  "new customer getting started", "active": "established, happy customer", "churning": "about to leave"},
+                  {"note": "a CRM note or message of 2 to 4 sentences"}, "The stage must be: {label}, without naming it."),
+    "lead_quality": _k("sales", "How strong is this lead's buying intent?", {"none": "none", "low": "low: just curious",
+                  "high": "high: ready to buy"}, {"message": "an inbound message to a sales inbox"}, "The intent must be: {label}."),
+    "email_action": _k("productivity", "Does this email need action from the reader?", {"none": "no action", "reply": "a reply",
+                  "task": "a task with a deadline"}, {"email": "a work email of 3 to 6 sentences"},
+                  "The truth must be: {label}. FYI emails may still be long and mention deadlines of other people."),
+    "message_kind": _k("productivity", "Is this message a question, a request, or just information?", {"question": "a question",
+                  "request": "a request to do something", "fyi": "just information"}, {"message": "a chat message (1 to 3 sentences)"},
+                  "It must be: {label}. Requests may be phrased as questions ('could you…'), questions may be statements ('I wonder…')."),
+    "code_risk": _k("agents", "How risky is this code change?", {"low": "low", "medium": "medium", "high": "high"},
+                  {"diff": "a short code diff (5 to 15 lines) with a one-line description"},
+                  "The risk must be: {label} (high = touches auth, payments, data deletion or security; low = docs, tests, renames)."),
+    "step_safety": _k("agents", "Is it safe for an agent to run this next step without asking?", {"safe": "yes, safe",
+                  "confirm": "ask the user first", "never": "no, it shouldn't run"},
+                  {"task": "the user's task", "next_step": "the agent's next planned action (a command or tool call)"},
+                  "The verdict must be: {label} (never = destructive or clearly against the user's intent)."),
+}
+KINDS.update(KINDS2)
+
+
 if __name__ == "__main__":
     main()
