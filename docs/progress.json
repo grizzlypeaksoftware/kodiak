@@ -888,16 +888,37 @@
   {
    "date": "2026-10-06",
    "text": "E22 KEEP (D66): seven new decision kinds; real-data decisions 0.211 → 0.358 across 3 seeds; abstain precision 0.931. v0.3 candidate."
+  },
+  {
+   "date": "2026-10-06",
+   "text": "Shane: release v0.3 (E22 recipe). Single model = seed 1 by validation loss."
+  },
+  {
+   "date": "2026-10-06",
+   "text": "Shane: skip Decision Index runs for upcoming models; resubmit once the model is dialed in."
+  },
+  {
+   "date": "2026-10-06",
+   "text": "Kodiak-v0.3-1B published (weights verified); demo switched to v0.3."
   }
  ],
  "published": [
+  {
+   "name": "Kodiak-v0.3-1B",
+   "kind": "model",
+   "link": "https://huggingface.co/cortex-agent-llc/kodiak-v0.3-1b",
+   "run": "b-xl-s1-e22-s1",
+   "date": "2026-10-06",
+   "notes": "v0.3: 7 new decision kinds; real-data score 0.36 (v0.2 0.21); abstain precision 0.93"
+  },
   {
    "name": "Kodiak-v0.2-1B",
    "kind": "model",
    "link": "https://huggingface.co/cortex-agent-llc/kodiak-v0.2-1b",
    "run": "b-xl-s1-e18-s1",
    "date": "2026-10-02",
-   "notes": "v0.2 release: E17 skills + reworded options; never-seen 0.689 ± 0.008 (3 seeds), this run 0.680"
+   "notes": "v0.2 release: E17 skills + reworded options; never-seen 0.689 ± 0.008 (3 seeds), this run 0.680",
+   "superseded": true
   },
   {
    "name": "Kodiak-v0.2-1B accuracy mode",
@@ -978,7 +999,7 @@
    "kind": "demo",
    "link": "https://huggingface.co/spaces/comgen42/kodiak-demo",
    "date": "2026-09-25",
-   "notes": "ZeroGPU since 2026-10-02; Kodiak-v0.2-1B default"
+   "notes": "ZeroGPU; Kodiak-v0.3-1B default (2026-10-06)"
   },
   {
    "name": "Source code",
@@ -990,29 +1011,13 @@
  ],
  "queue": [
   {
-   "name": "Decision: release v0.3 (E22 recipe)?",
-   "why": "E22 kept: 7 new decision kinds, real-data decisions +0.15, abstain precision 0.931 (v0.3 target ≥ 0.90), trap eval 0.867 → 0.900. Release = pick a seed on validation, accuracy mode, cards, demo, Decision Index.",
-   "after": "Shane decides"
-  },
-  {
-   "name": "E22 batch: done (19,664 kept, $13.87)",
-   "why": "long-answer adherence 5,075, step safety 5,902, refund eligibility 4,851, stance 3,836; E22 uses 2,500 each, ~9.7k banked.",
-   "after": "done 1:15 PM",
-   "script": "skills3_batch.sh",
-   "log": "data/synthetic/skills3_v1.log",
-   "done_marker": "SKILLS3_BATCH_DONE",
+   "name": "v0.3 release: Kodiak-v0.3-1B (+ accuracy mode)",
+   "why": "Shane: release v0.3 from the E22 recipe (2026-10-06). Single model = seed 1 (lowest validation loss 0.025); accuracy mode = 3 seeds.",
+   "after": "v0.3-1b live + demo switched; accuracy mode uploading; announcement draft admin/posts/2 (Shane publishes)",
+   "script": "push_v03.sh",
+   "log": "dist/push-v03.log",
    "running_when_alive": true,
-   "cost": "~$12"
-  },
-  {
-   "name": "E22 done: KEEP (D66), v0.3 candidate",
-   "why": "Real-anchor 0.211 → 0.358 on 3 seeds; all 5 guards hold; abstain precision 0.931.",
-   "after": "done 2:34 AM",
-   "script": "e22_run.sh",
-   "log": "runs/e22-run.log",
-   "done_marker": "E22 COMPLETE",
-   "running_marker": "GPU free",
-   "cost": "free (GPU)"
+   "done_marker": "PUSH V03 COMPLETE"
   },
   {
    "name": "Decision Index submission: PR #49 (18.69)",
@@ -1178,89 +1183,52 @@
  },
  "research": {
   "active": {
-   "id": "E22",
-   "proposal": "E22-skills-batch-3",
-   "title": "Skills batch 3: skills-2 + 4 new kinds, judged on real data",
+   "id": "v0.3",
+   "proposal": null,
+   "title": "Release: Kodiak-v0.3-1B",
    "steps": [
     {
-     "name": "Screening 2 + real-data probes (zero-training check)",
+     "name": "Shane: release v0.3 from the E22 recipe",
      "status": "done",
-     "note": "$0.45 + real anchors; gaps confirmed"
+     "note": "2026-10-06"
     },
     {
-     "name": "Proposal passes the new gate (D65); approved by Shane",
+     "name": "Pick the model on validation",
      "status": "done",
-     "note": "2026-10-05"
+     "note": "seed 1 (val loss 0.025 vs 0.038 / 0.049)"
     },
     {
-     "name": "Real-anchor baseline, v0.2 × 3 seeds",
+     "name": "Build release folders (single + accuracy mode)",
      "status": "done",
-     "note": "0.243 / 0.138 / 0.251 → 0.211 ± 0.063"
+     "note": "dist/kodiak-v0.3-1b (seed 1) and -accuracy (threshold 0.7 on validation)"
     },
     {
-     "name": "Held-out synthetic evals + pilot",
+     "name": "Model cards (Shane reviews)",
      "status": "done",
-     "note": "$0.35"
+     "note": "Shane approved 2026-10-06"
     },
     {
-     "name": "Batch (30k jobs)",
-     "status": "done",
-     "note": "19,664 kept for $13.87; 2,500 per kind used"
+     "name": "Publish to Hugging Face",
+     "status": "in_progress",
+     "note": "kodiak-v0.3-1b live (SHA verified); accuracy mode uploading"
     },
     {
-     "name": "Seed 1 (smoke + full + stop rule)",
+     "name": "Demo: v0.3 default (ZeroGPU)",
      "status": "done",
-     "note": "real-anchor 0.353 (v0.2 seed 1: 0.138); all guards inside the single-run lines; continue"
+     "note": "ZeroGPU demo on v0.3 (tested live); accuracy mode joins after upload"
     },
     {
-     "name": "Seeds 0 and 2",
+     "name": "Decision Index run (accuracy mode)",
      "status": "done",
-     "note": "seed 0 0.333, seed 2 0.387"
+     "note": "stopped at Shane's request (2026-10-06): no Decision Index runs until the model is dialed in"
     },
     {
-     "name": "Verdict on 3-seed means",
-     "status": "done",
-     "note": "KEEP (D66)"
+     "name": "Announcement post (cortexagent.com draft)",
+     "status": "in_progress",
+     "note": "draft on cortexagent.com (admin/posts/2) for Shane to publish"
     }
    ],
-   "bar": [
-    {
-     "metric": "Real-anchor score (3-seed mean)",
-     "baseline": "0.211",
-     "target": "≥ 0.311",
-     "result": "0.358 ✓"
-    },
-    {
-     "metric": "Never-seen forced",
-     "baseline": "0.689",
-     "target": "≥ 0.673",
-     "result": "0.687 ✓"
-    },
-    {
-     "metric": "Familiar",
-     "baseline": "0.877",
-     "target": "≥ 0.871",
-     "result": "0.879 ✓"
-    },
-    {
-     "metric": "Abstain precision",
-     "baseline": "0.880",
-     "target": "≥ 0.854",
-     "result": "0.931 ✓"
-    },
-    {
-     "metric": "Ranking",
-     "baseline": "0.556",
-     "target": "≥ 0.542",
-     "result": "0.545 ✓ (closest)"
-    },
-    {
-     "metric": "Wording-trap eval (100 items)",
-     "baseline": "0.867",
-     "target": "≥ 0.806",
-     "result": "0.900 ✓"
-    }
-   ]
+   "bar": []
   },
   "ideas": [
    {
@@ -1311,7 +1279,7 @@
    {
     "name": "Decision Index engine: sparse attention for long multi-option requests",
     "why": "Engineering, not training: lets the long ToolRet requests run instead of being refused.",
-    "status": "idea: the v0.2 runs still refuse ~573 long requests; needed before chasing ToolRet"
+    "status": "paused: no Decision Index runs until Shane says the model is dialed in (2026-10-06)"
    },
    {
     "name": "'Trick the Bear' game mode",
