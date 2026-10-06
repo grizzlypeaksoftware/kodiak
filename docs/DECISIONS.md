@@ -70,6 +70,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D63 | 2026-10-04 | E21 seed 1: skills-2 0.142 → 0.950, MT-Bench anchor +0.04 → +0.28; two guards miss narrowly (never-seen 0.674 < 0.679, probe 4 < 5); verdict pending Shane | superseded by D64 |
 | D64 | 2026-10-04 | E21 confirmed over 3 seeds on every line except the label-overlap probe (mean 4.7 < 5): kill by the pre-written rule; skills-2 data banked | active |
 | D65 | 2026-10-04 | Six rules against folly experiments (noise-based guards, ≥100-item gate tests, ≤5 guards, prediction, zero-training check first, 2 attempts max); 100-item trap eval shows E21 *improves* the wording trap | active |
+| D66 | 2026-10-06 | E22 (skills batch 3) KEEP on 3-seed means: real-anchor 0.211 → 0.358, all five noise-based guards hold; v0.3 candidate | active |
 
 ---
 
@@ -724,4 +725,18 @@ informed owner decision.
 **Rules (CLAUDE.md "Not folly", TEMPLATE.md, gate.py from E22 on):** (1) guard lines from docs/NOISE.md, baseline mean − 2 SD on 3-seed means,
 one run rejects only past 3 SD; (2) gate tests ≥ ~100 items, small probes report only; (3) one target + ≤ ~5 guards; (4) written prediction
 with evidence; (5) zero-training check first; (6) at most 2 attempts per open problem, then rethink with Shane.
+
+### D66: E22 is a keep: seven new decision kinds, and real-data decisions improve by +0.15 at no general cost
+**3-seed means vs Kodiak-v0.2-1B's 3 seeds (reports/e22-xl-skills3.md; every line set before the run, guards from docs/NOISE.md).**
+**Real-anchor score 0.211 → 0.358** (0.333 / 0.353 / 0.387; keep ≥ 0.311): RAGBench long-answer adherence +0.27 → +0.41, MT-Bench human pairwise
++0.06 → +0.30, SemEval-2016 stance +0.30 → +0.37 (per-anchor means across seeds). Guards: never-seen forced 0.687 (≥ 0.673), familiar 0.879
+(≥ 0.871), abstain precision **0.931** (≥ 0.854; above the 0.90 v0.3 target on the mean), ranking 0.545 (≥ 0.542, the closest line; v0.2 0.556),
+100-item wording-trap eval 0.900 (≥ 0.806; v0.2 0.867). **Verdict: keep.** This is attempt 2 of 2 for the skills-2 data and attempt 1 for the
+four new kinds; the prediction (0.33-0.45) held.
+**Report only:** synthetic held-out skills 0.94-0.95 across all seven kinds (refund eligibility 0.95-0.98, step safety 0.94-0.99, long-answer
+adherence 0.78-0.81); real aspect sentiment 0.63 → 0.68; never-seen ECE 0.085 → 0.076; Banking77 +1.3; constructed unanswerables 0.948 →
+0.922 and wording consistency 0.678 → 0.673 (0.698 / 0.653 / 0.669) slightly lower, both inside noise but worth watching; ranking is the guard
+with the least room.
+**Next:** E22 is the v0.3 candidate (recipe: v0.2 + skills-2 + skills-3). Release is Shane's call: GOAL.md's v0.3 goals were the wording trap
+(trap eval improved 0.867 → 0.900) and abstain precision ≥ 0.90 (0.931 mean).
 
