@@ -900,6 +900,10 @@
   {
    "date": "2026-10-06",
    "text": "Kodiak-v0.3-1B published (weights verified); demo switched to v0.3."
+  },
+  {
+   "date": "2026-10-06",
+   "text": "v0.3 released: both models public (weights verified) and in the ZeroGPU demo."
   }
  ],
  "published": [
@@ -910,6 +914,18 @@
    "run": "b-xl-s1-e22-s1",
    "date": "2026-10-06",
    "notes": "v0.3: 7 new decision kinds; real-data score 0.36 (v0.2 0.21); abstain precision 0.93"
+  },
+  {
+   "name": "Kodiak-v0.3-1B accuracy mode",
+   "kind": "model (3-model ensemble)",
+   "link": "https://huggingface.co/cortex-agent-llc/kodiak-v0.3-1b-accuracy",
+   "run": [
+    "b-xl-s1-e22-s0",
+    "b-xl-s1-e22-s1",
+    "b-xl-s1-e22-s2"
+   ],
+   "date": "2026-10-06",
+   "notes": "real-data score 0.38; never-seen 0.696; abstain precision 0.925"
   },
   {
    "name": "Kodiak-v0.2-1B",
@@ -930,7 +946,8 @@
     "b-xl-s1-e18-s2"
    ],
    "date": "2026-10-02",
-   "notes": "never-seen 0.706, ECE 0.062, abstain precision 0.905"
+   "notes": "never-seen 0.706, ECE 0.062, abstain precision 0.905",
+   "superseded": true
   },
   {
    "name": "Announcement: Kodiak v0.2",
@@ -1011,13 +1028,9 @@
  ],
  "queue": [
   {
-   "name": "v0.3 release: Kodiak-v0.3-1B (+ accuracy mode)",
-   "why": "Shane: release v0.3 from the E22 recipe (2026-10-06). Single model = seed 1 (lowest validation loss 0.025); accuracy mode = 3 seeds.",
-   "after": "v0.3-1b live + demo switched; accuracy mode uploading; announcement draft admin/posts/2 (Shane publishes)",
-   "script": "push_v03.sh",
-   "log": "dist/push-v03.log",
-   "running_when_alive": true,
-   "done_marker": "PUSH V03 COMPLETE"
+   "name": "Publish the v0.3 announcement + X / HF posts",
+   "why": "Draft at cortexagent.com/admin/posts/2; post texts given in chat.",
+   "after": "Shane publishes"
   },
   {
    "name": "Decision Index submission: PR #49 (18.69)",
@@ -1209,13 +1222,13 @@
     },
     {
      "name": "Publish to Hugging Face",
-     "status": "in_progress",
-     "note": "kodiak-v0.3-1b live (SHA verified); accuracy mode uploading"
+     "status": "done",
+     "note": "both repos public; all weights SHA-verified"
     },
     {
      "name": "Demo: v0.3 default (ZeroGPU)",
      "status": "done",
-     "note": "ZeroGPU demo on v0.3 (tested live); accuracy mode joins after upload"
+     "note": "ZeroGPU demo: v0.3 default + v0.3 accuracy mode (tested live)"
     },
     {
      "name": "Decision Index run (accuracy mode)",
