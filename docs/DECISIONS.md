@@ -761,4 +761,9 @@ policy violation 0.122 → **0.567** ± 0.034 (30 pairs): a real skill, mostly l
 same answer to both versions 71% of the time): mostly a shortcut. Step safety 0.113 → 0.053 ± 0.023 (50 pairs; same answer 89%): a shortcut,
 confirming the user's finding at scale. Sarcasm: only 7 pairs passed the minimal-change check, too few to judge (rule 2). These become the
 rule-7 baselines in NOISE.md. Next: the E23 rethink (rule 6) targets refund and step safety with minimal-pair training data.
+**Why our tests missed it (word-counter check, scripts/shortcut_check.py, free).** A bag-of-words logistic regression that reads only one
+field predicts the E22 training labels for step safety (next step only: 0.92, 5-fold) and refund (request only: 0.97; policy only: 0.96), and
+scores 0.94 / 0.95 on our held-out skills test, which came from the same generator. On the contrastive pairs it gets pair accuracy 0.00 / 0.14.
+For policy violation, the kind that held up, the word-counter reaches only 0.64 on training data. So the generator wrote each label with its
+own vocabulary, and the test inherited it. Proposed: run the word-counter on every pilot before buying a batch and on every new test.
 

@@ -912,6 +912,10 @@
   {
    "date": "2026-10-06",
    "text": "Contrastive eval v0.1 (rule 7): policy violation is a real skill (pair acc 0.567); refund (0.220) and step safety (0.053) are shortcuts. ~$0.52."
+  },
+  {
+   "date": "2026-10-06",
+   "text": "Word-counter check: a bag-of-words model reading one field passes our step-safety (0.94) and refund (0.95) tests; contrastive pairs catch it (pair acc ~0). New free pre-batch check: scripts/shortcut_check.py."
   }
  ],
  "published": [
@@ -1037,7 +1041,7 @@
  "queue": [
   {
    "name": "E23 rethink with Shane (rule 6)",
-   "why": "Contrastive pair accuracy, v0.3 (3 seeds): policy 0.567 (real skill), refund 0.220, step safety 0.053 (shortcuts), sarcasm too few pairs. Lead option: minimal-pair training data for refund + step safety.",
+   "why": "Why the shortcuts slipped through: a word-counter (bag-of-words, trained in seconds) reading ONLY the next step predicts step-safety labels 0.92 of the time and passes our skills test at 0.94; refund 0.95-0.98. Policy violation, the kind that held up, is 0.64. Plan: minimal-pair training data for step safety + refund, pilot must push the word-counter toward chance before any batch is bought. scripts/shortcut_check.py",
    "after": "Shane picks"
   },
   {
@@ -1262,6 +1266,16 @@
    "bar": []
   },
   "ideas": [
+   {
+    "name": "Word-counter shortcut check before every batch and test",
+    "status": "built (scripts/shortcut_check.py); propose as a standing rule",
+    "why": "free, seconds; it flags step safety and refund (0.92-0.98) and passes policy (0.64), matching the contrastive results"
+   },
+   {
+    "name": "E23: minimal-pair training data for step safety + refund",
+    "status": "next: proposal for Shane",
+    "why": "same next step / same request under different answers, so one field can't predict the label"
+   },
    {
     "name": "📌 Audit synthetic data for label-overlap bias (reviewer feedback, 2026-10-06)",
     "why": "Do the generators (gpt-oss + DeepSeek) put the right option's words in the text more than the wrong ones'? A skew would teach the word-matching shortcut behind the wording trap. Zero-training check over ~90k examples.",
