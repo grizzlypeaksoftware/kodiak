@@ -17,9 +17,13 @@ Kodiak is an open, encoder-only decision model by Cortex Agent LLC (owner: Shane
 3. One target plus ≤ ~5 guards.
 4. Write the predicted effect size and its evidence before any GPU time.
 5. Zero-training check first: answer what you can by evaluating models that already exist.
-6. At most 2 attempts per open problem; after 2 misses, step back and rethink with Shane.
+6. Time box, not attempt count (D68): every open problem gets a time box in days, set by Shane and shown on the dashboard (Research →
+   Open problems). When it runs out, stop and ask Shane: continue, park, or reframe. Every proposal writes both outcomes before the run
+   ("If it passes: …", "If it fails: …"); if the fail branch is "try a small variation", don't run it: that's a loop.
 7. No shortcut-blind tests (D67): every synthetic skill eval includes contrastive pairs (same input, different answer from one detail), and
    every experiment guards the wording flip rate. A test a keyword rule can pass doesn't count as evidence of a skill.
+8. Proposal log (D68): every proposal Claude makes goes in progress.json → research → proposal_log (date, what, accepted or not, outcome,
+   days it took). Read it before proposing; if the last few were small tweaks that got killed, step back and say so.
 
 ## After a result
 Append the row to docs/EXPERIMENTS.md (verdict keep / kill / park), record the decision in docs/DECISIONS.md, and update the dashboard

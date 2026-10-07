@@ -22,6 +22,10 @@ whose data a word-counter can't predict (0.64), is the one kind that holds up on
 - Zero-training check: done. Contrastive v0.1 on v0.2 and v0.3 (3 seeds each); word-counter on training data and tests
   (scripts/shortcut_check.py); the pilot must pass the word-counter line below before any batch is bought.
 - Attempt: 1 of 2 on single-field shortcuts in synthetic skills data (a new problem, found in D67; not the wording trap).
+- Outcomes (added 2026-10-06 under D68, after approval and before any result): **If it passes:** E23 becomes the v0.4 candidate, and
+  contrast groups become the default recipe for every synthetic kind a word-counter can pass. **If it fails:** step safety and refund stay
+  marked unreliable on the cards, and we step back with Shane on whether checked synthetic data can teach these kinds at all (human-written
+  examples or dropping the kinds); no small variation of the groups.
 
 ## 3. Kill line
 - Metric: **contrastive pair accuracy** on step safety + refund eligibility, pooled over both contrastive tests (298 pairs, 596 items;

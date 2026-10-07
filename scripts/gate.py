@@ -22,14 +22,17 @@ REQUIRED = {
 }
 
 
-# From E22 on (D65): rules against "folly" experiments: a written prediction, a zero-training check, an attempt count (max 2 per
-# problem), and guards taken from the noise table.
+# From E22 on (D65): rules against "folly" experiments: a written prediction, a zero-training check, an attempt count (E22-E23; a time
+# box from E24, D68), and guards taken from the noise table.
 REQUIRED_D65 = {
     "prediction (rule 4)": r"- Prediction:\s*(?!<)\S.{10,}",
     "zero-training check (rule 5)": r"- Zero-training check:\s*(?!<)\S.{10,}",
-    "attempt count (rule 6)": r"- Attempt:\s*[12] of 2",
     "noise-based guards (rules 1-3)": r"- Noise:.*NOISE\.md",
 }
+REQUIRED_ATTEMPT = {"attempt count (old rule 6, E22-E23)": r"- Attempt:\s*[12] of 2"}
+# From E24 on (D68): rule 6 is a time box per problem plus both outcomes written before the run.
+REQUIRED_D68 = {"time box (rule 6)": r"- Time box:\s*(?!<)\S.{5,}", "if it passes (rule 6)": r"- If it passes:\s*(?!<)\S.{5,}",
+                "if it fails (rule 6)": r"- If it fails:\s*(?!<)\S.{5,}"}
 REQUIRED_D67 = {"shortcut guards (rule 7): flip rate + contrastive test": r"- Shortcut guards:.*flip rate.*contrastive"}
 
 
@@ -39,6 +42,10 @@ def check(path: Path, full: bool) -> list[str]:
     m = re.match(r"E(\d+)", path.name)
     if m and int(m.group(1)) >= 22:
         problems += [f"missing or unfilled: {name}" for name, pat in REQUIRED_D65.items() if not re.search(pat, text)]
+    if m and 22 <= int(m.group(1)) <= 23:
+        problems += [f"missing or unfilled: {name}" for name, pat in REQUIRED_ATTEMPT.items() if not re.search(pat, text)]
+    if m and int(m.group(1)) >= 24:
+        problems += [f"missing or unfilled: {name}" for name, pat in REQUIRED_D68.items() if not re.search(pat, text)]
     if m and int(m.group(1)) >= 23:
         problems += [f"missing or unfilled: {name}" for name, pat in REQUIRED_D67.items() if not re.search(pat, text, re.I)]
     cited = set(re.findall(r"- Not (E\d+)", text))

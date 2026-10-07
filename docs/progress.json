@@ -924,6 +924,10 @@
   {
    "date": "2026-10-06",
    "text": "Contrastive test v0.2 (DeepSeek-written, 198 pairs, $0.54). v0.3 baseline for E23, both tests pooled: pair accuracy 0.302 ± 0.017 (3 seeds)."
+  },
+  {
+   "date": "2026-10-06",
+   "text": "D68: rule 6 is now a time box per problem plus both outcomes written before each run; proposal log on the Research tab."
   }
  ],
  "published": [
@@ -1436,7 +1440,116 @@
    "E20": "e20-xl-consistency",
    "E21": "e21-xl-skills2-3seeds",
    "E22": "e22-xl-skills3"
-  }
+  },
+  "problems": [
+   {
+    "name": "Single-field shortcuts (step safety, refund)",
+    "opened": "2026-10-06",
+    "days": null,
+    "status": "open",
+    "note": "E23 running. Proposed box: 3 days (Shane sets it)."
+   },
+   {
+    "name": "Wording trap (reworded options flip answers)",
+    "opened": "2026-10-01",
+    "days": null,
+    "status": "open",
+    "note": "E18, E20 killed; E19 kept a side effect. Needs Shane: set a new box, park, or reframe."
+   }
+  ],
+  "proposal_log": [
+   {
+    "date": "2026-09-28",
+    "what": "E15: Ettin-1B backbone",
+    "accepted": true,
+    "outcome": "keep (D47)",
+    "days": null
+   },
+   {
+    "date": "2026-09-29",
+    "what": "E16: accuracy mode fixes \"can't tell\" precision",
+    "accepted": true,
+    "outcome": "kill as a fix; parked as a tier (D48)",
+    "days": null
+   },
+   {
+    "date": "2026-09-30",
+    "what": "E17: four skills the Decision Index found near zero",
+    "accepted": true,
+    "outcome": "keep (D53)",
+    "days": 1
+   },
+   {
+    "date": "2026-10-01",
+    "what": "E18: reworded options fix the wording trap",
+    "accepted": true,
+    "outcome": "kill as a wording fix (D57)",
+    "days": 0
+   },
+   {
+    "date": "2026-10-01",
+    "what": "E19: reworded options raise never-seen (E18 side effect)",
+    "accepted": true,
+    "outcome": "keep (D58)",
+    "days": 1
+   },
+   {
+    "date": "2026-10-03",
+    "what": "E20: consistency loss for the wording trap",
+    "accepted": true,
+    "outcome": "kill (D62)",
+    "days": 0
+   },
+   {
+    "date": "2026-10-03",
+    "what": "E21: skills batch 2 (pairwise, sarcasm, policy)",
+    "accepted": true,
+    "outcome": "kill on an 8-item probe (D64); later shown useful",
+    "days": 1
+   },
+   {
+    "date": "2026-10-05",
+    "what": "E22: skills batch 3, judged on real data",
+    "accepted": true,
+    "outcome": "keep (D66): v0.3",
+    "days": 1
+   },
+   {
+    "date": "2026-10-06",
+    "what": "Rule 7: contrastive tests + flip-rate guard",
+    "accepted": true,
+    "outcome": "adopted (D67)",
+    "days": 0
+   },
+   {
+    "date": "2026-10-06",
+    "what": "Contrastive tests + label-overlap audit (~$0.50)",
+    "accepted": true,
+    "outcome": "done: policy real; step safety, refund shortcuts",
+    "days": 0
+   },
+   {
+    "date": "2026-10-06",
+    "what": "E23: contrast groups for step safety + refund",
+    "accepted": true,
+    "outcome": "running",
+    "days": null
+   },
+   {
+    "date": "2026-10-06",
+    "what": "Rule 6 → time box + both outcomes; this proposal log",
+    "accepted": true,
+    "outcome": "adopted (D68)",
+    "days": 0
+   },
+   {
+    "date": "2026-10-06",
+    "what": "Release audit (6-question report card per release)",
+    "accepted": null,
+    "outcome": "Shane asked what it's for",
+    "days": null
+   }
+  ]
  },
  "decision_kinds": [
   {

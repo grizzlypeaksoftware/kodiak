@@ -8,10 +8,12 @@
 ## 2. Why should this change move that failure?
 <the mechanism, in two or three sentences; evidence from the log if any>
 
-## 2b. Prediction and attempt (rules 4 and 6, D65)
+## 2b. Prediction and plan (rules 4-6, D65/D68)
 - Prediction: <expected effect size on the metric, e.g. "+0.05 to +0.10", and the evidence for it (a prior result, a zero-training check)>
 - Zero-training check: <what you measured on existing models before asking for GPU time, or why none is possible>
-- Attempt: <n> of 2 on <the open problem>; after 2 misses on the same problem, step back and rethink before a third
+- Time box: <the open problem>: <n> days from <date> (Shane sets it; Research → Open problems on the dashboard)
+- If it passes: <what we do next>
+- If it fails: <what we do next; "a small variation" is not allowed: that's a loop>
 
 ## 3. Kill line
 - Metric: <primary metric or named probe>

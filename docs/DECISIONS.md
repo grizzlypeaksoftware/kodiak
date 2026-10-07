@@ -72,6 +72,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D65 | 2026-10-04 | Six rules against folly experiments (noise-based guards, ≥100-item gate tests, ≤5 guards, prediction, zero-training check first, 2 attempts max); 100-item trap eval shows E21 *improves* the wording trap | active |
 | D66 | 2026-10-06 | E22 (skills batch 3) KEEP on 3-seed means: real-anchor 0.211 → 0.358, all five noise-based guards hold; v0.3 candidate | active |
 | D67 | 2026-10-06 | Shortcut findings from outside feedback: step safety is keyword-level (6/12 on same-step pairs); word-matching shortcut comes from public intent data, not our generators; rule 7 (contrastive tests + flip-rate guard) | active |
+| D68 | 2026-10-06 | Rule 6 becomes a time box per problem (Shane sets days) plus both outcomes written before each run; proposal log (rule 8) | active |
 
 ---
 
@@ -766,4 +767,13 @@ field predicts the E22 training labels for step safety (next step only: 0.92, 5-
 scores 0.94 / 0.95 on our held-out skills test, which came from the same generator. On the contrastive pairs it gets pair accuracy 0.00 / 0.14.
 For policy violation, the kind that held up, the word-counter reaches only 0.64 on training data. So the generator wrote each label with its
 own vocabulary, and the test inherited it. Proposed: run the word-counter on every pilot before buying a batch and on every new test.
+
+### D68: govern time, not attempt counts; a proposal log
+**Why.** Shane found "attempt 1 of 2 on problem X" hard to follow (what counts as the same problem is arguable), and his time is worth more
+than GPU or money. **Decision (Shane, 2026-10-06, "Go ahead with 1,2").** (1) Rule 6: each open problem gets a time box in days, set by
+Shane, on the dashboard (Research → Open problems); when it runs out we stop and he decides: continue, park, or reframe. Every proposal
+writes "If it passes" and "If it fails" before the run; a fail branch of "try a small variation" means don't run it. The gate requires
+these from E24 (E22-E23 keep the attempt line). (2) Rule 8: every proposal Claude makes is logged (research → proposal_log: date, what,
+taken or not, outcome, days) and read before the next proposal, so loops (several small tweaks killed in a row) show up. Seeded with
+E15-E23 and this session's proposals. The idea of learning from an accept/reject log came from Shane's conversation with Grok.
 
