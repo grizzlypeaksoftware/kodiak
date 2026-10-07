@@ -58,4 +58,4 @@ backbone, steps, learning rate, seeds and everything else as E22.
   seed 1 → seeds 0 and 2
 
 ## Approval
-Approved: <Shane writes "Approved: Shane" here before any full run>
+Approved: Shane (2026-10-06, "approved!  how exciting")

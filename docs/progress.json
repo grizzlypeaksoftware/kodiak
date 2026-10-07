@@ -1057,9 +1057,13 @@
    "running_when_alive": true
   },
   {
-   "name": "E23 full run (3 seeds, ~15 GPU-h): needs \"Approved: Shane\"",
-   "why": "Proposal: docs/experiments/E23-contrast-groups.md (gate OK; scripts/e23_run.sh ready, verdict script checked on v0.3). Target: contrastive pair accuracy, step safety + refund, both tests pooled (298 pairs): v0.3 0.302 ± 0.017, keep ≥ 0.452. Starts as soon as the batch has 2,500 examples per kind (~45 min).",
-   "after": "Shane approves"
+   "name": "E23 training: 3 seeds (seed 1 first)",
+   "why": "Approved 2026-10-06. Waiting for 2,500 contrast-group examples per kind, then seed 1 (~5 h) → stop rule → seeds 0 and 2 (~10 h). Keep line: pooled pair accuracy ≥ 0.452 (v0.3 0.302).",
+   "after": "now",
+   "script": "e23_run.sh",
+   "log": "runs/e23-run.log",
+   "done_marker": "E23 COMPLETE",
+   "running_marker": "=== training"
   },
   {
    "name": "Publish the v0.3 announcement + X / HF posts",
@@ -1089,6 +1093,13 @@
   }
  ],
  "experiments": [
+  {
+   "match": "-e23-",
+   "name": "E23: contrast groups for step safety + refund",
+   "why": "No single field gives the answer away (D67)",
+   "report": "e23-xl-groups",
+   "decision": "running"
+  },
   {
    "match": "-e22-",
    "name": "E22: skills batch 3 (skills-2 + 4 new kinds, judged on real data)",
@@ -1235,52 +1246,88 @@
  },
  "research": {
   "active": {
-   "id": "v0.3",
-   "proposal": null,
-   "title": "Release: Kodiak-v0.3-1B",
+   "id": "E23",
+   "proposal": "E23-contrast-groups.md",
+   "title": "E23: contrast groups (step safety + refund)",
    "steps": [
     {
-     "name": "Shane: release v0.3 from the E22 recipe",
+     "name": "Contrastive tests v0.1 + v0.2 (298 pairs)",
+     "status": "done",
+     "note": "$0.52 + $0.54"
+    },
+    {
+     "name": "v0.3 baseline (3 seeds, free)",
+     "status": "done",
+     "note": "pooled pair accuracy 0.302 ± 0.017"
+    },
+    {
+     "name": "Pilot: word-counter check",
+     "status": "done",
+     "note": "passed: 0.31-0.58 (E22 data 0.76-0.91); $0.10"
+    },
+    {
+     "name": "Shane approves",
      "status": "done",
      "note": "2026-10-06"
     },
     {
-     "name": "Pick the model on validation",
-     "status": "done",
-     "note": "seed 1 (val loss 0.025 vs 0.038 / 0.049)"
-    },
-    {
-     "name": "Build release folders (single + accuracy mode)",
-     "status": "done",
-     "note": "dist/kodiak-v0.3-1b (seed 1) and -accuracy (threshold 0.7 on validation)"
-    },
-    {
-     "name": "Model cards (Shane reviews)",
-     "status": "done",
-     "note": "Shane approved 2026-10-06"
-    },
-    {
-     "name": "Publish to Hugging Face",
-     "status": "done",
-     "note": "both repos public; all weights SHA-verified"
-    },
-    {
-     "name": "Demo: v0.3 default (ZeroGPU)",
-     "status": "done",
-     "note": "ZeroGPU demo: v0.3 default + v0.3 accuracy mode (tested live)"
-    },
-    {
-     "name": "Decision Index run (accuracy mode)",
-     "status": "done",
-     "note": "stopped at Shane's request (2026-10-06): no Decision Index runs until the model is dialed in"
-    },
-    {
-     "name": "Announcement post (cortexagent.com draft)",
+     "name": "Batch: 2,500 examples per kind",
      "status": "in_progress",
-     "note": "draft on cortexagent.com (admin/posts/2) for Shane to publish"
+     "note": "training starts automatically when reached; rest banked ($10 cap)"
+    },
+    {
+     "name": "Seed 1 (smoke at step 500, stop rule)",
+     "status": "todo",
+     "note": ""
+    },
+    {
+     "name": "Seeds 0 and 2, verdict",
+     "status": "todo",
+     "note": ""
     }
    ],
-   "bar": []
+   "bar": [
+    {
+     "metric": "Contrastive pair accuracy, step safety + refund (298 pairs)",
+     "baseline": "0.302",
+     "target": "≥ 0.452"
+    },
+    {
+     "metric": "Never-seen forced",
+     "baseline": "0.687",
+     "target": "≥ 0.666"
+    },
+    {
+     "metric": "Familiar",
+     "baseline": "0.879",
+     "target": "≥ 0.868"
+    },
+    {
+     "metric": "Abstain precision",
+     "baseline": "0.931",
+     "target": "≥ 0.855"
+    },
+    {
+     "metric": "Real-anchor score",
+     "baseline": "0.358",
+     "target": "≥ 0.303"
+    },
+    {
+     "metric": "Wording-trap eval",
+     "baseline": "0.900",
+     "target": "≥ 0.860"
+    },
+    {
+     "metric": "Flip rate (shortcut guard)",
+     "baseline": "0.327",
+     "target": "≤ 0.372"
+    },
+    {
+     "metric": "Policy contrastive pairs (shortcut guard)",
+     "baseline": "0.567",
+     "target": "≥ 0.499"
+    }
+   ]
   },
   "ideas": [
    {
