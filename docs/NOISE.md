@@ -46,3 +46,18 @@ Below ~100 items per kind (rule 2), so these are guards against collapse, not ga
 | Flip rate (wording eval) | 0.302 / 0.347 / 0.331 | 0.327 | 0.023 | ≤ 0.372 | 0.395 |
 
 Source: reports/e22-xl-skills3.md, reports/preds_wording/e22-*. v0.3's flip rate varies far more across seeds (SD 0.023) than v0.2's (0.002).
+
+## E23 baseline (3 seeds): guard lines for E24 onward
+
+| Measure | Seeds 0 / 1 / 2 | Mean | SD | Guard (2 SD) | Single-run reject (3 SD) |
+|---|---|---|---|---|---|
+| Never-seen forced | 0.695 / 0.683 / 0.694 | 0.691 | 0.007 | ≥ 0.677 | 0.671 |
+| Familiar | 0.887 / 0.873 / 0.873 | 0.878 | 0.008 | ≥ 0.862 | 0.853 |
+| Abstain precision | 0.938 / 0.952 / 0.910 | 0.933 | 0.021 | ≥ 0.891 | 0.869 |
+| Real-anchor score | 0.372 / 0.354 / 0.371 | 0.366 | 0.010 | ≥ 0.345 | 0.335 |
+| Wording-trap eval (100) | 0.940 / 0.920 / 0.900 | 0.920 | 0.020 | ≥ 0.880 | 0.860 |
+| Flip rate (wording eval) | 0.322 / 0.317 / 0.321 | 0.320 | 0.003 | ≤ 0.325 | 0.328 |
+| Policy contrastive pairs (v0.1, 30) | 0.633 / 0.700 / 0.600 | 0.644 | 0.051 | ≥ 0.542 | 0.491 |
+| Step + refund contrastive pairs (v0.1 + v0.2, 298) | 0.560 / 0.577 / 0.560 | 0.566 | 0.010 | ≥ 0.546 | 0.536 |
+
+Source: reports/e23-xl-groups.md (D71).

@@ -940,6 +940,10 @@
   {
    "date": "2026-10-07",
    "text": "E23 KEEP (D71): contrastive pair accuracy 0.302 → 0.566 over 3 seeds; all guards hold (never-seen 0.691). Refund a real fix; step safety partly hedge words (D70)."
+  },
+  {
+   "date": "2026-10-07",
+   "text": "E24 pilot passed ($0.37): cue-balanced groups remove the hedge-word cues; refund changed-words reader 0.80 → 0.51."
   }
  ],
  "published": [
@@ -1064,9 +1068,27 @@
  ],
  "queue": [
   {
-   "name": "Shane: release v0.4 from E23 now, or after the hedge-word fix?",
-   "why": "E23 KEEP (D71): contrastive pairs 0.302 → 0.566, all guards hold, never-seen 0.691. Refund is a real fix; step safety partly hedge words (D70).",
-   "after": "Shane decides"
+   "name": "E24: cue-balanced contrast groups (then release v0.4)",
+   "why": "Shane chose fix-first (2026-10-07). Pilot must pass a changed-words reader check; new step-safety test with 'never' balanced. ~$9, ~15 GPU-h. Box ends 2026-10-10.",
+   "after": "now"
+  },
+  {
+   "name": "E24: cue-balanced group batch ($11 cap)",
+   "why": "Pilot passed ($0.37): hedge cues gone ('but' no longer marks ask-first); refund changed-words reader 0.80 → 0.51 (same size); step safety 0.63 either way, now through content words (rm -rf, overwrite). ~22% of groups pass the filter; aiming for 2,500 examples per kind.",
+   "after": "now",
+   "script": "build_groups.py",
+   "log": "runs/groups-cb-batch.log",
+   "done_marker": "GROUPS_CB_DONE",
+   "running_when_alive": true
+  },
+  {
+   "name": "E24: contrastive test v0.3 (all answer pairs balanced, then cue-hard filter)",
+   "why": "DeepSeek writes, gpt-oss checks; up to 240 pairs per kind, 40 per answer pair; then keep only pairs a changed-words reader trained on our training data gets wrong. ~$2 (3,600 attempts; no cap in this script, cost measured after).",
+   "after": "now",
+   "script": "build_contrastive_eval.py",
+   "log": "runs/contrastive-v03.log",
+   "done_marker": "CONTRASTIVE_V03_DONE",
+   "running_when_alive": true
   },
   {
    "name": "Publish the v0.3 announcement + X / HF posts",
@@ -1466,11 +1488,11 @@
   },
   "problems": [
    {
-    "name": "Single-field shortcuts (step safety, refund)",
-    "opened": "2026-10-06",
-    "days": null,
+    "name": "Shortcuts in step safety (single field, then hedge words)",
+    "opened": "2026-10-07",
+    "days": 3,
     "status": "open",
-    "note": "E23 kept (D71): refund fixed; step safety improved, partly via hedge words (D70). Proposed box: 3 days (Shane sets it)."
+    "note": "Box set by Shane 2026-10-07 (took the recommendation). E24: cue-balanced contrast groups, then release v0.4."
    },
    {
     "name": "Wording trap (reworded options flip answers)",
@@ -1578,6 +1600,13 @@
     "accepted": null,
     "outcome": "done: step safety partly hedge words, refund real (D70)",
     "days": 0
+   },
+   {
+    "date": "2026-10-07",
+    "what": "Fix hedge words first (E24), then release v0.4; 3-day box",
+    "accepted": true,
+    "outcome": "running",
+    "days": null
    }
   ]
  },

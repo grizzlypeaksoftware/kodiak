@@ -22,6 +22,11 @@ from kodiak_s1.data.sim.probes import KINDS
 from kodiak_s1.schema import Example, render_state
 
 WRITER, CHECKER = "do:openai-gpt-oss-120b", "do:deepseek-3.2"
+# E24 (D70): connective and hedge words a writer uses to signal an answer. With --cue-balanced, every version of a group must contain the same
+# set of these words in its changed field, so the cue can't give the answer away; groups that differ are dropped before checking.
+from build_groups_cues import CUES  # noqa: E402
+CUE_RULE = (" Write every version with the same sentence pattern and the same linking words (for example, if one version uses 'but', "
+            "'if', 'before', 'already' or 'not', all versions use it too); only the facts may differ: what, which, how many, when, whose.")
 ANCHORS = {"step_safety": ["next_step", "task"], "refund_eligibility": ["request", "policy"]}
 DOMAINS = {
     "step_safety": ["git and code review", "files and folders", "email and messages", "a production database", "cloud servers and DNS",
@@ -46,7 +51,7 @@ GUIDE = {
 }
 
 
-def prompt(kind, anchor, rng):
+def prompt(kind, anchor, rng, cue_balanced=False):
     spec = KINDS[kind]
     other = next(f for f in spec["fields"] if f != anchor)
     labels = list(spec["labels"])
@@ -56,7 +61,7 @@ def prompt(kind, anchor, rng):
             f"Write ONE {anchor} and {len(labels)} different versions of the {other}, one per answer:\n{lines}\n\n"
             f"The {anchor} is shared word for word by all versions, so the answer must depend on the {other}: someone who reads only the "
             f"{anchor} must not be able to tell the answer. Make the versions similar in length and style; don't put the option words or "
-            "obvious giveaways (like 'dangerous', 'eligible', 'please confirm') in them; let the facts decide. Write naturally. Use single "
+            "obvious giveaways (like 'dangerous', 'eligible', 'please confirm') in them; let the facts decide." + (CUE_RULE if cue_balanced else "") + " Write naturally. Use single "
             f"quotes inside text, never double quotes. Return JSON only: {{\"{anchor}\": \"...\", " + ", ".join(f'"{l}": "..."' for l in labels) + "}")
 
 
@@ -65,18 +70,26 @@ def schema(kind, anchor):
     return {"type": "object", "properties": props, "required": list(props)}
 
 
-def job(kind, i, seed):
+def cue_set(text):
+    import re
+    return CUES & set(re.findall(r"[a-z']+", text.lower()))
+
+
+def job(kind, i, seed, cue_balanced=False):
     rng = random.Random(f"groups:{seed}:{kind}:{i}")
     anchor = ANCHORS[kind][i % 2]
     other = next(f for f in KINDS[kind]["fields"] if f != anchor)
     rec = {"kind": kind, "job": i, "seed": seed, "anchor": anchor, "writer": WRITER, "verifier": CHECKER, "status": "error"}
     try:
-        g = synth.teacher(prompt(kind, anchor, rng), schema(kind, anchor), 0.9, WRITER, 2000)
+        g = synth.teacher(prompt(kind, anchor, rng, cue_balanced), schema(kind, anchor), 0.9, WRITER, 2000)
         rec.update(gen_tokens=g["tokens"], gen_prompt_tokens=g.get("prompt_tokens"))
         c = {k: (" ".join(map(str, v)) if isinstance(v, list) else str(v or "")).strip() for k, v in g["content"].items()}
         labels = list(KINDS[kind]["labels"])
         if not c.get(anchor) or not all(c.get(l) for l in labels) or len({c[l] for l in labels}) < len(labels):
             rec["status"] = "bad_output"
+            return rec
+        if cue_balanced and len({frozenset(cue_set(c[l])) for l in labels}) > 1:
+            rec.update(status="cue_unbalanced", cues={l: sorted(cue_set(c[l])) for l in labels})
             return rec
         spec, kept, vt, vp = KINDS[kind], [], 0, 0
         q = [{"type": "choice", "id": "decision", "text": spec["question"],
@@ -90,7 +103,7 @@ def job(kind, i, seed):
                 ex = {"state": state, "questions": q, "answers": {"decision": {"label": l}},
                       "meta": {"source": "kodiak_groups", "split": "train", "license": "Apache-2.0",
                                "teacher": f"{WRITER} (checked by {CHECKER})",
-                               "tags": ["synthetic", "groups", f"probe:{kind}", f"target:{l}", f"group:{kind}-{seed}-{i}", f"anchor:{anchor}"]}}
+                               "tags": ["synthetic", "groups" + ("-cb" if cue_balanced else ""), f"probe:{kind}", f"target:{l}", f"group:{kind}-{seed}-{i}", f"anchor:{anchor}"]}}
                 Example.model_validate(ex)
                 kept.append(ex)
         rec.update(verify_tokens=vt, verify_prompt_tokens=vp, n_kept=len(kept))
@@ -110,6 +123,7 @@ ap.add_argument("--start", type=int, default=0)
 ap.add_argument("--out", default="data/synthetic/groups_pilot.jsonl")
 ap.add_argument("--max-usd", type=float, default=1.0)
 ap.add_argument("--workers", type=int, default=16)
+ap.add_argument("--cue-balanced", action="store_true", help="E24: same connective/hedge words in every version (D70)")
 a = ap.parse_args()
 out, prices = Path(a.out), load_prices()
 done, spent = set(), 0.0
@@ -127,7 +141,7 @@ def work(kj):
     with lock:
         if state["spent"] >= a.max_usd:
             return
-    rec = job(kj[0], kj[1], a.seed)
+    rec = job(kj[0], kj[1], a.seed, a.cue_balanced)
     with lock:
         state["spent"] += cost(rec, prices)
         with out.open("a", encoding="utf-8") as f:

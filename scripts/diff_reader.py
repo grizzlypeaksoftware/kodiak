@@ -62,6 +62,40 @@ def group_diffs(path, kind):
     return out
 
 
+def grouped_cv(rows, folds=5):
+    jobs = sorted({j for j, *_ in rows})
+    acc = []
+    for f in range(folds):
+        test = set(jobs[f::folds])
+        tr = [(d, y) for j, _, d, y in rows if j not in test]
+        te = [(d, y) for j, _, d, y in rows if j in test]
+        vec, m = reader([d for d, _ in tr], [y for _, y in tr])
+        acc.append(sum(m.predict(vec.transform([d]))[0] == y for d, y in te) / len(te))
+    return sum(acc) / folds
+
+
+if __name__ == "__main__" and len(__import__("sys").argv) > 1:
+    # uv run python scripts/diff_reader.py --groups FILE [--limit N]: the pilot check (D70) on one groups file
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--groups", required=True)
+    ap.add_argument("--limit", type=int, default=0, help="use only the first N kept groups per kind (same-size comparisons)")
+    a = ap.parse_args()
+    for kind in VARY:
+        rows = group_diffs(a.groups, kind)
+        if a.limit:
+            keep = sorted({j for j, *_ in rows})[: a.limit]
+            rows = [r for r in rows if r[0] in set(keep)]
+        lab = Counter(y for *_, y in rows)
+        c = defaultdict(Counter)
+        for _, _, d, y in rows:
+            for w in d.split():
+                c[w][y] += 1
+        cues = sorted(((w, n) for w, n in c.items() if sum(n.values()) >= 5), key=lambda x: -max(x[1].values()) / sum(x[1].values()))[:6]
+        print(f"{kind}: groups {len({j for j, *_ in rows})}, examples {len(rows)}, unique-words reader {grouped_cv(rows):.2f} "
+              f"(majority {max(lab.values()) / len(rows):.2f}); most label-tied words: "
+              + ", ".join(f"{w} {max(n.values())}/{sum(n.values())} {n.most_common(1)[0][0]}" for w, n in cues))
+    raise SystemExit
 if __name__ == "__main__":
     print("== Contrastive tests: reader on the changed words only (leave-one-pair-out)")
     for v in ["v0.1", "v0.2"]:

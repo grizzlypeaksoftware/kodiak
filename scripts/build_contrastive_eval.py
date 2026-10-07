@@ -4,6 +4,8 @@ the product in the request) gets at most one of the two right. Writer + blind ch
 trained on. Metric: pair accuracy (both versions right) and item accuracy.
 
     uv run python scripts/build_contrastive_eval.py --pairs 70   # -> data/eval/kodiak-contrastive-v0.1.jsonl
+v0.3 (E24): as v0.2, but every answer pair is attempted equally often and capped equally in the file ("never" balanced); then
+scripts/filter_cue_hard.py keeps only pairs a changed-words reader trained on our training data gets wrong (D70).
 v0.2 (E23): the writer and checker swap (DeepSeek-V3.2 writes, gpt-oss-120b checks), so the test doesn't share the training writer's style:
     uv run python scripts/build_contrastive_eval.py --version v0.2 --kinds step_safety,refund_eligibility --pairs 400
 """
@@ -56,7 +58,8 @@ def example(kind, fields, label, pair_id, side):
 
 def job(kind, i):
     rng = random.Random(f"contrastive:{SEED}:{kind}:{i}")
-    la, lb = rng.choice(list(itertools.permutations(KINDS[kind]["labels"], 2)))
+    perms = list(itertools.permutations(KINDS[kind]["labels"], 2))
+    la, lb = perms[i % len(perms)] if VERSION == "v0.3" else rng.choice(perms)  # v0.3: every answer pair equally often
     rec = {"kind": kind, "job": i, "writer": WRITER, "verifier": CHECKER, "status": "error"}
     try:
         g = synth.teacher(prompt(kind, la, lb), schema(kind), 0.9, WRITER, 1500)
@@ -97,12 +100,12 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--pairs", type=int, default=70)
 ap.add_argument("--kinds", default=",".join(VARY))
 ap.add_argument("--start", type=int, default=0)
-ap.add_argument("--version", default="v0.1", choices=["v0.1", "v0.2"])
+ap.add_argument("--version", default="v0.1", choices=["v0.1", "v0.2", "v0.3"])
 ap.add_argument("--per-kind", type=int, default=50)
 a = ap.parse_args()
 SEED, VERSION, CHECK_TOKENS = 61, a.version, 600
-if a.version == "v0.2":
-    WRITER, CHECKER, SEED, CHECK_TOKENS = "do:deepseek-3.2", "do:openai-gpt-oss-120b", 62, 1500  # gpt-oss reasons first
+if a.version in ("v0.2", "v0.3"):
+    WRITER, CHECKER, SEED, CHECK_TOKENS = "do:deepseek-3.2", "do:openai-gpt-oss-120b", 62 if a.version == "v0.2" else 63, 1500  # gpt-oss reasons first
 raw = Path("data/eval/contrastive_raw.jsonl" if a.version == "v0.1" else f"data/eval/contrastive_raw_{a.version}.jsonl")
 recs = [json.loads(l) for l in raw.open()] if raw.exists() else []
 for attempt in range(3):
@@ -114,10 +117,14 @@ for attempt in range(3):
         recs = [r for r in recs if r["status"] != "retry"] + list(ex.map(lambda t: job(*t), todo))
 raw.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in recs) + "\n")
 n = Counter()
-with open(f"data/eval/kodiak-contrastive-{a.version}.jsonl", "w") as f:
+with open(f"data/eval/kodiak-contrastive-{a.version}" + ("-all" if a.version == "v0.3" else "") + ".jsonl", "w") as f:
     for r in sorted(recs, key=lambda r: (r["kind"], r["job"])):
-        if r["status"] == "ok" and n[r["kind"]] < a.per_kind:
+        lab = tuple(e["answers"]["decision"]["label"] for e in r.get("examples", []))
+        cap = (a.per_kind + 5) // 6 if VERSION == "v0.3" else a.per_kind
+        if r["status"] == "ok" and n[r["kind"]] < a.per_kind and n[(r["kind"], lab)] < cap:
+            n[(r["kind"], lab)] += 1
             for ex in r["examples"]:
                 f.write(json.dumps(ex, ensure_ascii=False) + "\n")
             n[r["kind"]] += 1
-print(Counter((r["kind"], r["status"]) for r in recs), "-> pairs per kind", dict(n), file=sys.stderr)
+print(Counter((r["kind"], r["status"]) for r in recs), "-> pairs per kind", {k: v for k, v in n.items() if isinstance(k, str)},
+      {k: v for k, v in n.items() if not isinstance(k, str)}, file=sys.stderr)
