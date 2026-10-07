@@ -30,6 +30,7 @@ REQUIRED_D65 = {
     "attempt count (rule 6)": r"- Attempt:\s*[12] of 2",
     "noise-based guards (rules 1-3)": r"- Noise:.*NOISE\.md",
 }
+REQUIRED_D67 = {"shortcut guards (rule 7): flip rate + contrastive test": r"- Shortcut guards:.*flip rate.*contrastive"}
 
 
 def check(path: Path, full: bool) -> list[str]:
@@ -38,6 +39,8 @@ def check(path: Path, full: bool) -> list[str]:
     m = re.match(r"E(\d+)", path.name)
     if m and int(m.group(1)) >= 22:
         problems += [f"missing or unfilled: {name}" for name, pat in REQUIRED_D65.items() if not re.search(pat, text)]
+    if m and int(m.group(1)) >= 23:
+        problems += [f"missing or unfilled: {name}" for name, pat in REQUIRED_D67.items() if not re.search(pat, text, re.I)]
     cited = set(re.findall(r"- Not (E\d+)", text))
     log = Path("docs/EXPERIMENTS.md").read_text()
     killed = {e for e in re.findall(r"^\| (E\d+) \|.*\| (?:kill|park)", log, re.M)}

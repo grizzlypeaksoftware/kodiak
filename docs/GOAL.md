@@ -24,6 +24,10 @@ Kodiak is an open decision model that lets teams automate routine "read this and
   (target ≥ 0.90), ranking (`aurc_gap_closed`, never-seen; added 2026-10-03 after a Hugging Face reviewer, D60), wording consistency and the 100-item wording-trap eval. **Each guard line comes from
   docs/NOISE.md:** the current model's 3-seed mean minus 2 SD (plus 2 SD for lower-is-better), judged on the new experiment's 3-seed mean; one
   run alone rejects only past 3 SD. Re-measure the table when the baseline changes. Speed: report the multiple vs the current model (~38 ms GPU).
+- **Every experiment carries two shortcut guards (Shane, 2026-10-06, D67):** the **flip rate** on the wording eval (share of questions whose
+  answer changes when only the option wording changes; line from docs/NOISE.md) and, for any skill trained on synthetic data, a
+  **contrastive test** (pairs where the same input appears under different answers because of one detail), on which a keyword shortcut
+  scores about chance. They count on top of the ≤ ~5 other guards.
 - **Gate tests need ≥ ~100 items.** Small probes (e.g. the 8-sentence label-overlap probe) are reported but never decide an experiment.
 - **Targeted fixes** (e.g. a wording trap) may use a named test of ≥ ~100 items as their metric, but must still pass the guards.
 - Never trained or tuned on the eval set; thresholds and model selection use validation data only.

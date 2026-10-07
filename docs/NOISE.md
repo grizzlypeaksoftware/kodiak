@@ -11,6 +11,7 @@ mean; a single run can only reject when it is more than **3 SD** past the baseli
 | Never-seen calibration error (ECE) | 0.085 | 0.009 | ≤ 0.103 | 0.112 |
 | Abstain precision | 0.880 | 0.013 | ≥ 0.854 | 0.841 |
 | Ranking (aurc_gap_closed, never-seen) | 0.556 | 0.007 | ≥ 0.542 | 0.535 |
+| Flip rate (wording eval; 1 − consistency; lower is better) | 0.322 | 0.002 | ≤ 0.326 | 0.328 |
 | Wording consistency (wording eval) | 0.678 | 0.002 | ≥ 0.675 | 0.673 |
 | Wording-trap eval v0.1, trap items (100-item test) | 0.867 | 0.031 | ≥ 0.806 | 0.775 |
 | E17 skills score | 0.983 | 0.004 | ≥ 0.975 | 0.971 |
@@ -19,3 +20,15 @@ mean; a single run can only reject when it is more than **3 SD** past the baseli
 **Rule 2:** tests used as gates need ≥ ~100 items. The 8-sentence label-overlap probe (v0.2 seeds 5 / 6 / 6 of 8, SD 0.6 = 7.5 points)
 is reported but never gates; the 100-item wording-trap eval (`data/eval/kodiak-trap-eval-v0.1.jsonl`, 50 trap + 50 control) replaces it.
 Re-measure this table whenever the baseline model changes.
+
+## Contrastive eval v0.1 (rule 7, D67): v0.3 baseline, pair accuracy, 3 seeds
+
+| Kind | Pairs | v0.3 mean ± SD | Guard (mean − 2 SD) |
+|---|---|---|---|
+| Policy violation | 30 | 0.567 ± 0.034 | ≥ 0.499 |
+| Refund eligibility | 50 | 0.220 ± 0.080 | ≥ 0.060 |
+| Step safety | 50 | 0.053 ± 0.023 | ≥ 0.007 |
+| Sarcasm | 7 | too few pairs | report only |
+
+Below ~100 items per kind (rule 2), so these are guards against collapse, not gates. Source: reports/contrastive-v0.1.md.
+

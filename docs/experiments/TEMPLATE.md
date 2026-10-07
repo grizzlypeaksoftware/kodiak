@@ -20,6 +20,7 @@
 - Full run: keep only if <metric ≥ value>; guards: <familiar / calibration / abstain precision / speed>
 - Noise: guard lines from docs/NOISE.md (baseline mean − 2 SD, judged on 3-seed means; one run rejects only past 3 SD); gate tests have
   ≥ ~100 items (rules 1-3, D65); no more than ~5 guards
+- Shortcut guards (rule 7, D67): flip rate on the wording eval ≤ <line from NOISE.md>; contrastive test for every synthetic skill trained
 
 ## 4. How is this different from killed ideas?
 - Not <E#: name> because <reason>

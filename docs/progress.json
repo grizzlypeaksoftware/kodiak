@@ -904,6 +904,14 @@
   {
    "date": "2026-10-06",
    "text": "v0.3 released: both models public (weights verified) and in the ZeroGPU demo."
+  },
+  {
+   "date": "2026-10-06",
+   "text": "Outside feedback (D67): step safety is keyword-level; cards corrected; rule 7 adds contrastive tests and a flip-rate guard; word-matching traced to public intent data."
+  },
+  {
+   "date": "2026-10-06",
+   "text": "Contrastive eval v0.1 (rule 7): policy violation is a real skill (pair acc 0.567); refund (0.220) and step safety (0.053) are shortcuts. ~$0.52."
   }
  ],
  "published": [
@@ -1028,9 +1036,19 @@
  ],
  "queue": [
   {
+   "name": "E23 rethink with Shane (rule 6)",
+   "why": "Contrastive pair accuracy, v0.3 (3 seeds): policy 0.567 (real skill), refund 0.220, step safety 0.053 (shortcuts), sarcasm too few pairs. Lead option: minimal-pair training data for refund + step safety.",
+   "after": "Shane picks"
+  },
+  {
    "name": "Publish the v0.3 announcement + X / HF posts",
    "why": "Draft at cortexagent.com/admin/posts/2; post texts given in chat.",
    "after": "Shane publishes"
+  },
+  {
+   "name": "📌 Pinned: reviewer feedback on the wording trap",
+   "why": "(1) audit done: our synthetic data is below chance for word-matching; public intent data +0.70 (D67). (2) flip rate is now a standard guard (D67). (3) embedding-space adversarial training: E23 candidate.",
+   "after": "when Shane picks it back up"
   },
   {
    "name": "Decision Index submission: PR #49 (18.69)",
@@ -1244,6 +1262,21 @@
    "bar": []
   },
   "ideas": [
+   {
+    "name": "📌 Audit synthetic data for label-overlap bias (reviewer feedback, 2026-10-06)",
+    "why": "Do the generators (gpt-oss + DeepSeek) put the right option's words in the text more than the wrong ones'? A skew would teach the word-matching shortcut behind the wording trap. Zero-training check over ~90k examples.",
+    "status": "done (D67): our synthetic skills data is below chance for word-matching; public intent data is +0.70"
+   },
+   {
+    "name": "📌 Flip rate as a standard guard (reviewer feedback)",
+    "why": "Wording consistency is measured but wasn't a gate in E22 (0.678 → 0.673). Make the flip rate on the wording eval a guard from docs/NOISE.md.",
+    "status": "done (D67): standard guard (GOAL.md, NOISE.md, gate from E23)"
+   },
+   {
+    "name": "📌 Embedding-space adversarial training for wording (reviewer feedback)",
+    "why": "Not E20's twin-consistency loss (killed, D62): perturb option representations adversarially (virtual adversarial training), independent of a fixed wording table. Wording has had 2 attempts (E18, E20) → rule 6: rethink with Shane first.",
+    "status": "pinned: discuss after the audit"
+   },
    {
     "name": "Process: rules against folly (D65)",
     "why": "Noise-based guards, ≥100-item gate tests, ≤5 guards, prediction, zero-training check first, 2 attempts max. In the template and gate from E22.",
@@ -1470,15 +1503,15 @@
    "status": "trained",
    "since": "E22 (v0.3 candidate)",
    "source": "E21/E22 skills-2 generator (2.5k)",
-   "evidence": "v0.2 skill +0.24 (0 = chance); E21 3 seeds: learned (skills-2 0.959), not shipped"
+   "evidence": "v0.2 skill +0.24 (0 = chance); E21 3 seeds: learned (skills-2 0.959), not shipped; contrastive: only 7 pairs, no verdict"
   },
   {
    "kind": "Policy violation (which written rule is broken)",
    "group": "guardrails",
-   "status": "trained",
+   "status": "trained, verified (D67)",
    "since": "E22 (v0.3 candidate)",
    "source": "E21/E22 skills-2 generator (2.5k)",
-   "evidence": "v0.2 skill +0.65 (0 = chance); E21 3 seeds: learned (skills-2 0.959), not shipped"
+   "evidence": "contrastive pair acc 0.567 (30 pairs, 3 seeds; v0.2 0.122)"
   },
   {
    "kind": "Duplicate / same-issue tickets",
@@ -1587,10 +1620,10 @@
   {
    "kind": "Refund / return eligibility under a stated policy",
    "group": "guardrails",
-   "status": "trained",
+   "status": "trained, mostly shortcut (D67)",
    "since": "E22 (v0.3 candidate)",
    "source": "E22 skills-3 generator (2.5k)",
-   "evidence": "v0.2 skill +0.19"
+   "evidence": "contrastive pair acc 0.220 (50 pairs, 3 seeds; v0.2 0.107)"
   },
   {
    "kind": "Contract clause type",
@@ -1707,10 +1740,10 @@
   {
    "kind": "Agent plan: is the next step safe to auto-run",
    "group": "agents",
-   "status": "trained",
+   "status": "trained, shortcut (D67)",
    "since": "E22 (v0.3 candidate)",
    "source": "E22 skills-3 generator (2.5k)",
-   "evidence": "v0.2 skill +0.21"
+   "evidence": "contrastive pair acc 0.053 (50 pairs, 3 seeds); same answer to both versions 89%"
   }
  ]
 }

@@ -71,6 +71,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D64 | 2026-10-04 | E21 confirmed over 3 seeds on every line except the label-overlap probe (mean 4.7 < 5): kill by the pre-written rule; skills-2 data banked | active |
 | D65 | 2026-10-04 | Six rules against folly experiments (noise-based guards, ≥100-item gate tests, ≤5 guards, prediction, zero-training check first, 2 attempts max); 100-item trap eval shows E21 *improves* the wording trap | active |
 | D66 | 2026-10-06 | E22 (skills batch 3) KEEP on 3-seed means: real-anchor 0.211 → 0.358, all five noise-based guards hold; v0.3 candidate | active |
+| D67 | 2026-10-06 | Shortcut findings from outside feedback: step safety is keyword-level (6/12 on same-step pairs); word-matching shortcut comes from public intent data, not our generators; rule 7 (contrastive tests + flip-rate guard) | active |
 
 ---
 
@@ -739,4 +740,25 @@ adherence 0.78-0.81); real aspect sentiment 0.63 → 0.68; never-seen ECE 0.085 
 with the least room.
 **Next:** E22 is the v0.3 candidate (recipe: v0.2 + skills-2 + skills-3). Release is Shane's call: GOAL.md's v0.3 goals were the wording trap
 (trap eval improved 0.867 → 0.900) and abstain precision ≥ 0.90 (0.931 mean).
+
+### D67: shortcuts, found by outside feedback: step safety is a keyword rule; word-matching comes from public data; rule 7
+**Feedback.** An outside researcher argued the wording trap is a representation problem (suggested an adversarial consistency loss, a
+flip-rate guard and an audit of generator bias). A Hugging Face user (dipankarsarkar) showed from our published predictions that a 3-check
+keyword rule on the next step alone scores +0.86 to +0.91 on the step-safety tests, and that the model agrees with that rule on 93-97 of 100.
+**Checked here.** (1) On 6 same-step pairs whose answer depends on the task, v0.3 gets 6 of 12, and every miss follows the keyword rule
+(rm -rf → never; delete / send_email → ask first), e.g. `git push origin main` while 3 tests fail → "yes, safe" at 0.97. The skill test had no
+step under two labels, so it couldn't separate judgment from lookup. (2) A label-overlap audit (scripts/audit_label_overlap.py): a
+pick-the-option-whose-words-appear rule is **below chance** on our E17/E21/E22 synthetic skills data and +0.21 over chance on Generator v2.0,
+but **+0.70 on public intent data** (CLINC, MASSIVE, GoEmotions) and +0.40 on ToolACE. The word-matching habit behind the wording trap comes
+mostly from real public data, where option words in the message usually do mean that option; the cure is teaching the exceptions, not
+removing the data. (3) The adversarial consistency loss is E20, already killed (D62); an embedding-space variant stays a candidate.
+**Decisions (Shane, 2026-10-06).** Both v0.3 cards now say step safety is keyword-level and must not be used as a safety control, and that
+refund / policy / sarcasm aren't verified against shortcuts yet. **Rule 7:** every synthetic skill eval includes contrastive pairs (same
+input, different answer from one detail), and every experiment guards the wording flip rate (GOAL.md, NOISE.md, CLAUDE.md, template, gate
+from E23). Contrastive tests for the four unanchored kinds: scripts/build_contrastive_eval.py.
+**Contrastive results (reports/contrastive-v0.1.md; 3 seeds each; ~$0.52).** Pair accuracy (both versions of a minimal pair right), v0.2 → v0.3:
+policy violation 0.122 → **0.567** ± 0.034 (30 pairs): a real skill, mostly learned in E22. Refund eligibility 0.107 → 0.220 ± 0.080 (50 pairs;
+same answer to both versions 71% of the time): mostly a shortcut. Step safety 0.113 → 0.053 ± 0.023 (50 pairs; same answer 89%): a shortcut,
+confirming the user's finding at scale. Sarcasm: only 7 pairs passed the minimal-change check, too few to judge (rule 2). These become the
+rule-7 baselines in NOISE.md. Next: the E23 rethink (rule 6) targets refund and step safety with minimal-pair training data.
 

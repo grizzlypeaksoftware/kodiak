@@ -18,6 +18,8 @@ Kodiak is an open, encoder-only decision model by Cortex Agent LLC (owner: Shane
 4. Write the predicted effect size and its evidence before any GPU time.
 5. Zero-training check first: answer what you can by evaluating models that already exist.
 6. At most 2 attempts per open problem; after 2 misses, step back and rethink with Shane.
+7. No shortcut-blind tests (D67): every synthetic skill eval includes contrastive pairs (same input, different answer from one detail), and
+   every experiment guards the wording flip rate. A test a keyword rule can pass doesn't count as evidence of a skill.
 
 ## After a result
 Append the row to docs/EXPERIMENTS.md (verdict keep / kill / park), record the decision in docs/DECISIONS.md, and update the dashboard
