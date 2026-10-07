@@ -74,6 +74,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D67 | 2026-10-06 | Shortcut findings from outside feedback: step safety is keyword-level (6/12 on same-step pairs); word-matching shortcut comes from public intent data, not our generators; rule 7 (contrastive tests + flip-rate guard) | active |
 | D68 | 2026-10-06 | Rule 6 becomes a time box per problem (Shane sets days) plus both outcomes written before each run; proposal log (rule 8) | active |
 | D69 | 2026-10-06 | Release audit (scripts/audit.py): six checks per decision kind on every release candidate; v0.3 findings | active |
+| D70 | 2026-10-07 | Hedge-word cues in contrast groups (outside feedback): step-safety gain is partly 'but' → ask first; refund gain is real | active |
 
 ---
 
@@ -792,4 +793,19 @@ skill: long-answer hallucination (~87% one answer; the model barely reads the in
 sarcasm and stance (a word-counter scores 1.00). Stance has a real-data check (+0.37); sarcasm has none. (e) Red team: fooled on
 long-answer hallucination 47%, refund 42%, policy 39%, step safety 30%, pairwise 23%, stance 11%, sarcasm 5%. Policy violation and claims
 come out clean on everything else. These are the next fixes to choose from; none are acted on yet.
+
+### D70: the contrast groups carry hedge-word cues (outside feedback, before E23's verdict)
+**Feedback (the same Hugging Face user, reproducing our E23 baseline exactly: 93 / 84 / 93 of 298).** A reader that sees only the words that
+differ between the two versions of a contrastive pair gets 48 of 100 step-safety pairs on contrastive v0.2 (v0.3: 33 / 32 / 26): "but" is
+gold "confirm" on 45 of 48 sides, "if" 15 of 15, "before" 12 of 12; "never" is the gold answer on only 7 of 200 sides. Refund v0.2 is a real
+fix of v0.1's number-only pairs; pooled, the reader gets 0.403 against our 0.452 keep line. Risk raised: contrast groups train the same shape.
+**Checked here (scripts/diff_reader.py).** (1) Our version of the reader gets 72 of 100 on v0.2 step safety (12 of 50 on v0.1; refund 53 of 98
+and 21 of 50). (2) The training groups have the cue: "but" appears only in the "ask first" version 98% of the time (1,063 groups), "before"
+93%, "wants" 86%; a reader on each version's unique words scores 0.87 (step safety) and 0.92 (refund) on the training data (majority 0.38).
+(3) Where E23's gain comes from (seeds 0 and 1 vs v0.3's three): step safety v0.2, pairs the cue reader solves 0.36 → 0.73, pairs it
+can't 0.15 → 0.27; v0.1, 0.11 → 0.58 (12 pairs) and 0.04 → 0.32 (38 pairs). Refund v0.2: 0.58 → 0.69 and 0.34 → 0.60; v0.1: 0.11 → 0.31 and
+0.30 → 0.71. **So refund is a real fix (it gains most where cue words don't help); step safety has a real but smaller gain, and much of its
+headline gain is hedge words.** E23's pre-set verdict stands as written; this breakdown is reported next to it, and the model cards must not
+call step safety fixed. Next: groups whose versions share their connective words, a diff-reader line on every pilot and contrastive test, and
+a contrastive test with "never" balanced.
 

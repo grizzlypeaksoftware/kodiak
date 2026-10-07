@@ -932,6 +932,10 @@
   {
    "date": "2026-10-06",
    "text": "Release audit (D69) on v0.3: confirms step safety ignores the task (4%) with no new data; finds pairwise position bias (26%), tool list ignored (4%), three synthetic tests too weak. Red team $0.12."
+  },
+  {
+   "date": "2026-10-06",
+   "text": "Contrast-group batch done: $8.46, 6,889 step-safety + 9,449 refund examples (E23 uses 2,500 each; rest banked)."
   }
  ],
  "published": [
@@ -1056,17 +1060,8 @@
  ],
  "queue": [
   {
-   "name": "E23: contrast-group batch (5,000 groups per kind, $10 cap)",
-   "why": "Pilot passed: word-counter on one field fell to 0.31-0.58 (E22 data at the same size: 0.76-0.91); pilot $0.10. Expect ~7k step-safety + ~10k refund examples, ~$8; E23 uses 2,500 each, rest banked.",
-   "after": "now",
-   "script": "build_groups.py",
-   "log": "runs/groups-batch.log",
-   "done_marker": "GROUPS_BATCH_DONE",
-   "running_when_alive": true
-  },
-  {
    "name": "E23 training: 3 seeds (seed 1 first)",
-   "why": "Approved 2026-10-06. Waiting for 2,500 contrast-group examples per kind, then seed 1 (~5 h) → stop rule → seeds 0 and 2 (~10 h). Keep line: pooled pair accuracy ≥ 0.452 (v0.3 0.302).",
+   "why": "Seed 1: contrastive pair accuracy 0.282 → 0.577 (keep line 0.452), all guards ok. Seeds 0 and 2 running (~10 h). Verdict on 3-seed means.",
    "after": "now",
    "script": "e23_run.sh",
    "log": "runs/e23-run.log",
@@ -1280,64 +1275,77 @@
     },
     {
      "name": "Batch: 2,500 examples per kind",
-     "status": "in_progress",
-     "note": "training starts automatically when reached; rest banked ($10 cap)"
+     "status": "done",
+     "note": "2,500 per kind reached 19:51; batch keeps banking"
     },
     {
      "name": "Seed 1 (smoke at step 500, stop rule)",
-     "status": "todo",
-     "note": ""
+     "status": "done",
+     "note": "pair accuracy 0.577 (v0.3 seed 1: 0.282); every guard ok; continue"
     },
     {
      "name": "Seeds 0 and 2, verdict",
-     "status": "todo",
-     "note": ""
+     "status": "in_progress",
+     "note": "seed 0: 0.560 (done 04:42); seed 2 training"
     }
    ],
    "bar": [
     {
      "metric": "Contrastive pair accuracy, step safety + refund (298 pairs)",
      "baseline": "0.302",
-     "target": "≥ 0.452"
+     "target": "≥ 0.452",
+     "result": "seed 1: 0.577 · seed 0: 0.560"
     },
     {
      "metric": "Never-seen forced",
      "baseline": "0.687",
-     "target": "≥ 0.666"
+     "target": "≥ 0.666",
+     "result": "seed 1: 0.683"
     },
     {
      "metric": "Familiar",
      "baseline": "0.879",
-     "target": "≥ 0.868"
+     "target": "≥ 0.868",
+     "result": "seed 1: 0.873"
     },
     {
      "metric": "Abstain precision",
      "baseline": "0.931",
-     "target": "≥ 0.855"
+     "target": "≥ 0.855",
+     "result": "seed 1: 0.952"
     },
     {
      "metric": "Real-anchor score",
      "baseline": "0.358",
-     "target": "≥ 0.303"
+     "target": "≥ 0.303",
+     "result": "seed 1: 0.354"
     },
     {
      "metric": "Wording-trap eval",
      "baseline": "0.900",
-     "target": "≥ 0.860"
+     "target": "≥ 0.860",
+     "result": "seed 1: 0.920"
     },
     {
      "metric": "Flip rate (shortcut guard)",
      "baseline": "0.327",
-     "target": "≤ 0.372"
+     "target": "≤ 0.372",
+     "result": "seed 1: 0.317"
     },
     {
      "metric": "Policy contrastive pairs (shortcut guard)",
      "baseline": "0.567",
-     "target": "≥ 0.499"
+     "target": "≥ 0.499",
+     "result": "seed 1: 0.700"
     }
    ]
   },
   "ideas": [
+   {
+    "name": "📌 Hedge-word shortcut in contrast groups (outside feedback, D70)",
+    "status": "confirmed for step safety; refund is a real fix",
+    "why": "Diff reader (changed words only): 'but' marks 'ask first' in 98% of training groups. E23's step-safety gain is mostly on pairs cue words can solve (v0.2: 0.36 → 0.73) vs 0.15 → 0.27 on the rest; refund gains more on the pairs cue words can't solve (0.34 → 0.60). Fix next: cue-balanced groups + a diff-reader check on pilots and tests; contrastive v0.3 with 'never' balanced (now 7 of 200 sides)."
+   },
    {
     "name": "Release audit findings (v0.3) to fix next",
     "status": "new (D69): reports/audit-v03.md",
@@ -1557,6 +1565,13 @@
     "what": "Release audit (6-question report card per release)",
     "accepted": true,
     "outcome": "built and run on v0.3 (D69); $0.12 red team",
+    "days": 0
+   },
+   {
+    "date": "2026-10-07",
+    "what": "Diff reader check on E23 after outside feedback",
+    "accepted": null,
+    "outcome": "done: step safety partly hedge words, refund real (D70)",
     "days": 0
    }
   ]
