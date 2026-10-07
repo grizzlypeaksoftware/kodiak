@@ -11,7 +11,7 @@ import subprocess
 import sys
 from collections import defaultdict
 
-KEEP, BASE_S1, BASE_MEAN, REFUND_LINE, REFUND_LINE1 = 9, 9, 9, 0.510, 0.459  # filled from the E23 baseline before the run (see the proposal)
+KEEP, BASE_S1, BASE_MEAN, REFUND_LINE, REFUND_LINE1 = 0.443, 0.396, 0.363, 0.510, 0.459  # filled from the E23 baseline before the run (see the proposal)
 # name, (slice, key) in the eval report or None, 3-seed line, single-run line, higher is better
 GUARDS = [("never-seen forced", ("eval:heldout", "forced_accuracy"), 0.677, 0.671, True),
           ("familiar", ("eval:indomain", "accuracy"), 0.862, 0.853, True),

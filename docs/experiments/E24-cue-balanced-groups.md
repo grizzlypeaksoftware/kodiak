@@ -30,7 +30,11 @@ reader falls 0.80 → 0.51 at the same size (majority 0.40); step safety's stays
   every answer pair (including "never") attempted and capped equally, then filtered to the pairs a changed-words reader trained on our
   training groups gets wrong (scripts/filter_cue_hard.py). Never trained on. Reported, not gating: each kind; contrastive v0.1 / v0.2
   (125 of their 298 pairs are cue-solvable, so a drop there can mean the shortcut is gone).
-- Baseline: E23 (3 seeds) on contrastive v0.3: BASELINE_TBD. Keep line: 3-seed mean ≥ BASELINE + 0.08.
+- Baseline: (measured 2026-10-07, before training) contrastive v0.3 has 182 cue-hard pairs (step safety 54, refund 128; built from 302
+  checked pairs, $2.07; "never" is 17 of 108 step-safety sides: better than v0.2's 7 of 200, not balanced, because the checker rarely
+  agrees on "never"). E23 seeds 0 / 1 / 2: 0.330 / 0.396 / 0.363, **mean 0.363, SD 0.033** (step safety 0.241 / 0.426 / 0.315; refund
+  0.367 / 0.383 / 0.383). v0.3 for reference: 0.231. Keep line: 3-seed mean **≥ 0.443** (+0.08, about 4 standard errors of a 3-seed mean).
+  Step safety alone (54 pairs) is reported, not gating.
 - Smoke test (≤ 500 steps): kill if validation choice accuracy is more than 0.02 behind the E23 run of the same seed at step 500
 - Full run: keep only if the 3-seed mean meets the keep line; guards on 3-seed means, E23 lines from docs/NOISE.md: never-seen forced
   ≥ 0.677, familiar ≥ 0.862, abstain precision ≥ 0.891, real-anchor score ≥ 0.345, wording-trap eval ≥ 0.880
