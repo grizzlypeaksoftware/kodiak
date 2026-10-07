@@ -75,6 +75,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D68 | 2026-10-06 | Rule 6 becomes a time box per problem (Shane sets days) plus both outcomes written before each run; proposal log (rule 8) | active |
 | D69 | 2026-10-06 | Release audit (scripts/audit.py): six checks per decision kind on every release candidate; v0.3 findings | active |
 | D70 | 2026-10-07 | Hedge-word cues in contrast groups (outside feedback): step-safety gain is partly 'but' → ask first; refund gain is real | active |
+| D71 | 2026-10-07 | E23 KEEP on 3-seed means: contrastive pair accuracy 0.302 → 0.566, all guards hold; refund a real fix, step safety partly hedge words (D70) | active |
 
 ---
 
@@ -808,4 +809,17 @@ can't 0.15 → 0.27; v0.1, 0.11 → 0.58 (12 pairs) and 0.04 → 0.32 (38 pairs)
 headline gain is hedge words.** E23's pre-set verdict stands as written; this breakdown is reported next to it, and the model cards must not
 call step safety fixed. Next: groups whose versions share their connective words, a diff-reader line on every pilot and contrastive test, and
 a contrastive test with "never" balanced.
+
+### D71: E23 keep: contrast groups make refund read the request; step safety improves, partly through hedge words
+**Result (3 seeds, lines set before the run; reports/e23-xl-groups.md).** Contrastive pair accuracy (step safety + refund, both tests, 298
+pairs) 0.560 / 0.577 / 0.560 → **0.566** (v0.3 0.302; keep line 0.452). Every guard holds and several improve slightly: never-seen 0.691
+(0.687), familiar 0.878, abstain precision 0.933, real-anchor 0.366 (0.358), wording-trap test 0.920 (0.900), flip rate 0.320 (0.327),
+policy-violation pairs 0.644 (0.567). Dropping the task now changes 36% of step-safety answers (v0.3: 4%; seed 1). Cost $8.46 for the batch
+(6,889 step-safety and 9,449 refund examples; 2,500 each used), ~$1.18 for tests and the pilot.
+**Caveat (D70).** Split by whether a changed-words reader can solve the pair: refund gains most where it can't (v0.2 test 0.34 → 0.60; v0.1
+0.30 → 0.63), so refund is a real fix. Step safety gains much more where it can (0.36 → 0.75; 0.11 → 0.61) than where it can't (0.15 → 0.29;
+0.04 → 0.28): a real but smaller gain, plus hedge words ("but" → ask first). **Decision: keep** by the pre-set rule; E23 is the v0.4
+candidate recipe. Release wording must say refund improved on contrastive tests and step safety improved partly, still not a safety control.
+Next on this problem: cue-balanced groups (versions share their connective words), a diff-reader line on pilots and tests, and a step-safety
+test with "never" balanced. Shane decides whether to release v0.4 now or after that fix.
 

@@ -936,6 +936,10 @@
   {
    "date": "2026-10-06",
    "text": "Contrast-group batch done: $8.46, 6,889 step-safety + 9,449 refund examples (E23 uses 2,500 each; rest banked)."
+  },
+  {
+   "date": "2026-10-07",
+   "text": "E23 KEEP (D71): contrastive pair accuracy 0.302 → 0.566 over 3 seeds; all guards hold (never-seen 0.691). Refund a real fix; step safety partly hedge words (D70)."
   }
  ],
  "published": [
@@ -1060,13 +1064,9 @@
  ],
  "queue": [
   {
-   "name": "E23 training: 3 seeds (seed 1 first)",
-   "why": "Seed 1: contrastive pair accuracy 0.282 → 0.577 (keep line 0.452), all guards ok. Seeds 0 and 2 running (~10 h). Verdict on 3-seed means.",
-   "after": "now",
-   "script": "e23_run.sh",
-   "log": "runs/e23-run.log",
-   "done_marker": "E23 COMPLETE",
-   "running_marker": "=== training"
+   "name": "Shane: release v0.4 from E23 now, or after the hedge-word fix?",
+   "why": "E23 KEEP (D71): contrastive pairs 0.302 → 0.566, all guards hold, never-seen 0.691. Refund is a real fix; step safety partly hedge words (D70).",
+   "after": "Shane decides"
   },
   {
    "name": "Publish the v0.3 announcement + X / HF posts",
@@ -1101,7 +1101,7 @@
    "name": "E23: contrast groups for step safety + refund",
    "why": "No single field gives the answer away (D67)",
    "report": "e23-xl-groups",
-   "decision": "running"
+   "decision": "D71: KEEP. Contrastive pairs 0.302 → 0.566 (3 seeds); all guards hold; step-safety gain partly hedge words (D70)"
   },
   {
    "match": "-e22-",
@@ -1285,8 +1285,13 @@
     },
     {
      "name": "Seeds 0 and 2, verdict",
-     "status": "in_progress",
-     "note": "seed 0: 0.560 (done 04:42); seed 2 training"
+     "status": "done",
+     "note": "KEEP: 0.560 / 0.577 / 0.560 → 0.566; all guards ok (D71)"
+    },
+    {
+     "name": "Outside critique: hedge-word cues (D70)",
+     "status": "done",
+     "note": "refund real; step safety partly 'but' → ask first"
     }
    ],
    "bar": [
@@ -1294,49 +1299,49 @@
      "metric": "Contrastive pair accuracy, step safety + refund (298 pairs)",
      "baseline": "0.302",
      "target": "≥ 0.452",
-     "result": "seed 1: 0.577 · seed 0: 0.560"
+     "result": "0.566 ✓"
     },
     {
      "metric": "Never-seen forced",
      "baseline": "0.687",
      "target": "≥ 0.666",
-     "result": "seed 1: 0.683"
+     "result": "0.691 ✓"
     },
     {
      "metric": "Familiar",
      "baseline": "0.879",
      "target": "≥ 0.868",
-     "result": "seed 1: 0.873"
+     "result": "0.878 ✓"
     },
     {
      "metric": "Abstain precision",
      "baseline": "0.931",
      "target": "≥ 0.855",
-     "result": "seed 1: 0.952"
+     "result": "0.933 ✓"
     },
     {
      "metric": "Real-anchor score",
      "baseline": "0.358",
      "target": "≥ 0.303",
-     "result": "seed 1: 0.354"
+     "result": "0.366 ✓"
     },
     {
      "metric": "Wording-trap eval",
      "baseline": "0.900",
      "target": "≥ 0.860",
-     "result": "seed 1: 0.920"
+     "result": "0.920 ✓"
     },
     {
      "metric": "Flip rate (shortcut guard)",
      "baseline": "0.327",
      "target": "≤ 0.372",
-     "result": "seed 1: 0.317"
+     "result": "0.320 ✓"
     },
     {
      "metric": "Policy contrastive pairs (shortcut guard)",
      "baseline": "0.567",
      "target": "≥ 0.499",
-     "result": "seed 1: 0.700"
+     "result": "0.644 ✓"
     }
    ]
   },
@@ -1465,7 +1470,7 @@
     "opened": "2026-10-06",
     "days": null,
     "status": "open",
-    "note": "E23 running. Proposed box: 3 days (Shane sets it)."
+    "note": "E23 kept (D71): refund fixed; step safety improved, partly via hedge words (D70). Proposed box: 3 days (Shane sets it)."
    },
    {
     "name": "Wording trap (reworded options flip answers)",
@@ -1550,8 +1555,8 @@
     "date": "2026-10-06",
     "what": "E23: contrast groups for step safety + refund",
     "accepted": true,
-    "outcome": "running",
-    "days": null
+    "outcome": "keep (D71); step safety partly hedge words (D70)",
+    "days": 1
    },
    {
     "date": "2026-10-06",
@@ -1836,10 +1841,10 @@
   {
    "kind": "Refund / return eligibility under a stated policy",
    "group": "guardrails",
-   "status": "trained, mostly shortcut (D67)",
+   "status": "trained, contrast groups (D71)",
    "since": "E22 (v0.3 candidate)",
    "source": "E22 skills-3 generator (2.5k)",
-   "evidence": "contrastive pair acc 0.220 (50 pairs, 3 seeds; v0.2 0.107)"
+   "evidence": "contrastive pair acc 0.220 → E23 0.507 (v0.1), 0.470 → 0.646 (v0.2); gains hold on cue-free pairs"
   },
   {
    "kind": "Contract clause type",
@@ -1956,10 +1961,10 @@
   {
    "kind": "Agent plan: is the next step safe to auto-run",
    "group": "agents",
-   "status": "trained, shortcut (D67)",
+   "status": "trained, partly shortcut (D71)",
    "since": "E22 (v0.3 candidate)",
    "source": "E22 skills-3 generator (2.5k)",
-   "evidence": "contrastive pair acc 0.053 (50 pairs, 3 seeds); same answer to both versions 89%"
+   "evidence": "contrastive 0.053 → 0.36 (v0.1), 0.303 → 0.62 (v0.2); much of the gain is hedge words (D70)"
   }
  ]
 }
