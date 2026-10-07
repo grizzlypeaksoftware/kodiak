@@ -73,6 +73,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D66 | 2026-10-06 | E22 (skills batch 3) KEEP on 3-seed means: real-anchor 0.211 → 0.358, all five noise-based guards hold; v0.3 candidate | active |
 | D67 | 2026-10-06 | Shortcut findings from outside feedback: step safety is keyword-level (6/12 on same-step pairs); word-matching shortcut comes from public intent data, not our generators; rule 7 (contrastive tests + flip-rate guard) | active |
 | D68 | 2026-10-06 | Rule 6 becomes a time box per problem (Shane sets days) plus both outcomes written before each run; proposal log (rule 8) | active |
+| D69 | 2026-10-06 | Release audit (scripts/audit.py): six checks per decision kind on every release candidate; v0.3 findings | active |
 
 ---
 
@@ -776,4 +777,19 @@ writes "If it passes" and "If it fails" before the run; a fail branch of "try a 
 these from E24 (E22-E23 keep the attempt line). (2) Rule 8: every proposal Claude makes is logged (research → proposal_log: date, what,
 taken or not, outcome, days) and read before the next proposal, so loops (several small tweaks killed in a row) show up. Seeded with
 E15-E23 and this session's proposals. The idea of learning from an accept/reject log came from Shane's conversation with Grok.
+
+### D69: a release audit, and what it found on v0.3
+**Why.** Our skill tests come from the same generator as the training data, so they share its blind spots (D67). Shane asked how to catch
+flaws in general before users do. **Built.** scripts/audit.py runs six checks per decision kind on a release candidate: (1) drop each field
+and count how often the answer changes; (2) contrastive pairs; (3) meaningless changes (reversed option order, an unrelated sentence, pairwise
+answers swapped); (4) the most confident mistakes, to read; (5) a word-counter trained on our training data, against each synthetic test;
+(6) a red team (DeepSeek writes items meant to fool a shallow model, gpt-oss confirms the answer). Report: reports/audit-v03.md (seed-1
+release checkpoint; red team $0.12, 15-22 checked items per kind, report only).
+**Findings on Kodiak-v0.3-1B.** (a) It confirms the user's step-safety finding with no new data: dropping the task changes 4% of answers
+(the next step: 66%). (b) Pairwise judge has a position bias on real MT-Bench items: swapping the two answers moves 26% of verdicts
+(synthetic: 10%). (c) Tool choice barely reads the tool list (dropping it changes 4%). (d) Three synthetic tests are too weak to show a
+skill: long-answer hallucination (~87% one answer; the model barely reads the inputs there, 6%, while on real RAGBench it does, 48-53%),
+sarcasm and stance (a word-counter scores 1.00). Stance has a real-data check (+0.37); sarcasm has none. (e) Red team: fooled on
+long-answer hallucination 47%, refund 42%, policy 39%, step safety 30%, pairwise 23%, stance 11%, sarcasm 5%. Policy violation and claims
+come out clean on everything else. These are the next fixes to choose from; none are acted on yet.
 

@@ -928,6 +928,10 @@
   {
    "date": "2026-10-06",
    "text": "D68: rule 6 is now a time box per problem plus both outcomes written before each run; proposal log on the Research tab."
+  },
+  {
+   "date": "2026-10-06",
+   "text": "Release audit (D69) on v0.3: confirms step safety ignores the task (4%) with no new data; finds pairwise position bias (26%), tool list ignored (4%), three synthetic tests too weak. Red team $0.12."
   }
  ],
  "published": [
@@ -1335,6 +1339,11 @@
   },
   "ideas": [
    {
+    "name": "Release audit findings (v0.3) to fix next",
+    "status": "new (D69): reports/audit-v03.md",
+    "why": "Pairwise judge position bias on real data (26% of answers move when answers swap); tools ignores the tool list (4%); long-hallucination synthetic test is ~87% one answer (useless); sarcasm and stance synthetic tests passable by a word-counter (1.00); red team fools long-hallucination 47%, refund 42%, policy 39%"
+   },
+   {
     "name": "Word-counter shortcut check before every batch and test",
     "status": "built (scripts/shortcut_check.py); propose as a standing rule",
     "why": "free, seconds; it flags step safety and refund (0.92-0.98) and passes policy (0.64), matching the contrastive results"
@@ -1439,7 +1448,8 @@
    "roadmap": "skills-roadmap-screening",
    "E20": "e20-xl-consistency",
    "E21": "e21-xl-skills2-3seeds",
-   "E22": "e22-xl-skills3"
+   "E22": "e22-xl-skills3",
+   "audit-v03": "audit-v03"
   },
   "problems": [
    {
@@ -1545,9 +1555,9 @@
    {
     "date": "2026-10-06",
     "what": "Release audit (6-question report card per release)",
-    "accepted": null,
-    "outcome": "Shane asked what it's for",
-    "days": null
+    "accepted": true,
+    "outcome": "built and run on v0.3 (D69); $0.12 red team",
+    "days": 0
    }
   ]
  },
@@ -1686,7 +1696,7 @@
    "status": "trained",
    "since": "E22 (v0.3 candidate)",
    "source": "E21/E22 skills-2 generator (2.5k)",
-   "evidence": "MT-Bench human judgments +0.06 → +0.30 (3 seeds)"
+   "evidence": "MT-Bench human judgments +0.06 → +0.30 (3 seeds); audit: position bias on real data (swap moves 26%)"
   },
   {
    "kind": "Sarcasm",
