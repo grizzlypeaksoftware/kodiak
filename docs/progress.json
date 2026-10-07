@@ -916,6 +916,14 @@
   {
    "date": "2026-10-06",
    "text": "Word-counter check: a bag-of-words model reading one field passes our step-safety (0.94) and refund (0.95) tests; contrastive pairs catch it (pair acc ~0). New free pre-batch check: scripts/shortcut_check.py."
+  },
+  {
+   "date": "2026-10-06",
+   "text": "E23 pilot passed ($0.10): contrast groups drop the one-field word-counter from 0.76-0.91 to 0.31-0.58."
+  },
+  {
+   "date": "2026-10-06",
+   "text": "Contrastive test v0.2 (DeepSeek-written, 198 pairs, $0.54). v0.3 baseline for E23, both tests pooled: pair accuracy 0.302 ± 0.017 (3 seeds)."
   }
  ],
  "published": [
@@ -1040,9 +1048,18 @@
  ],
  "queue": [
   {
-   "name": "E23 rethink with Shane (rule 6)",
-   "why": "Why the shortcuts slipped through: a word-counter (bag-of-words, trained in seconds) reading ONLY the next step predicts step-safety labels 0.92 of the time and passes our skills test at 0.94; refund 0.95-0.98. Policy violation, the kind that held up, is 0.64. Plan: minimal-pair training data for step safety + refund, pilot must push the word-counter toward chance before any batch is bought. scripts/shortcut_check.py",
-   "after": "Shane picks"
+   "name": "E23: contrast-group batch (5,000 groups per kind, $10 cap)",
+   "why": "Pilot passed: word-counter on one field fell to 0.31-0.58 (E22 data at the same size: 0.76-0.91); pilot $0.10. Expect ~7k step-safety + ~10k refund examples, ~$8; E23 uses 2,500 each, rest banked.",
+   "after": "now",
+   "script": "build_groups.py",
+   "log": "runs/groups-batch.log",
+   "done_marker": "GROUPS_BATCH_DONE",
+   "running_when_alive": true
+  },
+  {
+   "name": "E23 full run (3 seeds, ~15 GPU-h): needs \"Approved: Shane\"",
+   "why": "Proposal: docs/experiments/E23-contrast-groups.md (gate OK; scripts/e23_run.sh ready, verdict script checked on v0.3). Target: contrastive pair accuracy, step safety + refund, both tests pooled (298 pairs): v0.3 0.302 ± 0.017, keep ≥ 0.452. Starts as soon as the batch has 2,500 examples per kind (~45 min).",
+   "after": "Shane approves"
   },
   {
    "name": "Publish the v0.3 announcement + X / HF posts",

@@ -4,6 +4,8 @@ the product in the request) gets at most one of the two right. Writer + blind ch
 trained on. Metric: pair accuracy (both versions right) and item accuracy.
 
     uv run python scripts/build_contrastive_eval.py --pairs 70   # -> data/eval/kodiak-contrastive-v0.1.jsonl
+v0.2 (E23): the writer and checker swap (DeepSeek-V3.2 writes, gpt-oss-120b checks), so the test doesn't share the training writer's style:
+    uv run python scripts/build_contrastive_eval.py --version v0.2 --kinds step_safety,refund_eligibility --pairs 400
 """
 import argparse
 import difflib
@@ -48,36 +50,40 @@ def example(kind, fields, label, pair_id, side):
     spec = KINDS[kind]
     q = {"type": "choice", "id": "decision", "text": spec["question"], "labels": [{"id": k, "text": t} for k, t in spec["labels"].items()]}
     return {"state": fields, "questions": [q], "answers": {"decision": {"label": label}},
-            "meta": {"source": "kodiak_contrastive", "split": "test", "license": "Apache-2.0", "teacher": f"{WRITER} (checked by {CHECKER})",
+            "meta": {"source": "kodiak_contrastive" + ("" if VERSION == "v0.1" else f"_{VERSION}"), "split": "test", "license": "Apache-2.0", "teacher": f"{WRITER} (checked by {CHECKER})",
                      "tags": ["eval:contrastive", f"probe:{kind}", f"pair:{pair_id}", f"side:{side}"]}}
 
 
 def job(kind, i):
-    rng = random.Random(f"contrastive:61:{kind}:{i}")
+    rng = random.Random(f"contrastive:{SEED}:{kind}:{i}")
     la, lb = rng.choice(list(itertools.permutations(KINDS[kind]["labels"], 2)))
     rec = {"kind": kind, "job": i, "writer": WRITER, "verifier": CHECKER, "status": "error"}
     try:
         g = synth.teacher(prompt(kind, la, lb), schema(kind), 0.9, WRITER, 1500)
         rec.update(gen_tokens=g["tokens"], gen_prompt_tokens=g.get("prompt_tokens"))
-        norm = lambda d: {k: ("\n".join(map(str, v)) if isinstance(v, list) else str(v)) for k, v in d.items()}
+        norm = lambda d: {k: ("\n".join(map(str, v)) if isinstance(v, list) else str(v)) for k, v in d.items() if k in KINDS[kind]["fields"]}
         a, b = norm(g["content"]["a"]), norm(g["content"]["b"])
+        a, b = ({k: " ".join(x.split()) for k, x in d.items()} for d in (a, b))  # ignore whitespace-only differences
         v = VARY[kind]
         if any(a[k].strip() != b[k].strip() for k in a if k != v) or a[v].strip() == b[v].strip():
-            rec["status"] = "not_minimal"  # other fields must match exactly and the varied field must differ
+            diff = {k: [a[k][:300], b[k][:300]] for k in a if k != v and a[k].strip() != b[k].strip()}
+            rec.update(status="not_minimal", why="other fields differ or varied field equal", diff=diff)  # other fields must match exactly and the varied field must differ
             return rec
-        if difflib.SequenceMatcher(None, a[v], b[v]).ratio() < (0.45 if kind == "sarcasm" else 0.6):
-            rec["status"] = "not_minimal"  # the varied field changed too much
+        ratio = difflib.SequenceMatcher(None, a[v], b[v]).ratio()
+        if ratio < (0.45 if kind == "sarcasm" else 0.6):
+            rec.update(status="not_minimal", why=f"ratio {ratio:.2f}")  # the varied field changed too much
             return rec
         pid = f"{kind}-{i}"
         exs = [example(kind, a, la, pid, "a"), example(kind, b, lb, pid, "b")]
         vt, vp = 0, 0
         for ex in exs:
             q = ex["questions"]
-            r = synth.teacher(verify_prompt(render_state(ex["state"]), q), synth.verify_schema(q), 0.0, CHECKER, 600)
+            r = synth.teacher(verify_prompt(render_state(ex["state"]), q), synth.verify_schema(q), 0.0, CHECKER, CHECK_TOKENS)
             vt += r["tokens"]
             vp += r.get("prompt_tokens") or 0
-            if (synth.parse_verdict(q[0], r["content"].get("decision")) or {}).get("label") != ex["answers"]["decision"]["label"]:
-                rec.update(status="checker_disagrees", verify_tokens=vt, verify_prompt_tokens=vp)
+            got = synth.parse_verdict(q[0], r["content"].get("decision"))
+            if (got or {}).get("label") != ex["answers"]["decision"]["label"]:
+                rec.update(status="checker_disagrees", why={"side": ex["meta"]["tags"][-1], "want": ex["answers"]["decision"]["label"], "got": got, "raw": str(r["content"])[:200]}, verify_tokens=vt, verify_prompt_tokens=vp)
                 return rec
         rec.update(status="ok", examples=exs, verify_tokens=vt, verify_prompt_tokens=vp)
     except OSError as e:
@@ -91,8 +97,13 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--pairs", type=int, default=70)
 ap.add_argument("--kinds", default=",".join(VARY))
 ap.add_argument("--start", type=int, default=0)
+ap.add_argument("--version", default="v0.1", choices=["v0.1", "v0.2"])
+ap.add_argument("--per-kind", type=int, default=50)
 a = ap.parse_args()
-raw = Path("data/eval/contrastive_raw.jsonl")
+SEED, VERSION, CHECK_TOKENS = 61, a.version, 600
+if a.version == "v0.2":
+    WRITER, CHECKER, SEED, CHECK_TOKENS = "do:deepseek-3.2", "do:openai-gpt-oss-120b", 62, 1500  # gpt-oss reasons first
+raw = Path("data/eval/contrastive_raw.jsonl" if a.version == "v0.1" else f"data/eval/contrastive_raw_{a.version}.jsonl")
 recs = [json.loads(l) for l in raw.open()] if raw.exists() else []
 for attempt in range(3):
     done = {(r["kind"], r["job"]) for r in recs if r["status"] != "retry"}
@@ -103,9 +114,9 @@ for attempt in range(3):
         recs = [r for r in recs if r["status"] != "retry"] + list(ex.map(lambda t: job(*t), todo))
 raw.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in recs) + "\n")
 n = Counter()
-with open("data/eval/kodiak-contrastive-v0.1.jsonl", "w") as f:
+with open(f"data/eval/kodiak-contrastive-{a.version}.jsonl", "w") as f:
     for r in sorted(recs, key=lambda r: (r["kind"], r["job"])):
-        if r["status"] == "ok" and n[r["kind"]] < 50:
+        if r["status"] == "ok" and n[r["kind"]] < a.per_kind:
             for ex in r["examples"]:
                 f.write(json.dumps(ex, ensure_ascii=False) + "\n")
             n[r["kind"]] += 1
