@@ -57,3 +57,12 @@ their connective or hedge words is dropped). Same count, backbone, steps, learni
 
 ## Approval
 Approved: Shane (2026-10-07, "approved")
+
+## Note written after seed 1, before seeds 0 and 2 (2026-10-07 23:30)
+Seed 1 clears the pooled line (0.505 vs 0.443), but the pooled metric is 70% refund (128 of 182 pairs), and the gain is all refund
+(cue-hard 0.383 → 0.594 vs E23 seed 1) while step safety, the failure this experiment targets, fell (0.426 → 0.296; 54 pairs). That is a
+flaw in how I set the kill line: pooling let the easier kind carry the verdict. The pre-set rule is kept as written (verdict on the pooled
+3-seed mean), and the step-safety number is reported beside it with equal weight in the write-up. If the 3-seed step-safety mean is not
+above E23's (0.327), E24 does not fix the problem it was built for, whatever the pooled verdict says, and the release wording follows
+the step-safety number. Lesson for future proposals: gate on the target kind alone, or weight kinds equally.
+

@@ -1081,12 +1081,21 @@
  "queue": [
   {
    "name": "E24 training: 3 seeds (seed 1 first)",
-   "why": "Approved 2026-10-07. Seed 1 started 18:51 (~5 h) → stop rule → seeds 0 and 2 (~10 h). Keep line: cue-hard pair accuracy ≥ 0.443 (E23 0.363).",
+   "why": "Seed 1: pooled cue-hard 0.505 (line 0.443), but the gain is refund (0.383 → 0.594); step safety fell 0.426 → 0.296. Seeds 0 and 2 running. Verdict on 3-seed means; step safety reported beside it.",
    "after": "now",
    "script": "e24_run.sh",
    "log": "runs/e24-run.log",
    "done_marker": "E24 COMPLETE",
    "running_marker": "=== training"
+  },
+  {
+   "name": "Model check: small LLMs zero-shot vs Kodiak (is the encoder the ceiling?)",
+   "why": "Paused 20:55 at 950 of 4,200: it slowed E24 training by 33% (23.3 → 15.6 steps/min). Restarts automatically when E24 finishes (then ~3 h). Qwen3-1.7B and 0.6B zero-shot vs Kodiak on never-seen + real-data tests.",
+   "after": "after E24",
+   "script": "after_e24.sh",
+   "log": "runs/model-check.log",
+   "done_marker": "MODEL_CHECK_DONE",
+   "running_marker": "MODEL_CHECK_START"
   },
   {
    "name": "Publish the v0.3 announcement + X / HF posts",
@@ -1307,60 +1316,69 @@
     },
     {
      "name": "Seed 1 (smoke, stop rule)",
-     "status": "in_progress",
-     "note": "started 18:51"
+     "status": "done",
+     "note": "pooled 0.505 (line 0.443) but all refund: refund 0.383 → 0.594, step safety 0.426 → 0.296 (seed 1 vs E23 seed 1)"
     },
     {
      "name": "Seeds 0 and 2, verdict",
-     "status": "pending",
-     "note": ""
+     "status": "in_progress",
+     "note": "seed 0 started 23:21"
     }
    ],
    "bar": [
     {
      "metric": "Cue-hard pair accuracy, step safety + refund (182 pairs)",
      "baseline": "0.363",
-     "target": "≥ 0.443"
+     "target": "≥ 0.443",
+     "result": "seed 1: 0.505"
     },
     {
      "metric": "Never-seen forced",
      "baseline": "0.691",
-     "target": "≥ 0.677"
+     "target": "≥ 0.677",
+     "result": "seed 1: 0.676"
     },
     {
      "metric": "Familiar",
      "baseline": "0.878",
-     "target": "≥ 0.862"
+     "target": "≥ 0.862",
+     "result": "seed 1: 0.873"
     },
     {
      "metric": "Abstain precision",
      "baseline": "0.933",
-     "target": "≥ 0.891"
+     "target": "≥ 0.891",
+     "result": "seed 1: 0.972"
     },
     {
      "metric": "Real-anchor score",
      "baseline": "0.366",
-     "target": "≥ 0.345"
+     "target": "≥ 0.345",
+     "result": "seed 1: 0.359"
     },
     {
      "metric": "Wording-trap eval",
      "baseline": "0.920",
-     "target": "≥ 0.880"
+     "target": "≥ 0.880",
+     "result": "seed 1: 0.880"
     },
     {
      "metric": "Flip rate (shortcut guard)",
      "baseline": "0.320",
-     "target": "≤ 0.352"
+     "target": "≤ 0.352",
+     "result": "seed 1: 0.327"
     },
     {
      "metric": "Policy contrastive pairs (shortcut guard)",
      "baseline": "0.644",
-     "target": "≥ 0.542"
+     "target": "≥ 0.542",
+     "result": "seed 1: 0.633"
     },
     {
      "metric": "Refund cue-free pairs (shortcut guard)",
      "baseline": "0.613",
-     "target": "≥ 0.510"
+     "target": "≥ 0.510",
+     "result": "seed 1: 0.757"
     }
    ]
   },
@@ -1603,6 +1621,13 @@
     "what": "Fix hedge words first (E24), then release v0.4; 3-day box",
     "accepted": true,
     "outcome": "E24 approved and running",
+    "days": null
+   },
+   {
+    "date": "2026-10-07",
+    "what": "Diagnose generalization: new-domain test, model check, task-variety curve",
+    "accepted": true,
+    "outcome": "Shane chose the model check first; running",
     "days": null
    }
   ]
