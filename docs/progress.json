@@ -964,6 +964,10 @@
   {
    "date": "2026-10-08",
    "text": "Model check (D74): on 3,550 never-seen questions Kodiak 0.676 vs untrained Qwen3-1.7B 0.572 and 0.6B 0.455; Kodiak also ahead on all four real-data tests."
+  },
+  {
+   "date": "2026-10-08",
+   "text": "v0.4 release candidate built: E24 seed 1 + accuracy mode; release audit run; cards drafted for Shane."
   }
  ],
  "published": [
@@ -1089,8 +1093,8 @@
  "queue": [
   {
    "name": "v0.4 release from E24 (Shane approves cards)",
-   "why": "E24 KEEP (D73): refund fixed (cue-hard 0.378 → 0.576), guards hold. Step safety parked: still not a safety control. Steps: pick seed by validation loss → release audit → cards → HF + demo. Before Friday shutdown.",
-   "after": "now"
+   "why": "Seed 1 picked by validation loss (0.018). Accuracy mode built (threshold 0.6 on validation). Release audit done (reports/audit-v04.md). Cards drafted: dist/kodiak-v0.4-1b/README.md and -accuracy. Waiting for Shane to approve the cards, then HF upload + demo.",
+   "after": "Shane approves cards"
   },
   {
    "name": "Publish the v0.3 announcement + X / HF posts",
