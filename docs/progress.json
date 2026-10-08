@@ -960,6 +960,10 @@
   {
    "date": "2026-10-08",
    "text": "E24 KEEP (D73): refund fixed (cue-hard pairs 0.378 → 0.576, 3 seeds), all guards hold. Step safety not fixed by synthetic data: parked. E24 = v0.4 candidate."
+  },
+  {
+   "date": "2026-10-08",
+   "text": "Model check (D74): on 3,550 never-seen questions Kodiak 0.676 vs untrained Qwen3-1.7B 0.572 and 0.6B 0.455; Kodiak also ahead on all four real-data tests."
   }
  ],
  "published": [
@@ -1087,15 +1091,6 @@
    "name": "v0.4 release from E24 (Shane approves cards)",
    "why": "E24 KEEP (D73): refund fixed (cue-hard 0.378 → 0.576), guards hold. Step safety parked: still not a safety control. Steps: pick seed by validation loss → release audit → cards → HF + demo. Before Friday shutdown.",
    "after": "now"
-  },
-  {
-   "name": "Model check: small LLMs zero-shot vs Kodiak (is the encoder the ceiling?)",
-   "why": "Paused 20:55 at 950 of 4,200: it slowed E24 training by 33% (23.3 → 15.6 steps/min). Restarts automatically when E24 finishes (then ~3 h). Qwen3-1.7B and 0.6B zero-shot vs Kodiak on never-seen + real-data tests.",
-   "after": "after E24",
-   "script": "after_e24.sh",
-   "log": "runs/model-check.log",
-   "done_marker": "MODEL_CHECK_DONE",
-   "running_marker": "MODEL_CHECK_START"
   },
   {
    "name": "Publish the v0.3 announcement + X / HF posts",
@@ -1384,6 +1379,11 @@
   },
   "ideas": [
    {
+    "name": "Next big question: task variety (FLAN-style) vs an LLM backbone",
+    "status": "after the break; D74",
+    "why": "Model check: untrained Qwen3-1.7B 0.572 vs Kodiak 0.676 on never-seen, so the encoder isn't the obvious ceiling. Next: a task-variety curve (15 / 30 / 100+ distinct tasks at the same example count), and maybe fine-tune a 1.7B LLM on our data as the definitive backbone test."
+   },
+   {
     "name": "📌 Hedge-word shortcut in contrast groups (outside feedback, D70)",
     "status": "confirmed for step safety; refund is a real fix",
     "why": "Diff reader (changed words only): 'but' marks 'ask first' in 98% of training groups. E23's step-safety gain is mostly on pairs cue words can solve (v0.2: 0.36 → 0.73) vs 0.15 → 0.27 on the rest; refund gains more on the pairs cue words can't solve (0.34 → 0.60). Fix next: cue-balanced groups + a diff-reader check on pilots and tests; contrastive v0.3 with 'never' balanced (now 7 of 200 sides)."
@@ -1627,8 +1627,8 @@
     "date": "2026-10-07",
     "what": "Diagnose generalization: new-domain test, model check, task-variety curve",
     "accepted": true,
-    "outcome": "Shane chose the model check first; running",
-    "days": null
+    "outcome": "model check done (D74): encoder not the obvious ceiling; data variety next",
+    "days": 1
    }
   ]
  },

@@ -78,6 +78,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D71 | 2026-10-07 | E23 KEEP on 3-seed means: contrastive pair accuracy 0.302 → 0.566, all guards hold; refund a real fix, step safety partly hedge words (D70) | active |
 | D72 | 2026-10-07 | Decision Index listing (v0.2 accuracy mode): full score 11.8, rank =96 of 115; public 19.1 matches our 18.69; private same-skill 15.5, new domains 0.9 | active |
 | D73 | 2026-10-08 | E24 KEEP by its pooled line (0.491), but only refund improved; step safety not fixed by synthetic data, parked; E24 is the v0.4 candidate | active |
+| D74 | 2026-10-08 | Model check: untrained small LLMs (Qwen3 1.7B / 0.6B) are well below Kodiak on never-seen and real-data tests; the encoder is not the obvious ceiling; data variety is the prime suspect | active |
 
 ---
 
@@ -857,4 +858,16 @@ drop is the hedge shortcut going away, as predicted). By the note written after 
 with synthetic contrast data (E23, E24) and its time box ends 2026-10-10, so it is **parked**; cards keep saying it is not a safety
 control. A real fix likely needs human-written or real agent traces (decided with Shane). **Lesson (kill-line design):** a pooled target
 let the easier kind carry the verdict; gate on the target kind alone, or weight kinds equally.
+
+### D74: model check: is the encoder the ceiling? Not obviously
+**Question (after D72).** Every small model above us on the Decision Index is a fine-tuned LLM. Would an LLM backbone generalize better?
+**Measured (free; reports/model-check.md, reports/model_check/).** Qwen3-1.7B and Qwen3-0.6B (Apache-2.0), zero-shot through Ollama with the
+same prompt as the Qwen3-8B baseline, against Kodiak seed-1 checkpoints on the identical 3,550 never-seen questions (eval v0.2):
+forced accuracy Kodiak v0.4 0.676, v0.3 0.674, **Qwen3-1.7B 0.572**, Qwen3-0.6B 0.455; calibration error 0.042 vs 0.340 / 0.468. On the newer
+never-seen tasks (heldout_v02, 2,800): 0.626 / 0.617 vs 0.518 / 0.439. Real data (same files): stance 0.578 (v0.3) vs 0.392; long-answer
+hallucination 0.690 vs 0.500; MT-Bench pairwise 0.540 vs 0.373; aspect sentiment 0.770 vs 0.710. (Qwen3-8B was 0.688 never-seen forced, D-earlier.)
+**Reading.** Kodiak beats untrained LLMs of its size by about 0.10 and is level with an untrained 8B. Zero-shot is a lower bound for an LLM, so
+this does not rule out that a *fine-tuned* small LLM would generalize better (the index's 0.8B-3B fine-tunes score 12-40). But nothing here
+says the encoder is the limit. The cheaper, likelier lever is data variety (about 30 task types, many near-duplicates; FLAN/T0 used hundreds
+to thousands). A definitive backbone test would fine-tune a ~1.7B LLM on Kodiak's own data: a bigger experiment, for Shane after the break.
 
