@@ -838,4 +838,11 @@ for an encoder with no LLM behind it.
 honest version of our never-seen metric, and we are near zero there. Shane's rule stands: no more index runs until the model is dialed in
 (2026-10-06). Standings aren't published by us without Shane's OK. Concrete lessons: sarcasm doesn't transfer to real tweets (mark it
 unverified, not trained-and-working), and real-data checks per kind matter more than synthetic ones.
+**Correction to D72 (2026-10-08, after the same Hugging Face user's note).** "Sarcasm below random" was the wrong reading. iSarcasmEval
+track A English is F1 on the sarcastic class; with about 1 tweet in 7 sarcastic, a signal-free model that says "yes" ~20-28% of the time
+lands near 0.19, below the 0.223 random line. Kodiak says "sarcastic" to 276 of 1,400 English tweets (19.7%; our run's raw outputs). Track C
+(pick the sarcastic tweet of a pair, no threshold) is 0.505 English and 0.465 Arabic, a coin flip. So: **no sarcasm signal on real tweets
+yet**, not "reads sarcasm backwards". Same caution for other below-baseline rows (7 of 42 clip to 0; HLE is below random for 108 of 114
+models). We have per-item calibrated outputs for the public suite (decision-index/runs/kodiak-v02-accuracy/results.jsonl, 150,759 requests);
+the private and new-domain tests come back as totals only.
 

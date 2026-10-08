@@ -1322,7 +1322,7 @@
     {
      "name": "Seeds 0 and 2, verdict",
      "status": "in_progress",
-     "note": "seed 0 started 23:21"
+     "note": "seed 0: pooled 0.527 (refund 0.625, step safety 0.296 vs E23 s0 0.241); seed 2 training"
     }
    ],
    "bar": [
@@ -1330,7 +1330,7 @@
      "metric": "Cue-hard pair accuracy, step safety + refund (182 pairs)",
      "baseline": "0.363",
      "target": "≥ 0.443",
-     "result": "seed 1: 0.505"
+     "result": "seed 1: 0.505 · seed 0: 0.527"
     },
     {
      "metric": "Never-seen forced",
@@ -1772,10 +1772,10 @@
   {
    "kind": "Sarcasm",
    "group": "sentiment",
-   "status": "trained, fails on real data (D72)",
+   "status": "trained, no signal on real data (D72)",
    "since": "E22 (v0.3 candidate)",
    "source": "E21/E22 skills-2 generator (2.5k)",
-   "evidence": "synthetic test passable by a word-counter (1.00); Decision Index iSarcasmEval (real tweets): F1 18.9 vs 22.3 random"
+   "evidence": "iSarcasmEval track C (pick the sarcastic tweet of a pair): 0.505 English, 0.465 Arabic, a coin flip; track A F1 18.9 reflects a 19.7% yes-rate, not reversed reading"
   },
   {
    "kind": "Policy violation (which written rule is broken)",
