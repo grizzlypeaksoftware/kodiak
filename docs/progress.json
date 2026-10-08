@@ -956,6 +956,10 @@
   {
    "date": "2026-10-07",
    "text": "Decision Index listing (D72): v0.2 accuracy mode full score 11.8, =96 of 115. Public part 19.1 matches our 18.69; new-domain tasks score 0.9."
+  },
+  {
+   "date": "2026-10-08",
+   "text": "E24 KEEP (D73): refund fixed (cue-hard pairs 0.378 → 0.576, 3 seeds), all guards hold. Step safety not fixed by synthetic data: parked. E24 = v0.4 candidate."
   }
  ],
  "published": [
@@ -1080,13 +1084,9 @@
  ],
  "queue": [
   {
-   "name": "E24 training: 3 seeds (seed 1 first)",
-   "why": "Seed 1: pooled cue-hard 0.505 (line 0.443), but the gain is refund (0.383 → 0.594); step safety fell 0.426 → 0.296. Seeds 0 and 2 running. Verdict on 3-seed means; step safety reported beside it.",
-   "after": "now",
-   "script": "e24_run.sh",
-   "log": "runs/e24-run.log",
-   "done_marker": "E24 COMPLETE",
-   "running_marker": "=== training"
+   "name": "v0.4 release from E24 (Shane approves cards)",
+   "why": "E24 KEEP (D73): refund fixed (cue-hard 0.378 → 0.576), guards hold. Step safety parked: still not a safety control. Steps: pick seed by validation loss → release audit → cards → HF + demo. Before Friday shutdown.",
+   "after": "now"
   },
   {
    "name": "Model check: small LLMs zero-shot vs Kodiak (is the encoder the ceiling?)",
@@ -1130,7 +1130,7 @@
    "name": "E24: cue-balanced contrast groups",
    "why": "Remove hedge-word cues (D70)",
    "report": "e24-xl-cbgroups",
-   "decision": "running"
+   "decision": "D73: KEEP by pooled line (0.491); refund 0.378 → 0.576; step safety 0.327 → 0.290, not fixed; parked"
   },
   {
    "match": "-e23-",
@@ -1321,8 +1321,8 @@
     },
     {
      "name": "Seeds 0 and 2, verdict",
-     "status": "in_progress",
-     "note": "seed 0: pooled 0.527 (refund 0.625, step safety 0.296 vs E23 s0 0.241); seed 2 training"
+     "status": "done",
+     "note": "KEEP by pooled line 0.491; refund 0.378 → 0.576; step safety 0.327 → 0.290, not fixed (D73)"
     }
    ],
    "bar": [
@@ -1330,55 +1330,55 @@
      "metric": "Cue-hard pair accuracy, step safety + refund (182 pairs)",
      "baseline": "0.363",
      "target": "≥ 0.443",
-     "result": "seed 1: 0.505 · seed 0: 0.527"
+     "result": "0.491 ✓ (refund 0.576 ✓, step safety 0.290 ✗)"
     },
     {
      "metric": "Never-seen forced",
      "baseline": "0.691",
      "target": "≥ 0.677",
-     "result": "seed 1: 0.676"
+     "result": "0.685 ✓"
     },
     {
      "metric": "Familiar",
      "baseline": "0.878",
      "target": "≥ 0.862",
-     "result": "seed 1: 0.873"
+     "result": "0.880 ✓"
     },
     {
      "metric": "Abstain precision",
      "baseline": "0.933",
      "target": "≥ 0.891",
-     "result": "seed 1: 0.972"
+     "result": "0.941 ✓"
     },
     {
      "metric": "Real-anchor score",
      "baseline": "0.366",
      "target": "≥ 0.345",
-     "result": "seed 1: 0.359"
+     "result": "0.357 ✓"
     },
     {
      "metric": "Wording-trap eval",
      "baseline": "0.920",
      "target": "≥ 0.880",
-     "result": "seed 1: 0.880"
+     "result": "0.893 ✓"
     },
     {
      "metric": "Flip rate (shortcut guard)",
      "baseline": "0.320",
      "target": "≤ 0.352",
-     "result": "seed 1: 0.327"
+     "result": "0.316 ✓"
     },
     {
      "metric": "Policy contrastive pairs (shortcut guard)",
      "baseline": "0.644",
      "target": "≥ 0.542",
-     "result": "seed 1: 0.633"
+     "result": "0.589 ✓"
     },
     {
      "metric": "Refund cue-free pairs (shortcut guard)",
      "baseline": "0.613",
      "target": "≥ 0.510",
-     "result": "seed 1: 0.757"
+     "result": "0.725 ✓"
     }
    ]
   },
@@ -1506,8 +1506,8 @@
     "name": "Shortcuts in step safety (single field, then hedge words)",
     "opened": "2026-10-07",
     "days": 3,
-    "status": "open",
-    "note": "Box set by Shane 2026-10-07 (took the recommendation). E24: cue-balanced contrast groups, then release v0.4."
+    "status": "parked",
+    "note": "E23 + E24 (D71, D73): refund fixed; step safety not fixed by synthetic contrast data. Next would need human-written or real agent traces."
    },
    {
     "name": "Wording trap (reworded options flip answers)",
@@ -1620,8 +1620,8 @@
     "date": "2026-10-07",
     "what": "Fix hedge words first (E24), then release v0.4; 3-day box",
     "accepted": true,
-    "outcome": "E24 approved and running",
-    "days": null
+    "outcome": "E24 keep for refund; step safety not fixed (D73)",
+    "days": 1
    },
    {
     "date": "2026-10-07",
@@ -1892,10 +1892,10 @@
   {
    "kind": "Refund / return eligibility under a stated policy",
    "group": "guardrails",
-   "status": "trained, contrast groups (D71)",
+   "status": "trained, verified (D73)",
    "since": "E22 (v0.3 candidate)",
    "source": "E22 skills-3 generator (2.5k)",
-   "evidence": "contrastive pair acc 0.220 → E23 0.507 (v0.1), 0.470 → 0.646 (v0.2); gains hold on cue-free pairs"
+   "evidence": "cue-hard contrastive pairs 0.220 (v0.3) → 0.576 (E24, 3 seeds); v0.1 test 0.793"
   },
   {
    "kind": "Contract clause type",
@@ -2012,10 +2012,10 @@
   {
    "kind": "Agent plan: is the next step safe to auto-run",
    "group": "agents",
-   "status": "trained, partly shortcut (D71)",
+   "status": "trained, shortcut: parked (D73)",
    "since": "E22 (v0.3 candidate)",
    "source": "E22 skills-3 generator (2.5k)",
-   "evidence": "contrastive 0.053 → 0.36 (v0.1), 0.303 → 0.62 (v0.2); much of the gain is hedge words (D70)"
+   "evidence": "cue-hard pairs 0.290 (E24) vs 0.327 (E23); not a safety control"
   }
  ]
 }

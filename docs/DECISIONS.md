@@ -77,6 +77,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D70 | 2026-10-07 | Hedge-word cues in contrast groups (outside feedback): step-safety gain is partly 'but' → ask first; refund gain is real | active |
 | D71 | 2026-10-07 | E23 KEEP on 3-seed means: contrastive pair accuracy 0.302 → 0.566, all guards hold; refund a real fix, step safety partly hedge words (D70) | active |
 | D72 | 2026-10-07 | Decision Index listing (v0.2 accuracy mode): full score 11.8, rank =96 of 115; public 19.1 matches our 18.69; private same-skill 15.5, new domains 0.9 | active |
+| D73 | 2026-10-08 | E24 KEEP by its pooled line (0.491), but only refund improved; step safety not fixed by synthetic data, parked; E24 is the v0.4 candidate | active |
 
 ---
 
@@ -845,4 +846,15 @@ lands near 0.19, below the 0.223 random line. Kodiak says "sarcastic" to 276 of 
 yet**, not "reads sarcasm backwards". Same caution for other below-baseline rows (7 of 42 clip to 0; HLE is below random for 108 of 114
 models). We have per-item calibrated outputs for the public suite (decision-index/runs/kodiak-v02-accuracy/results.jsonl, 150,759 requests);
 the private and new-domain tests come back as totals only.
+
+### D73: E24 keep for refund; step safety is not fixed by synthetic contrast data and is parked
+**Result (3 seeds; reports/e24-xl-cbgroups.md).** Pooled cue-hard pair accuracy 0.527 / 0.505 / 0.440 → **0.491** (keep line 0.443; E23
+0.363): KEEP by the pre-set rule. All guards hold: never-seen 0.685, familiar 0.880, abstain precision 0.941, real-anchor 0.357, trap 0.893,
+flip rate 0.316, policy pairs 0.589, refund cue-free 0.725. **By kind (3-seed means, E23 → E24):** refund, cue-hard 0.378 → **0.576**,
+contrastive v0.1 0.507 → 0.793, v0.2 0.646 → 0.738; step safety, cue-hard 0.327 → **0.290**, v0.1 0.360 → 0.353, v0.2 0.620 → 0.487 (the v0.2
+drop is the hedge shortcut going away, as predicted). By the note written after seed 1 (before seeds 0 and 2), E24 does not fix step safety.
+**Decision.** E24 is the v0.4 candidate: refund now reads the request and the policy, with no cost elsewhere. Step safety: two attempts
+with synthetic contrast data (E23, E24) and its time box ends 2026-10-10, so it is **parked**; cards keep saying it is not a safety
+control. A real fix likely needs human-written or real agent traces (decided with Shane). **Lesson (kill-line design):** a pooled target
+let the easier kind carry the verdict; gate on the target kind alone, or weight kinds equally.
 
