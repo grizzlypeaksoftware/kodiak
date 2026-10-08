@@ -56,4 +56,4 @@ their connective or hedge words is dropped). Same count, backbone, steps, learni
 - GPU: ~5 h for seed 1, +10 h for seeds 0 and 2 · Runs: test + baseline (E23, free) → batch → smoke → seed 1 → seeds 0 and 2
 
 ## Approval
-Approved: <Shane writes "Approved: Shane" here before any full run>
+Approved: Shane (2026-10-07, "approved")
