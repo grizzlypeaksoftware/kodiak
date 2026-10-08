@@ -948,6 +948,14 @@
   {
    "date": "2026-10-07",
    "text": "Contrastive v0.3 ($2.07): 182 cue-hard pairs. Baseline: v0.3 0.231, E23 0.363 ± 0.033 (3 seeds)."
+  },
+  {
+   "date": "2026-10-07",
+   "text": "E24 cue-balanced batch done: $8.56 (1,278 step-safety + 1,356 refund groups kept). E24 seed 1 training from 18:51."
+  },
+  {
+   "date": "2026-10-07",
+   "text": "Decision Index listing (D72): v0.2 accuracy mode full score 11.8, =96 of 115. Public part 19.1 matches our 18.69; new-domain tasks score 0.9."
   }
  ],
  "published": [
@@ -1081,15 +1089,6 @@
    "running_marker": "=== training"
   },
   {
-   "name": "E24: cue-balanced group batch ($11 cap)",
-   "why": "Pilot passed ($0.37): hedge cues gone ('but' no longer marks ask-first); refund changed-words reader 0.80 → 0.51 (same size); step safety 0.63 either way, now through content words (rm -rf, overwrite). ~22% of groups pass the filter; aiming for 2,500 examples per kind.",
-   "after": "now",
-   "script": "build_groups.py",
-   "log": "runs/groups-cb-batch.log",
-   "done_marker": "GROUPS_CB_DONE",
-   "running_when_alive": true
-  },
-  {
    "name": "Publish the v0.3 announcement + X / HF posts",
    "why": "Draft at cortexagent.com/admin/posts/2; post texts given in chat.",
    "after": "Shane publishes"
@@ -1100,9 +1099,9 @@
    "after": "when Shane picks it back up"
   },
   {
-   "name": "Decision Index submission: PR #49 (18.69)",
-   "why": "https://github.com/apolinario/decision-index/pull/49 · results: huggingface.co/datasets/cortex-agent-llc/decision-index-results (compact, re-scored 18.69). Maintainers re-score and measure latency on their hardware.",
-   "after": "waiting for maintainer review"
+   "name": "Decision Index: listed (D72)",
+   "why": "Full score 11.8, rank =96 of 115 (public 19.1 matches our 18.69; private same-skill 15.5; new domains 0.9). No more runs until dialed in.",
+   "after": "done"
   },
   {
    "name": "Hugging Face post linking to the announcement",
@@ -1748,10 +1747,10 @@
   {
    "kind": "Sarcasm",
    "group": "sentiment",
-   "status": "trained",
+   "status": "trained, fails on real data (D72)",
    "since": "E22 (v0.3 candidate)",
    "source": "E21/E22 skills-2 generator (2.5k)",
-   "evidence": "v0.2 skill +0.24 (0 = chance); E21 3 seeds: learned (skills-2 0.959), not shipped; contrastive: only 7 pairs, no verdict"
+   "evidence": "synthetic test passable by a word-counter (1.00); Decision Index iSarcasmEval (real tweets): F1 18.9 vs 22.3 random"
   },
   {
    "kind": "Policy violation (which written rule is broken)",

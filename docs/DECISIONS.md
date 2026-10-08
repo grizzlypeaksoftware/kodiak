@@ -76,6 +76,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D69 | 2026-10-06 | Release audit (scripts/audit.py): six checks per decision kind on every release candidate; v0.3 findings | active |
 | D70 | 2026-10-07 | Hedge-word cues in contrast groups (outside feedback): step-safety gain is partly 'but' → ask first; refund gain is real | active |
 | D71 | 2026-10-07 | E23 KEEP on 3-seed means: contrastive pair accuracy 0.302 → 0.566, all guards hold; refund a real fix, step safety partly hedge words (D70) | active |
+| D72 | 2026-10-07 | Decision Index listing (v0.2 accuracy mode): full score 11.8, rank =96 of 115; public 19.1 matches our 18.69; private same-skill 15.5, new domains 0.9 | active |
 
 ---
 
@@ -822,4 +823,19 @@ policy-violation pairs 0.644 (0.567). Dropping the task now changes 36% of step-
 candidate recipe. Release wording must say refund improved on contrastive tests and step safety improved partly, still not a safety control.
 Next on this problem: cue-balanced groups (versions share their connective words), a diff-reader line on pilots and tests, and a step-safety
 test with "never" balanced. Shane decides whether to release v0.4 now or after that fix.
+
+### D72: the Decision Index listing: our public number held; private and new-domain tests are where we fall
+**Listing (PR #49, Kodiak v0.2 1B accuracy mode, listed as 3.0B because accuracy mode runs three 1B models).** Full score **11.8**, rank =96 of
+115 (tied with two 0.8B fine-tunes). The full score is 0.20 × public + 0.50 × private tests of the same skills + 0.30 × private tasks from new
+domains. Public 19.1 (our own run: 18.69, D61), private same skills 16.3 raw (15.5 on the public scale), new domains 6.9 raw (**0.9** on the
+public scale). So our measurement was right; the gap is generalization: a little on fresh data for the same skills, almost everything on
+new kinds of task, which is exactly our weakest axis (never-seen tasks, 0.69). Strong: CLINC150 91.6 macro-F1, BANKING77 63.1, WinoGrande
+78.5%, limerick originals 73.5%, ContractNLI 52.3 (+21 over random), BRIGHT and ToolRet ranking (+22 / +29 over random). At or below random:
+**iSarcasmEval 18.9 F1 vs 22.3 random** (real tweets; our synthetic sarcasm test reads 1.00 and a word-counter also scores 1.00 on it, D69),
+PhishNChips 50.0%, GPQA, HLE, chord picking, home-appliance control 0.0%; API-Bank 5.5%. Knowledge and maths are near random, as expected
+for an encoder with no LLM behind it.
+**What it means.** The index measures a broader target than our product sentence (knowledge, maths, music), but its new-domain score is the
+honest version of our never-seen metric, and we are near zero there. Shane's rule stands: no more index runs until the model is dialed in
+(2026-10-06). Standings aren't published by us without Shane's OK. Concrete lessons: sarcasm doesn't transfer to real tweets (mark it
+unverified, not trained-and-working), and real-data checks per kind matter more than synthetic ones.
 
