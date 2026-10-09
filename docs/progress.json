@@ -972,6 +972,10 @@
   {
    "date": "2026-10-08",
    "text": "v0.4 released (D75): Kodiak-v0.4-1B + accuracy mode public on HF, SHA-verified; demo on v0.4, tested live."
+  },
+  {
+   "date": "2026-10-08",
+   "text": "Kodiak Judge (separate repo ~/development/kodiak-judge): local API + page, both-order judging with escalation on disagreement. MT-Bench 150 pairs: at 0.8 it decides 43% at 71% (one order: 49% at 68%); orders disagree on 18%. Article draft #299 on grizzlypeaksoftware.com (unpublished)."
   }
  ],
  "published": [
@@ -1106,6 +1110,11 @@
    "name": "Publish the v0.4 announcement + posts",
    "why": "v0.4 is public and in the demo. Draft texts given in chat (Shane posts).",
    "after": "Shane publishes"
+  },
+  {
+   "name": "Kodiak Judge: review the article draft, decide on a GitHub repo",
+   "why": "Draft #299 on grizzlypeaksoftware.com (unpublished). Code is a local git repo at ~/development/kodiak-judge (not pushed). Local server: http://127.0.0.1:8790.",
+   "after": "Shane"
   },
   {
    "name": "Publish the v0.3 announcement + X / HF posts",
