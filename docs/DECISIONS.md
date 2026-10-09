@@ -79,6 +79,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D72 | 2026-10-07 | Decision Index listing (v0.2 accuracy mode): full score 11.8, rank =96 of 115; public 19.1 matches our 18.69; private same-skill 15.5, new domains 0.9 | active |
 | D73 | 2026-10-08 | E24 KEEP by its pooled line (0.491), but only refund improved; step safety not fixed by synthetic data, parked; E24 is the v0.4 candidate | active |
 | D74 | 2026-10-08 | Model check: untrained small LLMs (Qwen3 1.7B / 0.6B) are well below Kodiak on never-seen and real-data tests; the encoder is not the obvious ceiling; data variety is the prime suspect | active |
+| D75 | 2026-10-08 | v0.4 released: Kodiak-v0.4-1B (E24 seed 1) + accuracy mode, public, SHA-verified; demo on v0.4 | active |
 
 ---
 
@@ -870,4 +871,12 @@ hallucination 0.690 vs 0.500; MT-Bench pairwise 0.540 vs 0.373; aspect sentiment
 this does not rule out that a *fine-tuned* small LLM would generalize better (the index's 0.8B-3B fine-tunes score 12-40). But nothing here
 says the encoder is the limit. The cheaper, likelier lever is data variety (about 30 task types, many near-duplicates; FLAN/T0 used hundreds
 to thousands). A definitive backbone test would fine-tune a ~1.7B LLM on Kodiak's own data: a bigger experiment, for Shane after the break.
+
+### D75: v0.4 released
+**Shane approved the cards (2026-10-08).** `cortex-agent-llc/kodiak-v0.4-1b` (E24 seed 1, chosen by validation loss 0.018 vs 0.037 / 0.042)
+and `cortex-agent-llc/kodiak-v0.4-1b-accuracy` (all three E24 seeds; abstain threshold 0.6 tuned on validation only), both public; every
+file SHA-checked against the local export. Demo Space on v0.4 (KODIAK_MODELS), tested live: the reported push-to-main case answers "ask the
+user first" (0.95 single, 0.93 accuracy mode). Release audit: reports/audit-v04.md. Cards lead with refund fixed (contrastive pairs
+0.22 → 0.79), say step safety is not a safety control (cue-hard pairs 0.29; an unrelated sentence changes 21% of its answers), sarcasm has
+no signal on real tweets, and v0.4 does not improve never-seen accuracy.
 

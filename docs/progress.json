@@ -968,6 +968,10 @@
   {
    "date": "2026-10-08",
    "text": "v0.4 release candidate built: E24 seed 1 + accuracy mode; release audit run; cards drafted for Shane."
+  },
+  {
+   "date": "2026-10-08",
+   "text": "v0.4 released (D75): Kodiak-v0.4-1B + accuracy mode public on HF, SHA-verified; demo on v0.4, tested live."
   }
  ],
  "published": [
@@ -1088,13 +1092,24 @@
    "link": "https://github.com/grizzlypeaksoftware/kodiak",
    "date": "2026-09-25",
    "notes": "Code, docs, decisions, reports; Node/Docker server in server/."
+  },
+  {
+   "kind": "code",
+   "link": "https://github.com/grizzlypeaksoftware/kodiak",
+   "notes": "Code, docs, decisions, reports; Node/Docker server in server/.",
+   "date": "2026-10-08",
+   "name": "Kodiak-v0.4-1B (+ accuracy mode)",
+   "repo": "cortex-agent-llc/kodiak-v0.4-1b",
+   "url": "https://huggingface.co/cortex-agent-llc/kodiak-v0.4-1b",
+   "note": "E24 recipe, seed 1 by validation loss; accuracy mode = 3 seeds (threshold 0.6 on validation). Refund fixed; step safety not a safety control. SHA-verified; demo on v0.4.",
+   "run": "runs/b-xl-s1-e24-s1"
   }
  ],
  "queue": [
   {
-   "name": "v0.4 release from E24 (Shane approves cards)",
-   "why": "Seed 1 picked by validation loss (0.018). Accuracy mode built (threshold 0.6 on validation). Release audit done (reports/audit-v04.md). Cards drafted: dist/kodiak-v0.4-1b/README.md and -accuracy. Waiting for Shane to approve the cards, then HF upload + demo.",
-   "after": "Shane approves cards"
+   "name": "Publish the v0.4 announcement + posts",
+   "why": "v0.4 is public and in the demo. Draft texts given in chat (Shane posts).",
+   "after": "Shane publishes"
   },
   {
    "name": "Publish the v0.3 announcement + X / HF posts",
@@ -1322,6 +1337,11 @@
      "name": "Seeds 0 and 2, verdict",
      "status": "done",
      "note": "KEEP by pooled line 0.491; refund 0.378 → 0.576; step safety 0.327 → 0.290, not fixed (D73)"
+    },
+    {
+     "name": "v0.4 release",
+     "status": "done",
+     "note": "2026-10-08: HF public, SHA-verified, demo live"
     }
    ],
    "bar": [

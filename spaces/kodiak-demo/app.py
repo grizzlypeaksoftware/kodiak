@@ -145,7 +145,7 @@ def render_answers(answers: dict, questions: list, threshold: float) -> str:
 
 
 HERO = """<div class="k-hero">
-  <div class="k-kicker">Open decision model · Kodiak-v0.3-1B</div>
+  <div class="k-kicker">Open decision model · Kodiak-v0.4-1B</div>
   <h1>Kodiak</h1>
   <p class="k-pitch">Ask questions about any text and get an answer from <em>your</em> options, a confidence you can trust, or an honest
   "can't tell", in one fast pass. The fast first step before a person or an LLM.</p>
@@ -444,7 +444,7 @@ def game_answer(g: dict | None, want_txt: str, next_txt: str):
 
 with gr.Blocks(title="Kodiak · open decision model") as demo:
     gr.HTML(HERO.replace("MODELS_LINKS", " · ".join(f'<a href="https://huggingface.co/{m}" target="_blank">{m.split("/")[-1]}</a>' for m in MODELS)))
-    model = gr.Dropdown(MODELS, value=MODEL, label="Model for Decide and the game (v0.3-1b: the default; v0.3-1b-accuracy = accuracy mode: three models "
+    model = gr.Dropdown(MODELS, value=MODEL, label="Model for Decide and the game (v0.4-1b: the default; v0.4-1b-accuracy = accuracy mode: three models "
                                                  "averaged, most accurate and most trustworthy \"can't tell\", about 3× the compute)",
                         visible=len(MODELS) > 1)
     with gr.Tab("Decide"):
