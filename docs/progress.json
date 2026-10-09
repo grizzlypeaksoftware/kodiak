@@ -1094,15 +1094,11 @@
    "notes": "Code, docs, decisions, reports; Node/Docker server in server/."
   },
   {
-   "kind": "code",
-   "link": "https://github.com/grizzlypeaksoftware/kodiak",
-   "notes": "Code, docs, decisions, reports; Node/Docker server in server/.",
-   "date": "2026-10-08",
    "name": "Kodiak-v0.4-1B (+ accuracy mode)",
-   "repo": "cortex-agent-llc/kodiak-v0.4-1b",
-   "url": "https://huggingface.co/cortex-agent-llc/kodiak-v0.4-1b",
-   "note": "E24 recipe, seed 1 by validation loss; accuracy mode = 3 seeds (threshold 0.6 on validation). Refund fixed; step safety not a safety control. SHA-verified; demo on v0.4.",
-   "run": "runs/b-xl-s1-e24-s1"
+   "kind": "model",
+   "link": "https://huggingface.co/cortex-agent-llc/kodiak-v0.4-1b",
+   "date": "2026-10-08",
+   "notes": "E24 recipe, seed 1 by validation loss; accuracy mode (cortex-agent-llc/kodiak-v0.4-1b-accuracy) = 3 seeds, threshold 0.6 on validation. Refund fixed; step safety not a safety control. SHA-verified; demo on v0.4."
   }
  ],
  "queue": [
