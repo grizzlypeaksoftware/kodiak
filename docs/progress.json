@@ -976,6 +976,10 @@
   {
    "date": "2026-10-08",
    "text": "Kodiak Judge (separate repo ~/development/kodiak-judge): local API + page, both-order judging with escalation on disagreement. MT-Bench 150 pairs: at 0.8 it decides 43% at 71% (one order: 49% at 68%); orders disagree on 18%. Article draft #299 on grizzlypeaksoftware.com (unpublished)."
+  },
+  {
+   "date": "2026-10-25",
+   "text": "Back from the break. v0.4 announcement and posts were published by Shane before the trip."
   }
  ],
  "published": [
@@ -1107,34 +1111,14 @@
  ],
  "queue": [
   {
-   "name": "Publish the v0.4 announcement + posts",
-   "why": "v0.4 is public and in the demo. Draft texts given in chat (Shane posts).",
-   "after": "Shane publishes"
-  },
-  {
    "name": "Kodiak Judge: review the article draft, decide on a GitHub repo",
    "why": "Draft #299 on grizzlypeaksoftware.com (unpublished). Code is a local git repo at ~/development/kodiak-judge (not pushed). Local server: http://127.0.0.1:8790.",
    "after": "Shane"
   },
   {
-   "name": "Publish the v0.3 announcement + X / HF posts",
-   "why": "Draft at cortexagent.com/admin/posts/2; post texts given in chat.",
-   "after": "Shane publishes"
-  },
-  {
    "name": "📌 Pinned: reviewer feedback on the wording trap",
    "why": "(1) audit done: our synthetic data is below chance for word-matching; public intent data +0.70 (D67). (2) flip rate is now a standard guard (D67). (3) embedding-space adversarial training: E23 candidate.",
    "after": "when Shane picks it back up"
-  },
-  {
-   "name": "Decision Index: listed (D72)",
-   "why": "Full score 11.8, rank =96 of 115 (public 19.1 matches our 18.69; private same-skill 15.5; new domains 0.9). No more runs until dialed in.",
-   "after": "done"
-  },
-  {
-   "name": "Hugging Face post linking to the announcement",
-   "why": "Text given in chat; posts from Shane's account or the cortex-agent-llc org.",
-   "after": "Shane posts"
   },
   {
    "name": "Stage 3 retry: ratings as low / medium / high bands",
