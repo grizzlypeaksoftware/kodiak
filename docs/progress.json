@@ -1107,14 +1107,16 @@
    "link": "https://huggingface.co/cortex-agent-llc/kodiak-v0.4-1b",
    "date": "2026-10-08",
    "notes": "E24 recipe, seed 1 by validation loss; accuracy mode (cortex-agent-llc/kodiak-v0.4-1b-accuracy) = 3 seeds, threshold 0.6 on validation. Refund fixed; step safety not a safety control. SHA-verified; demo on v0.4."
+  },
+  {
+   "name": "Kodiak Judge",
+   "kind": "code",
+   "link": "https://github.com/grizzlypeaksoftware/kodiak-judge",
+   "date": "2026-10-25",
+   "notes": "Local judge API + page on Kodiak-v0.4-1B; both-order judging, escalate on disagreement. Article on grizzlypeaksoftware.com (#299)."
   }
  ],
  "queue": [
-  {
-   "name": "Kodiak Judge: review the article draft, decide on a GitHub repo",
-   "why": "Draft #299 on grizzlypeaksoftware.com (unpublished). Code is a local git repo at ~/development/kodiak-judge (not pushed). Local server: http://127.0.0.1:8790.",
-   "after": "Shane"
-  },
   {
    "name": "📌 Pinned: reviewer feedback on the wording trap",
    "why": "(1) audit done: our synthetic data is below chance for word-matching; public intent data +0.70 (D67). (2) flip rate is now a standard guard (D67). (3) embedding-space adversarial training: E23 candidate.",
