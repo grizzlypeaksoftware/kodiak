@@ -980,6 +980,10 @@
   {
    "date": "2026-10-25",
    "text": "Back from the break. v0.4 announcement and posts were published by Shane before the trip."
+  },
+  {
+   "date": "2026-10-27",
+   "text": "New-domains test v0.1 (D76): 15 real read-and-decide tasks from never-trained domains. v0.4 scores 0.335 (vs 0.685 on the older never-seen eval)."
   }
  ],
  "published": [
@@ -1117,6 +1121,11 @@
   }
  ],
  "queue": [
+  {
+   "name": "E25: task variety (needs \"Approved: Shane\")",
+   "why": "4 runs on the 400M model, ~9 h overnight, $0. Does training on 28 kinds of task beat 7 kinds at the same data, on the new-domains test? Pass: +0.03 → build a task-variety program (E26). Fail: → backbone test.",
+   "after": "Shane approves"
+  },
   {
    "name": "📌 Pinned: reviewer feedback on the wording trap",
    "why": "(1) audit done: our synthetic data is below chance for word-matching; public intent data +0.70 (D67). (2) flip rate is now a standard guard (D67). (3) embedding-space adversarial training: E23 candidate.",
@@ -1290,105 +1299,46 @@
  },
  "research": {
   "active": {
-   "id": "E24",
-   "proposal": "E24-cue-balanced-groups.md",
-   "title": "E24: cue-balanced contrast groups",
+   "id": "E25",
+   "proposal": "E25-task-variety.md",
+   "title": "E25: does training on more kinds of task help on new kinds of task?",
    "steps": [
     {
-     "name": "Outside critique + diff-reader check (D70)",
+     "name": "New-domains test v0.1 (D76)",
      "status": "done",
-     "note": "hedge words confirmed in E23's groups"
+     "note": "15 read tasks + 2 knowledge; v0.4 0.335 ± 0.008"
     },
     {
-     "name": "Pilot: hedge cues gone",
+     "name": "train.py --kinds / --kind-budget (default data unchanged, hash-checked)",
      "status": "done",
-     "note": "$0.45; refund changed-words reader 0.80 → 0.51"
-    },
-    {
-     "name": "Contrastive v0.3 (cue-hard, 182 pairs)",
-     "status": "done",
-     "note": "$2.07; E23 baseline 0.363 ± 0.033"
-    },
-    {
-     "name": "Batch (2,500 per kind)",
-     "status": "done",
-     "note": "2,500 per kind reached; batch keeps banking"
+     "note": ""
     },
     {
      "name": "Shane approves",
-     "status": "done",
-     "note": "2026-10-07"
+     "status": "pending",
+     "note": ""
     },
     {
-     "name": "Seed 1 (smoke, stop rule)",
-     "status": "done",
-     "note": "pooled 0.505 (line 0.443) but all refund: refund 0.383 → 0.594, step safety 0.426 → 0.296 (seed 1 vs E23 seed 1)"
+     "name": "A7, B7 (7 kinds)",
+     "status": "pending",
+     "note": ""
     },
     {
-     "name": "Seeds 0 and 2, verdict",
-     "status": "done",
-     "note": "KEEP by pooled line 0.491; refund 0.378 → 0.576; step safety 0.327 → 0.290, not fixed (D73)"
+     "name": "all28-matched, all28-full",
+     "status": "pending",
+     "note": ""
     },
     {
-     "name": "v0.4 release",
-     "status": "done",
-     "note": "2026-10-08: HF public, SHA-verified, demo live"
+     "name": "Verdict",
+     "status": "pending",
+     "note": ""
     }
    ],
    "bar": [
     {
-     "metric": "Cue-hard pair accuracy, step safety + refund (182 pairs)",
-     "baseline": "0.363",
-     "target": "≥ 0.443",
-     "result": "0.491 ✓ (refund 0.576 ✓, step safety 0.290 ✗)"
-    },
-    {
-     "metric": "Never-seen forced",
-     "baseline": "0.691",
-     "target": "≥ 0.677",
-     "result": "0.685 ✓"
-    },
-    {
-     "metric": "Familiar",
-     "baseline": "0.878",
-     "target": "≥ 0.862",
-     "result": "0.880 ✓"
-    },
-    {
-     "metric": "Abstain precision",
-     "baseline": "0.933",
-     "target": "≥ 0.891",
-     "result": "0.941 ✓"
-    },
-    {
-     "metric": "Real-anchor score",
-     "baseline": "0.366",
-     "target": "≥ 0.345",
-     "result": "0.357 ✓"
-    },
-    {
-     "metric": "Wording-trap eval",
-     "baseline": "0.920",
-     "target": "≥ 0.880",
-     "result": "0.893 ✓"
-    },
-    {
-     "metric": "Flip rate (shortcut guard)",
-     "baseline": "0.320",
-     "target": "≤ 0.352",
-     "result": "0.316 ✓"
-    },
-    {
-     "metric": "Policy contrastive pairs (shortcut guard)",
-     "baseline": "0.644",
-     "target": "≥ 0.542",
-     "result": "0.589 ✓"
-    },
-    {
-     "metric": "Refund cue-free pairs (shortcut guard)",
-     "baseline": "0.613",
-     "target": "≥ 0.510",
-     "result": "0.725 ✓"
+     "metric": "all28-matched minus mean(A7, B7), new-domains read slice",
+     "baseline": "v0.4 (1B): 0.335",
+     "target": "≥ +0.03 and above both"
     }
    ]
   },
@@ -1518,6 +1468,13 @@
   },
   "problems": [
    {
+    "name": "Generalization to new kinds of task",
+    "opened": "2026-10-27",
+    "days": null,
+    "status": "open",
+    "note": "New-domains test v0.1: v0.4 0.335 (D76). E25 (task variety) proposed; box proposed 5 days, Shane sets it."
+   },
+   {
     "name": "Shortcuts in step safety (single field, then hedge words)",
     "opened": "2026-10-07",
     "days": 3,
@@ -1644,6 +1601,20 @@
     "accepted": true,
     "outcome": "model check done (D74): encoder not the obvious ceiling; data variety next",
     "days": 1
+   },
+   {
+    "date": "2026-10-27",
+    "what": "New-domains test v0.1 (free ruler)",
+    "accepted": true,
+    "outcome": "built (D76): v0.4 0.335",
+    "days": 0
+   },
+   {
+    "date": "2026-10-27",
+    "what": "E25: task variety at matched data (4 runs, 400M, free)",
+    "accepted": null,
+    "outcome": "waiting for approval",
+    "days": null
    }
   ]
  },

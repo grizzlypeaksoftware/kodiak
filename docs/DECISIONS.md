@@ -80,6 +80,7 @@ Status: **active** (in force), **superseded** (replaced by a later decision), or
 | D73 | 2026-10-08 | E24 KEEP by its pooled line (0.491), but only refund improved; step safety not fixed by synthetic data, parked; E24 is the v0.4 candidate | active |
 | D74 | 2026-10-08 | Model check: untrained small LLMs (Qwen3 1.7B / 0.6B) are well below Kodiak on never-seen and real-data tests; the encoder is not the obvious ceiling; data variety is the prime suspect | active |
 | D75 | 2026-10-08 | v0.4 released: Kodiak-v0.4-1B (E24 seed 1) + accuracy mode, public, SHA-verified; demo on v0.4 | active |
+| D76 | 2026-10-27 | New-domains test v0.1: 15 read-and-decide tasks + 2 knowledge tasks from never-trained domains; the headline for generalization. v0.4: 0.335 | active |
 
 ---
 
@@ -879,4 +880,18 @@ file SHA-checked against the local export. Demo Space on v0.4 (KODIAK_MODELS), t
 user first" (0.95 single, 0.93 accuracy mode). Release audit: reports/audit-v04.md. Cards lead with refund fixed (contrastive pairs
 0.22 → 0.79), say step safety is not a safety control (cue-hard pairs 0.29; an unrelated sentence changes 21% of its answers), sarcasm has
 no signal on real tweets, and v0.4 does not improve never-seen accuracy.
+
+### D76: a new-domains test, our own ruler for "new kinds of task"
+**Why.** v0.4 is weak on genuinely new kinds of task (Decision Index new-domain score 0.9 on its public scale, D72), but our never-seen
+eval (0.685) is close to home and the index's private test can't be inspected. **Built** (scripts/build_newdomain_eval.py,
+data/eval/kodiak-newdomain-v0.1.jsonl, 2,533 items): real datasets, licenses verified upstream (CC BY 4.0, MIT, Apache-2.0, US public
+domain), none trained on, up to 150 items per task with balanced answers (chance = 1/options). **Read slice (headline, 15 task-questions):**
+court-opinion section (LegalBench), bill relevance to a company, privacy-policy relevance, tax-statute entailment (SARA), supply-chain audit
+disclosure, unfair ToS term (9), insurance coverage, contract clause type (CUAD, 30), PubMedQA, medical exam subject (21), citation intent
+(SciCite), UN sustainability goal (OSDG, 15; crowd labels, noisy), maths problem topic (MathQA), formal-logic validity (BIG-bench), OSHA injury
+report with three questions on one narrative (event 20, body part 15, industry 12). **Knowledge slice (reported):** NY judicial ethics,
+medical exam answer (MedMCQA). Left out: TRAM (needs MITRE ATT&CK technique names; ATT&CK terms aren't on our list), templated sets a keyword
+rule could pass (MedQuAD, citizenship questions), anything with a doubtful license. Bug found and fixed before use: OSDG labels are 0-based.
+**v0.4 (E24 seeds 0/1/2):** read-slice mean skill **0.344 / 0.328 / 0.333 (mean 0.335, SD 0.008)**; knowledge 0.120 / 0.122 / 0.133.
+Weakest: bill relevance (~0.03), formal logic (~0.01), insurance (~0.12); strongest: ToS terms (0.74), body part (0.63), supply chain (0.58).
 

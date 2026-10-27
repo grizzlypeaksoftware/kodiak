@@ -61,3 +61,10 @@ Source: reports/e22-xl-skills3.md, reports/preds_wording/e22-*. v0.3's flip rate
 | Step + refund contrastive pairs (v0.1 + v0.2, 298) | 0.560 / 0.577 / 0.560 | 0.566 | 0.010 | ≥ 0.546 | 0.536 |
 
 Source: reports/e23-xl-groups.md (D71).
+
+## New-domains test v0.1 (D76), read-slice mean skill: v0.4 (E24 runs, 3 seeds)
+
+| Measure | Seeds 0 / 1 / 2 | Mean | SD | Guard (2 SD) |
+|---|---|---|---|---|
+| New-domains read slice | 0.344 / 0.328 / 0.333 | 0.335 | 0.008 | ≥ 0.319 |
+

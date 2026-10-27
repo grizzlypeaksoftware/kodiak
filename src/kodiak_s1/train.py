@@ -45,6 +45,8 @@ class TrainConfig:
     data: str = "data/processed"
     synthetic: str = ""  # comma-separated synth JSONL files (generator output; status == ok records are used)
     synthetic_max: int = -1  # use at most this many synthetic training examples (a fixed random subset); -1 = all
+    kinds: str = ""  # E25: comma-separated kinds of task to keep: public source ids and synthetic kinds ("gen2" = Generator v2.0); "" = all
+    kind_budget: int = 0  # E25: total unique training examples, split evenly over the kept kinds (a fixed random subset of each); 0 = no cap
     overfit: int = 0  # >0: train on only this many examples, repeatedly
     steps: int = 1000
     max_len: int = 2048  # tokens per packed row
@@ -100,20 +102,24 @@ class Mixture:
 
     def __init__(self, cfg: TrainConfig):
         self.lines: dict[str, list[str]] = {}
+        keep = {k.strip() for k in cfg.kinds.split(",") if k.strip()}
         for sid, src in SOURCES.items():
             p = Path(cfg.data) / sid / "train.jsonl.gz"
-            if src.heldout or not p.exists():
+            if src.heldout or not p.exists() or (keep and sid not in keep):
                 continue
             with gzip.open(p, "rt", encoding="utf-8") as f:
                 self.lines[sid] = f.readlines()
+            if cfg.kind_budget and keep:
+                random.Random(f"kind_budget:{sid}").shuffle(self.lines[sid])
+                self.lines[sid] = self.lines[sid][: cfg.kind_budget // len(keep)]
         self.val_lines: dict[str, list[str]] = {}
         for sid, src in SOURCES.items():
             p = Path(cfg.data) / sid / "val.jsonl.gz"
-            if not src.heldout and p.exists():
+            if not src.heldout and p.exists():  # validation keeps every source, so runs with different kinds share one yardstick
                 with gzip.open(p, "rt", encoding="utf-8") as f:
                     self.val_lines[sid] = f.readlines()
         if cfg.synthetic:
-            syn, syn_val, seen = [], [], set()
+            syn, syn_val, seen, syn_by_kind = [], [], set(), {}
             for path in cfg.synthetic.split(","):
                 for line in open(path.strip(), encoding="utf-8"):
                     r = json.loads(line)
@@ -124,8 +130,18 @@ class Mixture:
                     # Hold out ~3% of synthetic states for validation (by content, so it's stable as files grow).
                     # Contrast twins (Stage 3) split by their shared pair id, so both halves land on the same side.
                     split = hash_split(r.get("pair_id") or render_state(ex["state"]), val=0.03, test=0)
+                    if keep and (r.get("kind") or "gen2") not in keep and split != "val":
+                        continue  # E25: a kind left out of training still counts in validation
                     for e in [ex] + ([r["variant_example"]] if r.get("variant_example") else []):
-                        (syn_val if split == "val" else syn).append(json.dumps(e, ensure_ascii=False))
+                        if split == "val":
+                            syn_val.append(json.dumps(e, ensure_ascii=False))
+                        elif cfg.kind_budget and keep:
+                            syn_by_kind.setdefault(r.get("kind") or "gen2", []).append(json.dumps(e, ensure_ascii=False))
+                        else:
+                            syn.append(json.dumps(e, ensure_ascii=False))  # unchanged order when there is no kind budget
+            for kind, rows in sorted(syn_by_kind.items()):  # only filled with a kind budget
+                random.Random(f"kind_budget:{kind}").shuffle(rows)
+                syn += rows[: cfg.kind_budget // len(keep)]
             if cfg.synthetic_max >= 0:
                 # A fixed random subset, so data-scaling runs differ only in *how much* synthetic data they see.
                 random.Random(12345).shuffle(syn)
